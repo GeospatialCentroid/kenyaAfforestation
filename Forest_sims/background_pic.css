@@ -1,0 +1,35 @@
+div.main-container {
+  max-width: 1600px !important;
+}
+
+body {
+  background-image: url('kenya_sappling.jpg');
+  background-repeat: repeat;
+  background-size: 100%;
+  margin: 0;
+  height: 100%
+}
+
+div {
+  background-color: rgba(260, 260, 260, 0.75)   /* 85% opaque white */;
+   margin: 0px;
+   border: 10px green;
+   padding: 20px;
+  }
+
+h1.title {
+   font-size: 30px;
+   text-align: center
+}
+
+h4.author {
+ font-size: 18px;
+ font-family: "Times New Roman";
+ text-align: center
+}
+
+h4.date {
+ font-size 16px;
+ font-family: "Times New Roman";
+ text-align: center
+}

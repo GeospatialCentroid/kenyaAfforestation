@@ -1,0 +1,33 @@
+
+---
+title: "Forest cover in Kenya"
+output:
+  html_document:
+    toc: true
+    fig_caption: true
+    css: background_pic.css
+---
+
+Kenya is dominated by arid and semi-arid lands, with rangelands and bushlands occupying about 80 % of the land area. The country is therefore characterized by low tree cover. In 2010, forests covered 6.9% of Kenya’s land area.Indigenous or native forests constitute about 95% of forest cover whereas the rest is made
+up of forestry plantations. Indigenous forests are of four broad types.
+
+* Guinea-Congolian rain forest / Western plateau: This forest type is found
+in western Kenya and makes up 3.5% of the total forest area.
+* Afro-montane forest: This forest type is found on the peaks of mountains
+in Kenya such as Mt. Kenya, Mt. Elgon, Mt. Marsabit etc. They form the catchments of the main rivers of Kenya. This forest type makes up 35% of the overall forest cover and is composed of mixed indigenous forests
+and bamboo dominated forest.
+* Coastal forest: This forest types occurs along the narrow coastal belt in Kenya stretching from southern Somalia to northern Mozambique.It makes up 8.4% of the total forest cover. These forests are composed of
+coastal natural forests and mangrove forests.
+* Dryland forests: This is the most widely distributed forest type making up 49% of Kenya’s forested area. This forest type is found in the dry areas of Kitui, Machakos, Taita Hills, Northern Kenya hills. It also includes dense savanna acacia forests found in Laikipia, Baringo and Samburu counties as well as in the Lake Victoria region.This forestry type is composed of dry forests and riverine forests
+* Planted forests constitute 4.5% of the total forested area of Kenya. Private plantations make up 47% of total forest plantation area.These plantations include both commercial plantations as well as on-farm forestry.
+
+
+
+[Explore existing forest cover : Kenyan Forest Service](KFS_forest.png)
+
+
+
+
+
+
+
