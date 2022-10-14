@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    {{ headContent() }}
+    {{ bootstrapLib() }}
+    <script src="js/employee-dir.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/employee-dir.css">
+    <title>RStudio Employee Directory</title>
+  </head>
+  
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-bottom" role="navigation">
+      <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" 
+                  data-toggle="collapse" 
+                  data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          {{ actionLink("landing", "RStudio", class = "navbar-brand") }}
+
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li>{{ actionLink("directory", "Directory") }}</li>
+            <li>{{ actionLink("timezone", "Timezone.io") }}</li>
+            <li>{{ actionLink("analytics", "Analytics") }}</li>
+          </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+      </div>
+      <!-- /.container -->
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+      <div class="row">
+        {{ dir }}
+        {{ timezone }}
+        {{ app }}
+        {{ profile }}
+      </div>
+    </div>
+  </body>
+</html>
