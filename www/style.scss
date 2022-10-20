@@ -1,5 +1,22 @@
 /* Kenya afforestation style sheet */
 
-.title {
-  color: red;
+div.row-scenarios{
+  display: grid;
+  grid-column-gap: 4px;
+  grid-template-columns: repeat(4, 1fr);
+  flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  /*margin-right: -15px;
+  margin-left: -15px;*/
+  justify-items: center;
+}
+
+div.col-scen{
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 10px 10px 8px #30364d1a;
+  color: #30364d;
+  text-align: center;
+  max-width: fit-content;
+  padding: 15px;
 }
