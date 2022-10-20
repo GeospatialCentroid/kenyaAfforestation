@@ -22,20 +22,27 @@ library(sf)
 fac<-stack(readRDS("./data/facet_change_raster.rds"))## Npp changes
 manage<-readRDS("./data/manage_change.rds")## Changes from management
 incfor<-readRDS("./data/increased_changes.rds")## Changes after forest cover is increased
-clim<-stack(readRDS("./data/temp_pr_change.rds"))## Climate changes
+clim<-stack(readRDS("./data/temp_pr_change.rds"))## Climate changes -- 
+### name convention : var-year-ssp 
+### include tmin, tmax, and prec 
+
+### exclude this from the climate change page. 
 npp_bc<-stack(readRDS("./data/npp_bc_change.rds"))##
 
 
 mask<-raster("./data/ken_mask.tif")
 mask[which(mask[]==0)]<-NA
 
-
+### projection raster template  -- required for maintaining the cell size of the input features.
 pro_template<-raster("./data/wgs_ext_res_temp.asc")
 crs(pro_template)<-"+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 template<-raster("./data/top_carbon_AOI.tif")
 temp_na<-which(is.na(template[])== TRUE)
 
+
+#### much of the need for project issues are acutally connect to challanges in 
+### overlaying these features. 
 county<- sf::st_read("./data/KE_Admin1_pro.shp",stringsAsFactors = F)
 county_names<-county$ADMIN1
 
@@ -44,6 +51,8 @@ county<-st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 ## Page 1 Tab 1
 ###########################################################################################################
 
+
+### selection element that is filting the raster stack 
 facresults<-reactive({
   
   temp_time <- ifelse(input$Timeline == "Near term (2030)","30", 

@@ -1,0 +1,14 @@
+name: kenyaAfforestation
+title: kenyaAfforestation
+username:
+account: geocentroid
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7347536
+bundleId: 6417022
+url: https://geocentroid.shinyapps.io/kenyaAfforestation/
+when: 1666132730.92995
+lastSyncTime: 1666132730.92996
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .Rprofile|README.md|www/views/landing.html|data|Forest_sims
