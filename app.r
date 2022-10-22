@@ -31,7 +31,11 @@ ui <- navbarPage(
 # Home page --------------------------------------------------------------- 
   tabPanel(title = "Home",
            htmlTemplate("www/homepage.html",
-                        button = actionButton("action", "Action"))
+                        button_opt = actionButton("button-opt", "View Scenario"),
+                        button_status = actionButton("button-status", "View Scenario"),
+                        button_pess = actionButton("button-pess", "View Scenario"),
+                        button_ex = actionButton("button-ex", "View Scenario")
+           )
             
             
   ),

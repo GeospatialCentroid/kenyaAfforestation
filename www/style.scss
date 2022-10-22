@@ -1,8 +1,22 @@
 /* Kenya afforestation style sheet */
 
+.header-title {
+  /*position:absolute; this doesn't work well on mobile */
+  z-index: 1;
+  color: darkslategrey;
+}
+
+img.stock-img {
+  z-index:0;
+  width: 100%;
+  height: auto;
+  
+}
+
+/* set up buckets for scenarios on homepage */
 div.row-scenarios{
   display: grid;
-  grid-column-gap: 4px;
+  grid-column-gap: 8px;
   grid-template-columns: repeat(4, 1fr);
   flex-wrap: wrap;
   -webkit-flex-wrap: wrap;
@@ -11,12 +25,85 @@ div.row-scenarios{
   justify-items: center;
 }
 
+/* make buckets adapt to colum on mobile */
+@media only screen and (max-width: 768px) {
+  div.row-scenarios {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    padding: 1em;
+    grid-row-gap: 10px;
+  }
+}
+
+/* column size/properies for bucket content */
 div.col-scen{
+  display: flex;
+  flex-direction: column;
   border-radius: 8px;
   background-color: #fff;
-  box-shadow: 10px 10px 8px #30364d1a;
-  color: #30364d;
+  box-shadow: 8px 5px 10px 8px #30364d1a;
   text-align: center;
-  max-width: fit-content;
-  padding: 15px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  width: 15em;
+  color: beige !important;
 }
+
+/* edit text within buckets */
+.col-scen h2 {
+  color:beige !important;
+}
+
+.col-scen h3 {
+  color:beige;
+}
+
+/* bucket button properties */
+#button-opt, #button-status, #button-pess, #button-ex {
+    color: black;
+    background-color: beige;
+    border-color: beige;
+    font-weight: 500;
+    margin: 10px;
+}
+
+#button-opt:hover, #button-status:hover, #button-pess:hover, #button-ex:hover {
+  background-color:#9e9e8b;
+  transition: 0.7s;
+}
+
+/* set smiley image properties */
+img.smiley {
+  width: 5em ;
+  height: auto;
+  margin: 10px;
+}
+
+
+/* set up ssp chart image properties */
+
+img.ssp-image {
+  width: 20em;
+  height: auto;
+}
+
+/* edit ssp link button */
+button.ssp-link {
+  border: 1px solid transparent;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  border-radius: 0.4rem;
+  color: black;
+  background-color: beige;
+  border-color: #9e9e8b;
+  font-weight: 500;
+  margin: 10px;
+  width: 80%;
+}
+
+button.ssp-link:hover {
+  background-color:#9e9e8b;
+  transition: 0.7s;
+}
+
