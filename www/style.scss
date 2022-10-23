@@ -1,16 +1,52 @@
 /* Kenya afforestation style sheet */
 
+
+/* align tabsets to the right */
+ul.nav.navbar-nav {
+  justify-content: right;
+}
+
 .header-title {
   /*position:absolute; this doesn't work well on mobile */
   z-index: 1;
   color: darkslategrey;
+  padding-bottom: 20px;
+  letter-spacing: 1px;
 }
 
 img.stock-img {
   z-index:0;
-  width: 100%;
+  width: 105%;
   height: auto;
-  
+  margin: -20px;
+}
+
+/* edit sub-title */
+.sub-title {
+  text-align: center;
+  /*border-radius: 4px;
+  background-color: beige;*/
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 7px 4px 8px;
+  margin: 30px;
+  color: darkslategrey;
+}
+
+/* match text to sub title */
+.row-details {
+  text-align: center;
+}
+
+.row-details-text {
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: darkslategrey;
+  /*border-radius: 4px;
+  background-color: beige;*/
+  padding: 4px 7px 4px 8px;
+  margin: 30px;
+
 }
 
 /* set up buckets for scenarios on homepage */
@@ -66,6 +102,7 @@ div.col-scen{
     border-color: beige;
     font-weight: 500;
     margin: 10px;
+    box-shadow: 8px 8px 8px 5px #0000006b;
 }
 
 #button-opt:hover, #button-status:hover, #button-pess:hover, #button-ex:hover {
@@ -94,12 +131,14 @@ button.ssp-link {
   padding: 0.375rem 0.75rem;
   font-size: 1rem;
   border-radius: 0.4rem;
-  color: black;
+  color: darkslategrey;
   background-color: beige;
   border-color: #9e9e8b;
   font-weight: 500;
   margin: 10px;
   width: 80%;
+  font-family: Montserrat,-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  box-shadow: 10px 8px 8px 1px #0000006b;
 }
 
 button.ssp-link:hover {

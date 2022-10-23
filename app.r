@@ -18,10 +18,12 @@ panelNames <- c("Optimistic Climate Future", "Middle of the Road Climate Future"
 county_names<- c("one","two","three")
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
-  theme = bs_theme(version = 5, bootswatch = "minty") %>% 
+  theme = bs_theme(version = 5, bootswatch = "minty",
+                   primary = "#3f1e25db",
+                   secondary = "#2F4F4F") %>% 
     bslib::bs_add_rules(sass::sass_file("www/style.scss")),
   # the text that appears next to the pages 
-  title =  HTML("Kenya Afforestation </br> Decision Support Tool"),
+  title =  "Kenya Afforestation Decision Support Tool",
   # the text in the browser tab 
   windowTitle = "Kenya Afforestation Application",
   # means of applying data to all pages -- could be useful in footer section
