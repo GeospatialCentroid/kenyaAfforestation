@@ -70,7 +70,7 @@ clim <- readRDS("data/temp_pr_change.rds") %>%
   map(project, pro_template) %>%
   map(terra::mask, mask)%>%
   rast() # reduce to a layered raster that makes indexing easier 
-### not sure if map applying is faster or slow. could test position of the rast call
+  ### not sure if map applying is faster or slow. could test position of the rast call
 
 ###
 # this content will present in application
@@ -78,6 +78,7 @@ clim <- readRDS("data/temp_pr_change.rds") %>%
 # county spatial feature
 county <- sf::st_read("./data/KE_Admin1_pro.shp", stringsAsFactors = F)
 county <- st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+
 # vector of county names
 county_names <- county$ADMIN1
 
@@ -87,15 +88,16 @@ ui <- navbarPage(
                    primary = "#2F4F4F",
                    secondary = "#2F4F4F") %>% 
     bslib::bs_add_rules(sass::sass_file("www/style.scss")),
-  # the text that appears next to the pages 
+
+  # the text that appears next to the pages
   title =  "Kenya Afforestation Decision Support Tool",
-  # the text in the browser tab 
+  # the text in the browser tab
   windowTitle = "Kenya Afforestation Application",
   # means of applying data to all pages -- could be useful in footer section
   # header = h5("This content appears at the top of every page "),
   # footer = "This content appears at the bottom of every page",
-  
-# Home page --------------------------------------------------------------- 
+
+  # Home page --------------------------------------------------------------- 
   tabPanel(title = "Home",
            htmlTemplate("www/homepage.html",
                         button_opt = actionButton("button-opt", "View Scenario"),
@@ -104,10 +106,11 @@ ui <- navbarPage(
                         button_ex = actionButton("button-ex", "View Scenario")
            )
   ),
-# combine scenarios into navbar menu
-navbarMenu(
-  title = "Climate Scenarios",
-  # Optimistic --------------------------------------------------------------
+
+  # combine scenarios into navbar menu
+  navbarMenu(
+    title = "Climate Scenarios",
+  ## Optimistic --------------------------------------------------------------
   tabPanel(title = "Optimistic",
            tabsetPanel(
              type = "pills",
@@ -124,7 +127,7 @@ navbarMenu(
                )
              )
            )),
-  # Middle of the road ------------------------------------------------------
+  ## Middle of the road ------------------------------------------------------
   tabPanel(title = "Middle of the Road",
            tabsetPanel(
              type = "pills",
@@ -141,7 +144,7 @@ navbarMenu(
                )
              )
            )),
-  # Pessimistic -------------------------------------------------------------
+  ## Pessimistic -------------------------------------------------------------
   tabPanel(title = "Pessimistic",
            tabsetPanel(
              type = "pills",
@@ -158,7 +161,7 @@ navbarMenu(
                )
              )
            )),
-  # Extreme Heat ------------------------------------------------------------
+  ## Extreme Heat ------------------------------------------------------------
   tabPanel(title = "Extreme Heat",
            tabsetPanel(
              type = "pills",
@@ -175,48 +178,57 @@ navbarMenu(
                )
              )
            ))
-),
-
-# Additional Nav bar objects ----------------------------------------------
-
-tabPanel(title = "Downloads",
-         h2("content will be added to Model Downloads")),
-tabPanel(title = "Model Validation",
-         h2("content will be added to Model Validation")),
-tabPanel(title = "Simulation Details",
-         h2("content will be added to Simulation Details"))
-
+  ),
+  
+  ## Additional Nav bar objects ----------------------------------------------
+  
+  tabPanel(title = "Downloads",
+           h2("content will be added to Model Downloads")),
+  tabPanel(title = "Model Validation",
+           h2("content will be added to Model Validation")),
+  tabPanel(title = "Simulation Details",
+           h2("content will be added to Simulation Details"))
+  
 )
 
-server <- function(input,output, session){
-  # ssp126 data
-  map_server("ssp126")
-  map2_server("ssp126_2")
-  # ssp245 data 
-  map_server("ssp245")
-  map2_server("ssp245_2")
-  # ssp370 data 
-  map_server("ssp370")
-  map2_server("ssp370_2")
-  # ssp585 data
-  map_server("ssp585")
-  map2_server("ssp585_2")
 
+
+# Server ------------------------------------------------------------------
+
+
+server <- function(input, output, session) {
+  
+  # parse out climate data into subsets for each module
+  rasters <- prepClim(rasters = clim, ssps = c("126","245","370"))
+  
+  # ssp126 data
+  map_server(id = "ssp126", rasters = rasters[[1]])
+  map2_server("ssp126_2")
+  # ssp245 data
+  # map_server("ssp245", ssp_raster245)
+  # map2_server("ssp245_2")
+  # # ssp370 data
+  # map_server("ssp370")
+  # map2_server("ssp370_2")
+  # # ssp585 data
+  # map_server("ssp585")
+  # map2_server("ssp585_2")
+  
   
   # passing reactive elements to module functions  --------------------------
   # from  https://www.youtube.com/watch?v=oOYaHsPXLvs&ab_channel=RConsortium 40min
   # test <- reactiveVal(1)
   # morevals <- reactiveValues(test = 1)
-  # 
+  #
   # module_server(id = "id_1", results = test )# this works
   # module_server(id = "id_2", results = test() )# this will only return the initial value
-  # 
-  # module_server(id - "id_3", results = morevals) # this works 
+  #
+  # module_server(id - "id_3", results = morevals) # this works
   # module_server(id = "id_4", results = morevals$test) # this does not work
-  # ## passing a object defined in the ui 
-  # module_server(id - "id_5", results = reactive({input$test})) # this works 
-  # module_server(id - "id_5", results = input$test) # this does not work. 
+  # ## passing a object defined in the ui
+  # module_server(id - "id_5", results = reactive({input$test})) # this works
+  # module_server(id - "id_5", results = input$test) # this does not work.
   
 }
 
-shinyApp(ui,server)
+shinyApp(ui, server)
