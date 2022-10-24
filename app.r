@@ -1,21 +1,86 @@
-### current testing the kenya afforestation revamp 
-### carverd@colostate.edu 
+### current testing the kenya afforestation revamp
+### carverd@colostate.edu
 ### 20221014
 
 library(shiny)
 library(leaflet)
 library(bslib)
+library(terra)
+library(sf)
+library(purrr)
+
+###
+# we are using renv for package management of this application.
+# use renv::snapshot() occasionally to update the package dependencies "Think save"
+# renv will automatically load require packages and version with initalization
+# of the .Rproj file. renv::restore() can be load the renv.lock file that store
+# save from snapshot()
+# *note: it is not clear how this will work within the shiny deployment.
+###
+#remove this for now, not working on some computers
+#renv::restore()
+
+
+
 # source modules
-lapply(list.files(path = "modules/", pattern = ".R", full.names = TRUE), source)
-# source UI or Server only functions 
-lapply(list.files(path = "functions/", pattern = ".R", full.names = TRUE), source)
+lapply(list.files(
+  path = "modules/",
+  pattern = ".R",
+  full.names = TRUE
+),
+source)
+# source UI or Server only functions
+lapply(list.files(
+  path = "functions/",
+  pattern = ".R",
+  full.names = TRUE
+),
+source)
 
-### define names for the climate features 
-panelNames <- c("Optimistic Climate Future", "Middle of the Road Climate Future", 
-                "Pessimistic Climate Future", "Extreme Heat Climate Future")
+### define names for the climate features
+panelNames <-
+  c(
+    "Optimistic Climate Future",
+    "Middle of the Road Climate Future",
+    "Pessimistic Climate Future",
+    "Extreme Heat Climate Future"
+  )
 
-### define county_names
-county_names<- c("one","two","three")
+
+# input dataset -----------------------------------------------------------
+###
+# this section will become a preprocessing step, but it is needed for the mark up phase of the project.
+###
+
+### projection raster template  -- required for maintaining the cell size of the input features.
+pro_template <- rast("data/wgs_ext_res_temp.asc")
+### test to see if this is needed.
+crs(pro_template) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+# mask features
+mask <- rast("data/ken_mask.tif") %>%
+  terra::project(pro_template) # reprotion assing some decimal values
+# replace 0 qith NA
+mask[which(mask[] == 0)] <- NA
+# replace all non NA with 1
+mask[which(!is.na(mask[]))] <- 1
+
+# primary dataset for  the clim
+clim <- readRDS("data/temp_pr_change.rds") %>%
+  map(rast) %>%
+  map(project, pro_template) %>%
+  map(terra::mask, mask)%>%
+  rast() # reduce to a layered raster that makes indexing easier 
+### not sure if map applying is faster or slow. could test position of the rast call
+
+###
+# this content will present in application
+###
+# county spatial feature
+county <- sf::st_read("./data/KE_Admin1_pro.shp", stringsAsFactors = F)
+county <- st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+# vector of county names
+county_names <- county$ADMIN1
+
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
   theme = bs_theme(version = 5, bootswatch = "minty",
@@ -38,10 +103,7 @@ ui <- navbarPage(
                         button_pess = actionButton("button-pess", "View Scenario"),
                         button_ex = actionButton("button-ex", "View Scenario")
            )
-            
-            
   ),
-
 # combine scenarios into navbar menu
 navbarMenu(
   title = "Climate Scenarios",
