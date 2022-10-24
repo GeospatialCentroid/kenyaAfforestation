@@ -57,8 +57,8 @@ map_server <- function(id, rasters){
         setView( lng = 37.826119933082545
                  , lat = 0.3347526538983459
                  , zoom = 2 )%>%
-        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
-        addRasterImage(x = facresults)
+        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")#%>%
+        #addRasterImage(x = facresults)
 
       output$varchange <- renderLeaflet({map})
       

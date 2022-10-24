@@ -8,6 +8,7 @@ library(bslib)
 library(terra)
 library(sf)
 library(purrr)
+library(raster)
 
 ###
 # we are using renv for package management of this application.
@@ -205,14 +206,14 @@ server <- function(input, output, session) {
   map_server(id = "ssp126", rasters = rasters[[1]])
   map2_server("ssp126_2")
   # ssp245 data
-  # map_server("ssp245", ssp_raster245)
-  # map2_server("ssp245_2")
-  # # ssp370 data
-  # map_server("ssp370")
-  # map2_server("ssp370_2")
-  # # ssp585 data
-  # map_server("ssp585")
-  # map2_server("ssp585_2")
+  map_server("ssp245")
+  map2_server("ssp245_2")
+  # ssp370 data
+  map_server("ssp370")
+  map2_server("ssp370_2")
+  # ssp585 data
+  map_server("ssp585")
+  map2_server("ssp585_2")
   
   
   # passing reactive elements to module functions  --------------------------
