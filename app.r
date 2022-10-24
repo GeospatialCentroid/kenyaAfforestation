@@ -77,7 +77,8 @@ clim <- readRDS("data/temp_pr_change.rds") %>%
 ###
 # county spatial feature
 county <- sf::st_read("./data/KE_Admin1_pro.shp", stringsAsFactors = F)
-  county <- st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+county <- st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+
 # vector of county names
 county_names <- county$ADMIN1
 
@@ -87,6 +88,7 @@ ui <- navbarPage(
                    primary = "#2F4F4F",
                    secondary = "#2F4F4F") %>% 
     bslib::bs_add_rules(sass::sass_file("www/style.scss")),
+
   # the text that appears next to the pages
   title =  "Kenya Afforestation Decision Support Tool",
   # the text in the browser tab
@@ -94,7 +96,7 @@ ui <- navbarPage(
   # means of applying data to all pages -- could be useful in footer section
   # header = h5("This content appears at the top of every page "),
   # footer = "This content appears at the bottom of every page",
-  
+
   # Home page --------------------------------------------------------------- 
   tabPanel(title = "Home",
            htmlTemplate("www/homepage.html",
@@ -104,6 +106,7 @@ ui <- navbarPage(
                         button_ex = actionButton("button-ex", "View Scenario")
            )
   ),
+
   # combine scenarios into navbar menu
   navbarMenu(
     title = "Climate Scenarios",
