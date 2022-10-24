@@ -19,7 +19,7 @@ county_names<- c("one","two","three")
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
   theme = bs_theme(version = 5, bootswatch = "minty",
-                   primary = "#3f1e25db",
+                   primary = "#2F4F4F",
                    secondary = "#2F4F4F") %>% 
     bslib::bs_add_rules(sass::sass_file("www/style.scss")),
   # the text that appears next to the pages 

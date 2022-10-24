@@ -8,19 +8,30 @@ ul.nav.navbar-nav {
 
 
 .header-title {
-  /*position:absolute; this doesn't work well on mobile */
-  z-index: 1;
-  color: darkslategrey;
+  color: beige;
   padding-bottom: 20px;
   letter-spacing: 1px;
+  font-weight: 400;
+  font-size: 40px;
+  text-align: center;
+  padding: 40px;
+  text-shadow: 2px 2px 1px #000000;
 }
 
-img.stock-img {
-  z-index:0;
-  width: 105%;
-  height: auto;
-  margin: -20px;
+
+.header {
+  background-image: url(https://globalforestcoalition.org/wp-content/uploads/2015/07/nature-forest-trees-bamboo.jpeg);
+  background-size: cover;
+  margin-right: -1em;
+  margin-left: -1em;
+  margin-top: -2em;
 }
+
+/*img.stock-img {
+  z-index:0;
+  width: -webkit-fill-available;
+  margin: -20px;
+}*/
 
 /* edit sub-title */
 .sub-title {
