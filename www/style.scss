@@ -78,7 +78,7 @@ div.col-scen{
   flex-direction: column;
   border-radius: 8px;
   background-color: #fff;
-  box-shadow: 8px 5px 10px 8px #30364d1a;
+  box-shadow: 0px 2px 4px 0px #02020280;
   text-align: center;
   align-items: center;
   justify-content: center;
@@ -86,6 +86,9 @@ div.col-scen{
   width: 15em;
   color: beige !important;
 }
+
+/*try adding hover characteristics to buckets */
+
 
 /* edit text within buckets */
 .col-scen h2 {
