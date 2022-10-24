@@ -17,7 +17,9 @@ library(purrr)
 # save from snapshot()
 # *note: it is not clear how this will work within the shiny deployment.
 ###
-renv::restore()
+#remove this for now, not working on some computers
+#renv::restore()
+
 
 
 # source modules
@@ -81,7 +83,10 @@ county_names <- county$ADMIN1
 
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
-  theme = bs_theme(version = 5, bootswatch = "minty"),
+  theme = bs_theme(version = 5, bootswatch = "minty",
+                   primary = "#2F4F4F",
+                   secondary = "#2F4F4F") %>% 
+    bslib::bs_add_rules(sass::sass_file("www/style.scss")),
   # the text that appears next to the pages
   title =  "Kenya Afforestation Decision Support Tool",
   # the text in the browser tab
@@ -90,8 +95,18 @@ ui <- navbarPage(
   # header = h5("This content appears at the top of every page "),
   # footer = "This content appears at the bottom of every page",
   
-  # need a landing page for the application
-  tabPanel(title = "Home"),
+  # Home page --------------------------------------------------------------- 
+  tabPanel(title = "Home",
+           htmlTemplate("www/homepage.html",
+                        button_opt = actionButton("button-opt", "View Scenario"),
+                        button_status = actionButton("button-status", "View Scenario"),
+                        button_pess = actionButton("button-pess", "View Scenario"),
+                        button_ex = actionButton("button-ex", "View Scenario")
+           )
+  ),
+  # combine scenarios into navbar menu
+  navbarMenu(
+    title = "Climate Scenarios",
   ## Optimistic --------------------------------------------------------------
   tabPanel(title = "Optimistic",
            tabsetPanel(
@@ -159,20 +174,18 @@ ui <- navbarPage(
                  county_names = county_names
                )
              )
-           )),
+           ))
+  ),
   
   ## Additional Nav bar objects ----------------------------------------------
-  navbarMenu(
-    title = "Additional Resources",
-    tabPanel(title = "Downloads",
-             h2("content will be added to Model Downloads")),
-    tabPanel(title = "Model Validation",
-             h2("content will be added to Model Validation")),
-    tabPanel(title = "Simulation Details",
-             h2(
-               "content will be added to Simulation Details"
-             ))
-  )
+  
+  tabPanel(title = "Downloads",
+           h2("content will be added to Model Downloads")),
+  tabPanel(title = "Model Validation",
+           h2("content will be added to Model Validation")),
+  tabPanel(title = "Simulation Details",
+           h2("content will be added to Simulation Details"))
+  
 )
 
 
