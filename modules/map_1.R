@@ -12,9 +12,10 @@ map_UI <- function(id, panelName){
                    radioButtons(
                      inputId=ns("Timeline"),
                      label= tags$strong("Pick a future timeperiod:"),
-                     choices = list("Near term (2030)" = "30",
-                                    "Medium term (2050)" = "50",
-                                    "Long term (2100)" = "100")
+                     choices = list("Near term (2030)" = "2030",
+                                    "Medium term (2050)" = "2050",
+                                    "Long term (2100)" = "2100"),
+                     selected = "2030"
                    ),
                    # select mapped variable 
                    selectInput(
@@ -22,7 +23,8 @@ map_UI <- function(id, panelName){
                      label=tags$strong("Pick a variable that you would like to visualize:"),
                      choices = list("Min Temperature" = "tmin",
                                     "Max Temperature" = "tmax",
-                                    "Precipitation" = "prcp")
+                                    "Precipitation" = "prcp"),
+                     selected = "tmin"
                      ),
                    tags$p(span("Large maps may take a few seconds to render.", style = "color:red")),
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see the county name and pixel value."),
@@ -45,24 +47,34 @@ map_UI <- function(id, panelName){
 map_server <- function(id, rasters){
   moduleServer(id,function(input,output,session){
     # generate our display raster
-    facresults<-reactive({ 
-      # compile inputs from the radio buttons 
-      n1 <- paste0(input$layer,"_",input$Timeline)
-      # test for the presence of values in names and subset 
-      r1 <- rasters[[ grep(pattern = n1, x = names(rasters))]]
+    
+    
+    ### effective call of the input features from the ui 
+    n1 <- reactive({paste0(input$Layer,"_",input$Timeline)})
+    
+    ### I haven't figure out how to correctly index these features yet 
+    facresults<-reactive({
+      # compile inputs from the radio buttons
+      n1 <- reactive({paste0(input$Layer,"_",input$Timeline)})
+      # test for the presence of values in names and subset
+      r1 <- rasters()[[grep(pattern = n1, x = names(rasters()))]]
       return(raster::raster(r1))
     })
     
+    
+    # this works with a direct index on raster input object. 
       map <- leaflet(options = leafletOptions(minZoom = 4)) %>%
         setView( lng = 37.826119933082545
                  , lat = 0.3347526538983459
                  , zoom = 2 )%>%
-        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")#%>%
+        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
+        leaflet::addRasterImage(rasters[[1]]) 
         #addRasterImage(x = facresults)
 
       output$varchange <- renderLeaflet({map})
       
-      output$cnty <- renderText("This is printed content ")
+      # test place for checking reactively results 
+      output$cnty <- renderText(n1())
     }
   )
 }

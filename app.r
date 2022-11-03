@@ -73,6 +73,12 @@ clim <- readRDS("data/temp_pr_change.rds") %>%
   rast() # reduce to a layered raster that makes indexing easier 
   ### not sure if map applying is faster or slow. could test position of the rast call
 
+# parse out climate data into subsets for each module -- indepent blocks to feed 
+# as inputs. 
+allRasters <- prepClim(rasters = clim, ssps = c("126","245","370"))
+
+
+
 ###
 # this content will present in application
 ###
@@ -198,21 +204,17 @@ ui <- navbarPage(
 
 
 server <- function(input, output, session) {
-  
-  # parse out climate data into subsets for each module
-  rasters <- prepClim(rasters = clim, ssps = c("126","245","370"))
-  
   # ssp126 data
-  map_server(id = "ssp126", rasters = rasters[[1]])
+  map_server(id = "ssp126", rasters = allRasters$`126`)
   map2_server("ssp126_2")
   # ssp245 data
-  map_server("ssp245")
+  # map_server("ssp245")
   map2_server("ssp245_2")
   # ssp370 data
-  map_server("ssp370")
+  # map_server("ssp370")
   map2_server("ssp370_2")
   # ssp585 data
-  map_server("ssp585")
+  # map_server("ssp585")
   map2_server("ssp585_2")
   
   

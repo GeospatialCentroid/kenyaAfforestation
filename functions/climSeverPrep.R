@@ -22,7 +22,7 @@ prepClim <- function(rasters, ssps){
   
   # ordered list based on the ssps
   rasts <- lapply(ssps, grep2,rasters=rasters)
-  
+  names(rasts) <- ssps
   return(rasts)
 }
 
