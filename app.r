@@ -78,7 +78,6 @@ clim <- readRDS("data/temp_pr_change.rds") %>%
 allRasters <- prepClim(rasters = clim, ssps = c("126","245","370"))
 
 
-
 ###
 # this content will present in application
 ###

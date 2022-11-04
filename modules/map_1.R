@@ -46,35 +46,32 @@ map_UI <- function(id, panelName){
 # define server  ---------------------------------------------------------- 
 map_server <- function(id, rasters){
   moduleServer(id,function(input,output,session){
-    # generate our display raster
     
     
-    ### effective call of the input features from the ui 
+    # not the most efficent process but it works. Tricky to get all the reactive
+    # call posistions lined up so use this as a model for changes 
     n1 <- reactive({paste0(input$Layer,"_",input$Timeline)})
-    
-    ### I haven't figure out how to correctly index these features yet 
-    facresults<-reactive({
-      # compile inputs from the radio buttons
-      n1 <- reactive({paste0(input$Layer,"_",input$Timeline)})
-      # test for the presence of values in names and subset
-      r1 <- rasters()[[grep(pattern = n1, x = names(rasters()))]]
-      return(raster::raster(r1))
-    })
-    
+    index <- reactive({grep(pattern = n1(), x = names(rasters))})
+    r1 <- reactive({raster(rasters[[index()]])})
+
     
     # this works with a direct index on raster input object. 
-      map <- leaflet(options = leafletOptions(minZoom = 4)) %>%
+      map <- reactive({
+        leaflet(options = leafletOptions(minZoom = 4)) %>%
         setView( lng = 37.826119933082545
                  , lat = 0.3347526538983459
                  , zoom = 2 )%>%
         addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
-        leaflet::addRasterImage(rasters[[1]]) 
-        #addRasterImage(x = facresults)
-
-      output$varchange <- renderLeaflet({map})
+        addRasterImage(r1())
+      })
+      
+      output$varchange <- renderLeaflet({map()})
+      
+      # look for a change in
+      
       
       # test place for checking reactively results 
-      output$cnty <- renderText(n1())
+      output$cnty <- renderText(as.character(index())) #n1()
     }
   )
 }
