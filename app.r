@@ -10,6 +10,7 @@ library(sf)
 library(purrr)
 library(raster)
 library(rgdal)
+library(leaflet.extras)
 
 ###
 # we are using renv for package management of this application.
@@ -48,7 +49,7 @@ panelNames <-
     "Optimistic Climate Future",
     "Middle of the Road Climate Future",
     "Pessimistic Climate Future",
-    "Extreme Heat Climate Future"
+    "Extreme Climate Future"
   )
 
 
@@ -61,36 +62,61 @@ panelNames <-
 pro_template <- rast("data/wgs_ext_res_temp.asc")
 ### test to see if this is needed.
 crs(pro_template) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-# mask features
-mask <- rast("data/ken_mask.tif") %>%
-  terra::project(pro_template) # reprotion assing some decimal values
-# replace 0 qith NA
-mask[which(mask[] == 0)] <- NA
-# replace all non NA with 1
-mask[which(!is.na(mask[]))] <- 1
+# # mask features
+# mask <- rast("data/ken_mask.tif") %>%
+#   terra::project(pro_template) # reprotion assing some decimal values
+# # replace 0 qith NA
+# mask[which(mask[] == 0)] <- NA
+# # replace all non NA with 1
+# mask[which(!is.na(mask[]))] <- 1
 
-# primary dataset for  the clim
-clim <- readRDS("data/temp_pr_change.rds") %>%
-  map(rast)%>%
-  map(terra::project, pro_template)%>%
-  map(terra::mask, mask)%>%
-  rast() # reduce to a layered raster that makes indexing easier 
-  ### not sure if map applying is faster or slow. could test position of the rast call
-
-# parse out climate data into subsets for each module -- indepent blocks to feed 
-# as inputs. 
-allRasters <- prepClim(rasters = clim, ssps = c("126","245","370"))
-
-
-###
-# this content will present in application
-###
 # county spatial feature
 county <- sf::st_read("./data/KE_Admin1_pro.shp", stringsAsFactors = F)
 county <- st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 
 # vector of county names
 county_names <- county$ADMIN1
+
+# new climate data 
+clim <- readRDS("data/climData_112022.rds")
+raster::crs(clim) <- sf::st_crs(county)
+r1 <- clim[[1]]
+r2 <- crop(r1, sf::st_boundary(county))
+
+
+
+# primary dataset for  the clim
+clim2 <- readRDS("data/temp_pr_change.rds") %>%
+  map(rast)%>%
+  map(terra::project, pro_template)%>%
+  map(terra::crop, county)%>%
+  rast() # reduce to a layered raster that makes indexing easier 
+  ### not sure if map applying is faster or slow. could test position of the rast call
+
+# new input datat
+clim <- readRDS("data/climData_112022.rds")
+raster::crs(clim) <- sf::st_crs(county)
+
+clim <- clim %>%
+  map(rast)%>%
+  map(terra::project, pro_template)%>%
+  map(terra::crop, county)%>%
+  rast() # reduce to a layered raster that makes indexing easier 
+### 
+
+# parse out climate data into subsets for each module -- indepent blocks to feed 
+# as inputs. 
+allRasters <- prepClim(rasters = clim, ssps = c("126","245","370","585"))
+
+### buffer the clip process so it encludes all the country feature 
+### redo labels (2030,50,70,90) - split into 20 year chunks of times 
+### input new datasets 
+### evaluate the implementation of the second map page 
+
+
+###
+# this content will present in application
+###
 
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
@@ -177,7 +203,7 @@ ui <- navbarPage(
              )
            )),
   ## Extreme Heat ------------------------------------------------------------
-  tabPanel(title = "Extreme Heat",
+  tabPanel(title = "Extreme",
            tabsetPanel(
              type = "pills",
              tabPanel(

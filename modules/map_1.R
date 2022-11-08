@@ -12,7 +12,7 @@ map_UI <- function(id, panelName){
                    radioButtons(
                      inputId=ns("Timeline"),
                      label= tags$strong("Pick a future timeperiod:"),
-                     choices = list("Near term (2030)" = "2030",
+                     choices = list("Near term (2030)" = "2030",  # these will need to change to match the new input dataset naming convention
                                     "Medium term (2050)" = "2050",
                                     "Long term (2100)" = "2100"),
                      selected = "2030"
@@ -21,7 +21,7 @@ map_UI <- function(id, panelName){
                    selectInput(
                      inputId=ns("Layer"),
                      label=tags$strong("Pick a variable that you would like to visualize:"),
-                     choices = list("Min Temperature" = "tmin",
+                     choices = list("Min Temperature" = "tmin",  ## this will need to change to match the new dataset convention
                                     "Max Temperature" = "tmax",
                                     "Precipitation" = "prcp"),
                      selected = "tmin"
@@ -31,7 +31,7 @@ map_UI <- function(id, panelName){
           # main panel -------------------------------------------------------------- 
           mainPanel(width = 8,
                    leafletOutput(ns("map1")),
-                   textOutput(ns("cnty")),
+                   h3(textOutput(ns("cnty"))),
       )
     )
   )
@@ -77,9 +77,8 @@ map_server <- function(id, rasters, countyFeat){
         addMapPane("data", zIndex = 408) %>%
         addMapPane("county", zIndex = 409) %>%
       # tile providers ----------------------------------------------------------
-        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
-        addProviderTiles("CartoDB.DarkMatter", group = "Dark") %>%
         addProviderTiles("Stamen.Toner", group = "Light")%>%
+        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
         leaflet.extras::addResetMapButton() %>%
       # add raster features -----------------------------------------------------
         addRasterImage(r1(),
@@ -96,7 +95,7 @@ map_server <- function(id, rasters, countyFeat){
                     group = "County")%>%
       # add control groups ------------------------------------------------------
         addLayersControl(
-          baseGroups = c("Light","Dark", "OpenStreetMap"),
+          baseGroups = c("OpenStreetMap","Light"),
           overlayGroups = c(
             "Data",
             "County"
