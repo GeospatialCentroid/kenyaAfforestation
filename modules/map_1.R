@@ -26,25 +26,20 @@ map_UI <- function(id, panelName){
                                     "Precipitation" = "prcp"),
                      selected = "tmin"
                      ),
-                   tags$p(span("Large maps may take a few seconds to render.", style = "color:red")),
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see the county name and pixel value."),
                  ),
           # main panel -------------------------------------------------------------- 
           mainPanel(width = 8,
-                   leafletOutput(ns("varchange")),
+                   leafletOutput(ns("map1")),
                    textOutput(ns("cnty")),
-                   textOutput(ns("facdat")),
-                   textOutput(ns("explain")),
-                   "I think we can remove this. Or find a better spot.",
-                   tags$p(HTML("<b> Click here </b> to see how these data were generated and to learn more about caveats (under construction)"))
-                 )
+      )
     )
   )
 }
 
 
 # define server  ---------------------------------------------------------- 
-map_server <- function(id, rasters){
+map_server <- function(id, rasters, countyFeat){
   moduleServer(id,function(input,output,session){
     
     
@@ -54,24 +49,96 @@ map_server <- function(id, rasters){
     index <- reactive({grep(pattern = n1(), x = names(rasters))})
     r1 <- reactive({raster(rasters[[index()]])})
 
-    
+    # generate legend values --------------------------------------------------
+    ### might be easier to declare of of these before hand and index them similar 
+    ### to how the rasters are being brought together. 
+
+    # minval <-  reactive({r1()@data@min})
+    # maxval <-  reactive({r1()@data@max})
+    # dom<- reactive({c(minval(), maxval())})
+    # val<- reactive({seq(minval(),maxval())})
+    # colorPal <-  reactive({c(colorRampPalette(colors = c("#330000", "white"),space = "Lab")(abs(minval())),
+    #                 colorRampPalette(colors = c("white", "#003300"),space = "Lab")(abs(maxval())))})
+    # # Color platte think is odd,
+    # pal <- reactive({ifelse(
+    #   test = minval() < 0 & maxval() > 0,
+    #   yes = colorNumeric(colorPal(), dom()),
+    #   no = colorNumeric(colorRampPalette(colors = c("white", "#003300"),space = "Lab")(abs(maxval())), dom())
+    # )})
+
     # this works with a direct index on raster input object. 
-      map <- reactive({
-        leaflet(options = leafletOptions(minZoom = 4)) %>%
+      map1 <- reactive({
+        leaflet(options = leafletOptions(minZoom = 2)) %>%
+      #set zoom levels 
         setView( lng = 37.826119933082545
                  , lat = 0.3347526538983459
-                 , zoom = 2 )%>%
+                 , zoom = 4 )%>%
+      # add z levels ------------------------------------------------------------
+        addMapPane("data", zIndex = 408) %>%
+        addMapPane("county", zIndex = 409) %>%
+      # tile providers ----------------------------------------------------------
         addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
-        addRasterImage(r1())
+        addProviderTiles("CartoDB.DarkMatter", group = "Dark") %>%
+        addProviderTiles("Stamen.Toner", group = "Light")%>%
+        leaflet.extras::addResetMapButton() %>%
+      # add raster features -----------------------------------------------------
+        addRasterImage(r1(),
+                       # colors = pal, 
+                       group = "Data",
+                       opacity = 0.9)%>%
+      # add county features -----------------------------------------------------
+        addPolygons(data = countyFeat, 
+                    fillColor = "", 
+                    fillOpacity = 0,
+                    color = "black",
+                    layerId = ~ADMIN1,
+                    weight = 1.5,
+                    group = "County")%>%
+      # add control groups ------------------------------------------------------
+        addLayersControl(
+          baseGroups = c("Light","Dark", "OpenStreetMap"),
+          overlayGroups = c(
+            "Data",
+            "County"
+          ),
+          position = "topleft", 
+          options = layersControlOptions(collapsed = TRUE)
+        )
+      # add legend --------------------------------------------------------------
+        ###
+        # Need to figure out assigning a color palette before I can create a legend
+        ### 
+        
+        # addLegend(
+        #   "topright",
+        #   colors = pal,
+        #   title = "% change",
+        #   labels = c("Low Change", "", "", "", "High Change"),
+        #   opacity = 1,
+        #   layerId = "firstLegend",
+        #   group = "Data",
+        #   na.label = "No Data"
+        # 
+        #   # labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
+        # )
+        
       })
       
-      output$varchange <- renderLeaflet({map()})
       
-      # look for a change in
+      output$map1 <- renderLeaflet({map1()})
       
-      
-      # test place for checking reactively results 
-      output$cnty <- renderText(as.character(index())) #n1()
+      #map click
+      observeEvent(input$map1_click, {
+        click <- input$map1_click
+        clat <- click$lat
+        clon <- click$lng
+        # filter data
+        point <- as(st_point(x = c(clon, clat)), "Spatial")
+        extractVal <- raster::extract(r1(), point)%>%
+          round(digits = 2)
+
+        output$cnty <- renderText(paste0("the value at the selected location is ",as.character(extractVal), "%")) #n1()
+      })
     }
   )
 }

@@ -9,6 +9,7 @@ library(terra)
 library(sf)
 library(purrr)
 library(raster)
+library(rgdal)
 
 ###
 # we are using renv for package management of this application.
@@ -21,7 +22,10 @@ library(raster)
 #remove this for now, not working on some computers
 #renv::restore()
 
-
+###
+# details on page change buttons in shiny modules 
+# https://stackoverflow.com/questions/69831156/how-to-use-a-button-to-change-pages-in-an-r-shiny-app
+### 
 
 # source modules
 lapply(list.files(
@@ -67,8 +71,8 @@ mask[which(!is.na(mask[]))] <- 1
 
 # primary dataset for  the clim
 clim <- readRDS("data/temp_pr_change.rds") %>%
-  map(rast) %>%
-  map(project, pro_template) %>%
+  map(rast)%>%
+  map(terra::project, pro_template)%>%
   map(terra::mask, mask)%>%
   rast() # reduce to a layered raster that makes indexing easier 
   ### not sure if map applying is faster or slow. could test position of the rast call
@@ -90,7 +94,9 @@ county_names <- county$ADMIN1
 
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
-  theme = bs_theme(version = 5, bootswatch = "minty",
+    # required as reference for the button selection process. 
+    id = "pages",
+    theme = bs_theme(version = 5, bootswatch = "minty",
                    primary = "#2F4F4F",
                    secondary = "#2F4F4F") %>% 
     bslib::bs_add_rules(sass::sass_file("www/style.scss")),
@@ -106,9 +112,12 @@ ui <- navbarPage(
   # Home page --------------------------------------------------------------- 
   tabPanel(title = "Home",
            htmlTemplate("www/homepage.html",
-                        button_opt = actionButton("button-opt", "View Scenario"),
-                        button_status = actionButton("button-status", "View Scenario"),
-                        button_pess = actionButton("button-pess", "View Scenario"),
+                        button_opt = pageButtonUi(id = "optimistic"),
+                        button_status = pageButtonUi(id = "middle of the road"),
+                        button_pess = pageButtonUi(id = "pessimistic"),
+                        # button_opt = actionButton("button-opt", "View Scenario"),
+                        # button_status = actionButton("button-status", "View Scenario"),
+                        # button_pess = actionButton("button-pess", "View Scenario"),
                         button_ex = actionButton("button-ex", "View Scenario")
            )
   ),
@@ -203,17 +212,23 @@ ui <- navbarPage(
 
 
 server <- function(input, output, session) {
-  # ssp126 data
-  map_server(id = "ssp126", rasters = allRasters$`126`)
+  # page transfer for buttons 
+  pageButtonServer("optimistic", parentSession = session,pageName = "Optimistic" )
+  pageButtonServer("middle of the road", parentSession = session,pageName = "Middle of the Road" )
+  pageButtonServer("pessimistic", parentSession = session,pageName = "Pessimistic" )
+  
+  
+  # ssp126 data 
+  map_server(id = "ssp126", rasters = allRasters$`126`,countyFeat = county)
   map2_server("ssp126_2")
   # ssp245 data
-  # map_server("ssp245")
+  map_server("ssp245", rasters = allRasters$`245`,countyFeat = county)
   map2_server("ssp245_2")
   # ssp370 data
-  # map_server("ssp370")
+  map_server("ssp370", rasters = allRasters$`370`,countyFeat = county)
   map2_server("ssp370_2")
   # ssp585 data
-  # map_server("ssp585")
+  map_server("ssp585", rasters = allRasters$`585`,countyFeat = county)
   map2_server("ssp585_2")
   
   
