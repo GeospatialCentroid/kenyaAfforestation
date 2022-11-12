@@ -72,7 +72,7 @@ map_server <- function(id, rasters, countyFeat){
       #set zoom levels 
         setView( lng = 37.826119933082545
                  , lat = 0.3347526538983459
-                 , zoom = 4 )%>%
+                 , zoom = 6 )%>%
       # add z levels ------------------------------------------------------------
         addMapPane("data", zIndex = 408) %>%
         addMapPane("county", zIndex = 409) %>%

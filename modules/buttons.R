@@ -1,6 +1,6 @@
 pageButtonUi <- function(id) {
   actionButton(NS(id, "page_change"),
-               label="View Scenario" ,icon = icon("button-opt"))
+               label="View Scenario")
 }
 
 

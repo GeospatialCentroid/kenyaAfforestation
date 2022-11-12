@@ -62,13 +62,13 @@ panelNames <-
 pro_template <- rast("data/wgs_ext_res_temp.asc")
 ### test to see if this is needed.
 crs(pro_template) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-# # mask features
-# mask <- rast("data/ken_mask.tif") %>%
-#   terra::project(pro_template) # reprotion assing some decimal values
-# # replace 0 qith NA
-# mask[which(mask[] == 0)] <- NA
-# # replace all non NA with 1
-# mask[which(!is.na(mask[]))] <- 1
+# mask features
+mask <- rast("data/ken_mask.tif") %>%
+  terra::project(pro_template) # reprotion assing some decimal values
+# replace 0 qith NA
+mask[which(mask[] == 0)] <- NA
+# replace all non NA with 1
+mask[which(!is.na(mask[]))] <- 1
 
 # county spatial feature
 county <- sf::st_read("./data/KE_Admin1_pro.shp", stringsAsFactors = F)
@@ -89,24 +89,25 @@ r2 <- crop(r1, sf::st_boundary(county))
 clim2 <- readRDS("data/temp_pr_change.rds") %>%
   map(rast)%>%
   map(terra::project, pro_template)%>%
-  map(terra::crop, county)%>%
+  map(terra::mask, mask) %>% 
+  #map(terra::crop, county) %>%
   rast() # reduce to a layered raster that makes indexing easier 
   ### not sure if map applying is faster or slow. could test position of the rast call
 
 # new input datat
-clim <- readRDS("data/climData_112022.rds")
-raster::crs(clim) <- sf::st_crs(county)
-
-clim <- clim %>%
-  map(rast)%>%
-  map(terra::project, pro_template)%>%
-  map(terra::crop, county)%>%
-  rast() # reduce to a layered raster that makes indexing easier 
+# clim <- readRDS("data/climData_112022.rds")
+# raster::crs(clim) <- sf::st_crs(county)
+# 
+# clim <- clim %>%
+#   #map(rast)%>%
+#   map(terra::project, pro_template)%>%
+#   map(terra::crop, county) %>%
+#   rast() # reduce to a layered raster that makes indexing easier 
 ### 
 
 # parse out climate data into subsets for each module -- indepent blocks to feed 
 # as inputs. 
-allRasters <- prepClim(rasters = clim, ssps = c("126","245","370","585"))
+allRasters <- prepClim(rasters = clim2, ssps = c("126","245","370"))
 
 ### buffer the clip process so it encludes all the country feature 
 ### redo labels (2030,50,70,90) - split into 20 year chunks of times 
@@ -139,12 +140,13 @@ ui <- navbarPage(
   tabPanel(title = "Home",
            htmlTemplate("www/homepage.html",
                         button_opt = pageButtonUi(id = "optimistic"),
-                        button_status = pageButtonUi(id = "middle of the road"),
+                        button_status = pageButtonUi(id = "middle"),
                         button_pess = pageButtonUi(id = "pessimistic"),
+                        button_ex = pageButtonUi(id = "extreme")
                         # button_opt = actionButton("button-opt", "View Scenario"),
                         # button_status = actionButton("button-status", "View Scenario"),
                         # button_pess = actionButton("button-pess", "View Scenario"),
-                        button_ex = actionButton("button-ex", "View Scenario")
+                        #button_ex = actionButton("button-ex", "View Scenario")
            )
   ),
 
@@ -240,22 +242,22 @@ ui <- navbarPage(
 server <- function(input, output, session) {
   # page transfer for buttons 
   pageButtonServer("optimistic", parentSession = session,pageName = "Optimistic" )
-  pageButtonServer("middle of the road", parentSession = session,pageName = "Middle of the Road" )
+  pageButtonServer("middle", parentSession = session,pageName = "Middle of the Road" )
   pageButtonServer("pessimistic", parentSession = session,pageName = "Pessimistic" )
-  
+  pageButtonServer("extreme", parentSession = session,pageName = "Extreme" )
   
   # ssp126 data 
   map_server(id = "ssp126", rasters = allRasters$`126`,countyFeat = county)
   map2_server("ssp126_2")
-  # ssp245 data
-  map_server("ssp245", rasters = allRasters$`245`,countyFeat = county)
-  map2_server("ssp245_2")
-  # ssp370 data
-  map_server("ssp370", rasters = allRasters$`370`,countyFeat = county)
-  map2_server("ssp370_2")
-  # ssp585 data
-  map_server("ssp585", rasters = allRasters$`585`,countyFeat = county)
-  map2_server("ssp585_2")
+  # # ssp245 data
+  # map_server("ssp245", rasters = allRasters$`245`,countyFeat = county)
+  # map2_server("ssp245_2")
+  # # ssp370 data
+  # map_server("ssp370", rasters = allRasters$`370`,countyFeat = county)
+  # map2_server("ssp370_2")
+  # # ssp585 data
+  # map_server("ssp585", rasters = allRasters$`585`,countyFeat = county)
+  # map2_server("ssp585_2")
   
   
   # passing reactive elements to module functions  --------------------------
