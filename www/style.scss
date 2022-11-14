@@ -6,7 +6,7 @@ ul.nav.navbar-nav {
   justify-content: right;
 }
 
-
+//////////////////////////////// header //////////////////////////////////////
 .header-title {
   color: beige;
   padding-bottom: 20px;
@@ -15,7 +15,8 @@ ul.nav.navbar-nav {
   font-size: 40px;
   text-align: center;
   padding: 40px;
-  text-shadow: 2px 2px 1px #000000;
+  text-shadow: 2px 2px 5px #000000c4;
+  
 }
 
 
@@ -33,8 +34,61 @@ ul.nav.navbar-nav {
   margin: -20px;
 }*/
 
-/* edit sub-title */
-.sub-title {
+
+//////////////////////////// Sub-header info ///////////////////////////////////
+
+
+/* set up 2 column layout */
+.sub-header{
+  display: grid;
+  grid-column-gap: 5%;
+  grid-template-columns: repeat(2, 1fr);
+  flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  align-items: center;
+  padding-left: 10%;
+  padding-right: 10%;
+  padding-top: 3%;
+}
+
+/* adapt to mobile */
+@media only screen and (max-width: 714px) {
+  .sub-header {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    text-align: center;
+  }
+  
+  .header-photo {
+    text-align: center !important;
+  }
+
+}
+
+.header-text h3 {
+  letter-spacing: 1.5px;
+  color: darkslategrey;
+}
+
+.header-text p {
+  letter-spacing: 1.5px;
+  color: darkslategrey;
+
+}
+
+.header-photo {
+  text-align: right;
+}
+
+img.map-image {
+  width: 80%;
+  box-shadow: 10px 10px 5px #ccc;
+}
+
+////////////////////////// climate scenarios //////////////////////////////////
+
+/* edit title */
+.scenario-title {
   text-align: center;
   /*border-radius: 4px;
   background-color: beige;*/
@@ -45,26 +99,11 @@ ul.nav.navbar-nav {
   color: darkslategrey;
 }
 
-/* match text to sub title */
-.row-details {
-  text-align: center;
-}
-
-.row-details-text {
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: darkslategrey;
-  /*border-radius: 4px;
-  background-color: beige;*/
-  padding: 4px 7px 4px 8px;
-  margin: 30px;
-
-}
 
 /* set up buckets for scenarios on homepage */
 div.row-scenarios{
   display: grid;
-  grid-column-gap: 8px;
+  grid-column-gap: 3%;
   grid-template-columns: repeat(4, 1fr);
   flex-wrap: wrap;
   -webkit-flex-wrap: wrap;
@@ -74,13 +113,19 @@ div.row-scenarios{
 }
 
 /* make buckets adapt to colum on mobile */
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 900px) {
   div.row-scenarios {
     display: grid;
     grid-template-columns: 1fr !important;
-    padding: 1em;
+    padding-left: 15%;
+    padding-right: 15%;
     grid-row-gap: 10px;
   }
+  
+  .flip-card {
+    height: 40vh !important;
+  }
+  
 }
 
 /* column size/properies for bucket content */
@@ -94,59 +139,66 @@ div.flip-card{
   align-items: center;
   justify-content: center;
   padding: 10px;
-  width: 15em;
-  color: beige !important;
-  height: 42vh;
+  width: 100%;
 }
+
 
 /*try adding hover characteristics to buckets */
 
 .flip-card-inner{
-  position: relative;
-  width: 100%;
-  height: 100%;
   text-align: center;
   transition: transform 0.8s;
   transform-style: preserve-3d;
+  width: 100%;
 }
 
 /* Do an horizontal flip when you move the mouse over the flip box container */
 .flip-card:hover .flip-card-inner {
   transform: rotateY(180deg);
+  transition: transform 0.5s;
 }
+
 
 /* Position the front and back side */
 .flip-card-front, .flip-card-back {
-  position: absolute;
   width: 100%;
   height: 100%;
   -webkit-backface-visibility: hidden; /* Safari */
   backface-visibility: hidden;
-  color: beige !important;
+  text-shadow: 0.5px 0.5px 3px #9a9b9c;
+  
 }
 
 
 /* Style the back side */
 .flip-card-back {
-  background-color: dodgerblue;
-  color: white;
   transform: rotateY(180deg);
+  position: absolute;
+  top: -5%;
 }
 
 /* edit text within buckets */
-.col-scen h2 {
+.flip-card h2 {
   color:beige !important;
+  letter-spacing: 1.3px;
 }
 
-.col-scen h3 {
+.flip-card h3 {
   color:beige;
+  letter-spacing: 1.3px;
+}
+
+.flip-card p {
+  color: beige;
+  font-weight: 400;
+  letter-spacing: 1.3px;
 }
 
 /* bucket button properties */
 #optimistic-page_change, #middle-page_change, #pessimistic-page_change, #extreme-page_change {
     color: black;
     background-color: beige;
-    border-color: beige;
+    border-style: none;
     font-weight: 500;
     margin: 10px;
     box-shadow: 8px 8px 8px 5px #0000006b;
@@ -164,6 +216,41 @@ img.smiley {
   margin: 10px;
 }
 
+/* disclaimer text */
+.disclaimer {
+  text-align: center;
+  letter-spacing: 1.5px;
+  color: darkslategrey;
+  padding-top: 5%;
+}
+
+
+/////////////////////////////////////// scenario info /////////////////////////
+
+
+
+/* set up 2 column layout */
+.row-details {
+  display: grid;
+  grid-column-gap: 1%;
+  grid-template-columns: repeat(2, 1fr);
+  flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  align-items: center;
+  padding-left: 20%;
+  padding-right: 20%;
+  padding-top: 3%;
+  text-align: center;
+}
+
+/* change for mobile */
+@media only screen and (max-width: 918px) {
+  .row-details {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    justify-content: center !important;
+  }
+}
 
 /* set up ssp chart image properties */
 
@@ -173,22 +260,22 @@ img.ssp-image {
 }
 
 /* edit ssp link button */
-button.ssp-link {
+button#ssp-link {
   border: 1px solid transparent;
   padding: 0.375rem 0.75rem;
   font-size: 1rem;
   border-radius: 0.4rem;
   color: darkslategrey;
   background-color: beige;
-  border-color: #9e9e8b;
   font-weight: 500;
+  letter-spacing: 1.3px;
   margin: 10px;
   width: 50%;
+  box-shadow: 8px 8px 8px 5px #0000006b;
   font-family: Montserrat,-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  box-shadow: 10px 8px 8px 1px #0000006b;
 }
 
-button.ssp-link:hover {
+button#ssp-link:hover {
   background-color:#9e9e8b;
   transition: 0.7s;
 }

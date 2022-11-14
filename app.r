@@ -142,11 +142,9 @@ ui <- navbarPage(
                         button_opt = pageButtonUi(id = "optimistic"),
                         button_status = pageButtonUi(id = "middle"),
                         button_pess = pageButtonUi(id = "pessimistic"),
-                        button_ex = pageButtonUi(id = "extreme")
-                        # button_opt = actionButton("button-opt", "View Scenario"),
-                        # button_status = actionButton("button-status", "View Scenario"),
-                        # button_pess = actionButton("button-pess", "View Scenario"),
-                        #button_ex = actionButton("button-ex", "View Scenario")
+                        button_ex = pageButtonUi(id = "extreme"),
+                        button_ssp_link = actionButton("ssp-link", "Click here to read more about Shared Socio-Economic Pathways",
+                                                       onClick = "window.open('https://www.carbonbrief.org/explainer-how-shared-socioeconomic-pathways-explore-future-climate-change/')")
            )
   ),
 
@@ -226,11 +224,11 @@ ui <- navbarPage(
   ## Additional Nav bar objects ----------------------------------------------
   
   tabPanel(title = "Downloads",
-           h2("content will be added to Model Downloads")),
+           h2("Under construction")),
   tabPanel(title = "Model Validation",
-           h2("content will be added to Model Validation")),
+           h2("Under construction")),
   tabPanel(title = "Simulation Details",
-           h2("content will be added to Simulation Details"))
+           h2("Under construction"))
   
 )
 
@@ -249,13 +247,13 @@ server <- function(input, output, session) {
   # ssp126 data 
   map_server(id = "ssp126", rasters = allRasters$`126`,countyFeat = county)
   map2_server("ssp126_2")
-  # # ssp245 data
-  # map_server("ssp245", rasters = allRasters$`245`,countyFeat = county)
-  # map2_server("ssp245_2")
-  # # ssp370 data
-  # map_server("ssp370", rasters = allRasters$`370`,countyFeat = county)
-  # map2_server("ssp370_2")
-  # # ssp585 data
+  # ssp245 data
+  map_server("ssp245", rasters = allRasters$`245`,countyFeat = county)
+  map2_server("ssp245_2")
+  # ssp370 data
+  map_server("ssp370", rasters = allRasters$`370`,countyFeat = county)
+  map2_server("ssp370_2")
+  # ssp585 data
   # map_server("ssp585", rasters = allRasters$`585`,countyFeat = county)
   # map2_server("ssp585_2")
   
