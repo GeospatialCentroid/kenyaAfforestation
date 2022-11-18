@@ -12,38 +12,32 @@ library(raster)
 library(rgdal)
 library(leaflet.extras)
 
-###
-# we are using renv for package management of this application.
-# use renv::snapshot() occasionally to update the package dependencies "Think save"
-# renv will automatically load require packages and version with initalization
-# of the .Rproj file. renv::restore() can be load the renv.lock file that store
-# save from snapshot()
-# *note: it is not clear how this will work within the shiny deployment.
-###
-#remove this for now, not working on some computers
-#renv::restore()
 
-###
-# details on page change buttons in shiny modules 
-# https://stackoverflow.com/questions/69831156/how-to-use-a-button-to-change-pages-in-an-r-shiny-app
-### 
-
-# source modules
+# source modules --------------------------------------------------------
 lapply(list.files(
   path = "modules/",
   pattern = ".R",
   full.names = TRUE
-),
-source)
-# source UI or Server only functions
+  ),
+  source)
+
+# source UI or Server only functions ------------------------------------
 lapply(list.files(
   path = "functions/",
   pattern = ".R",
   full.names = TRUE
-),
-source)
+  ),
+  source)
 
-### define names for the climate features
+
+# input dataset -----------------------------------------------------------
+## returns a named list with specific inputs 
+inputs <- renderInputOld()
+`
+`
+
+# global variables -----------------------------------------
+## define names for the climate features
 panelNames <-
   c(
     "Optimistic Climate Future",
@@ -51,64 +45,34 @@ panelNames <-
     "Pessimistic Climate Future",
     "Extreme Climate Future"
   )
-
-
-# input dataset -----------------------------------------------------------
-###
-# this section will become a preprocessing step, but it is needed for the mark up phase of the project.
-###
-
-### projection raster template  -- required for maintaining the cell size of the input features.
-pro_template <- rast("data/wgs_ext_res_temp.asc")
-### test to see if this is needed.
-crs(pro_template) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-# mask features
-mask <- rast("data/ken_mask.tif") %>%
-  terra::project(pro_template) # reprotion assing some decimal values
-# replace 0 qith NA
-mask[which(mask[] == 0)] <- NA
-# replace all non NA with 1
-mask[which(!is.na(mask[]))] <- 1
-
-# county spatial feature
-county <- sf::st_read("./data/KE_Admin1_pro.shp", stringsAsFactors = F)
-county <- st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-
-# vector of county names
-county_names <- county$ADMIN1
-
-# new climate data 
-clim <- readRDS("data/climData_112022.rds")
-raster::crs(clim) <- sf::st_crs(county)
-r1 <- clim[[1]]
-r2 <- crop(r1, sf::st_boundary(county))
-
-
-
-# primary dataset for  the clim
-clim2 <- readRDS("data/temp_pr_change.rds") %>%
-  map(rast)%>%
-  map(terra::project, pro_template)%>%
-  map(terra::mask, mask) %>% 
-  #map(terra::crop, county) %>%
-  rast() # reduce to a layered raster that makes indexing easier 
-  ### not sure if map applying is faster or slow. could test position of the rast call
-
-# new input datat
-# clim <- readRDS("data/climData_112022.rds")
-# raster::crs(clim) <- sf::st_crs(county)
-# 
-# clim <- clim %>%
-#   #map(rast)%>%
-#   map(terra::project, pro_template)%>%
-#   map(terra::crop, county) %>%
-#   rast() # reduce to a layered raster that makes indexing easier 
-### 
+## raster inputs 
+clim2 <- inputs$rasters
+## county names 
+county_names <- inputs$countyNames
+## county shp 
+county <- inputs$county
 
 # parse out climate data into subsets for each module -- indepent blocks to feed 
 # as inputs. 
 allRasters <- prepClim(rasters = clim2, ssps = c("126","245","370"))
 
+
+
+# new input datasets  -----------------------------------------------------
+inputs_new <- renderInputs()
+## raster inputs 
+clim_new <- inputs_new$rasters
+## county names 
+county_names <- inputs_new$countyNames
+## county shp 
+county <- inputs_new$county
+
+### process into groups 
+allRasters_new <- prepClim(rasters = clim_new, ssps = c("hist","126","245","370", "585"))
+
+
+
+###** note: content to be added based on previous feedback 
 ### buffer the clip process so it encludes all the country feature 
 ### redo labels (2030,50,70,90) - split into 20 year chunks of times 
 ### input new datasets 
