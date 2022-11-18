@@ -58,15 +58,15 @@ allRasters <- prepClim(rasters = clim2, ssps = c("126","245","370"))
 
 # new input datasets  -----------------------------------------------------
 # inputs_new <- renderInputs()
-## raster inputs 
-# clim_new <- inputs_new$rasters
-## county names 
-# county_names <- inputs_new$countyNames
-## county shp 
-# county <- inputs_new$county
+## raster inputs
+clim_new <- inputs_new$rasters
+## county names
+county_names <- inputs_new$countyNames
+## county shp
+county <- inputs_new$county
 
-### process into groups 
-#allRasters_new <- prepClim(rasters = clim_new, ssps = c("hist","126","245","370", "585"))
+### process into groups
+allRasters_new <- prepClim(rasters = clim_new, ssps = c("hist","126","245","370", "585"))
 
 
 
@@ -207,13 +207,16 @@ server <- function(input, output, session) {
   pageButtonServer("extreme", parentSession = session,pageName = "Extreme" )
   
   # ssp126 data 
-  map_server(id = "ssp126", rasters = allRasters$`126`,countyFeat = county)
+  map_server(id = "ssp126", histRasters = allRasters_new$hist, 
+             sspRasters =  allRasters_new$`126`,
+             ssp = "126",
+             countyFeat = county)
   map2_server("ssp126_2")
   # ssp245 data
-  map_server("ssp245", rasters = allRasters$`245`,countyFeat = county)
+  # map_server("ssp245", rasters = allRasters$`245`,countyFeat = county)
   map2_server("ssp245_2")
   # ssp370 data
-  map_server("ssp370", rasters = allRasters$`370`,countyFeat = county)
+  # map_server("ssp370", rasters = allRasters$`370`,countyFeat = county)
   map2_server("ssp370_2")
   # ssp585 data
   # map_server("ssp585", rasters = allRasters$`585`,countyFeat = county)
