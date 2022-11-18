@@ -33,8 +33,6 @@ lapply(list.files(
 # input dataset -----------------------------------------------------------
 ## returns a named list with specific inputs 
 inputs <- renderInputOld()
-`
-`
 
 # global variables -----------------------------------------
 ## define names for the climate features
@@ -59,16 +57,16 @@ allRasters <- prepClim(rasters = clim2, ssps = c("126","245","370"))
 
 
 # new input datasets  -----------------------------------------------------
-inputs_new <- renderInputs()
+# inputs_new <- renderInputs()
 ## raster inputs 
-clim_new <- inputs_new$rasters
+# clim_new <- inputs_new$rasters
 ## county names 
-county_names <- inputs_new$countyNames
+# county_names <- inputs_new$countyNames
 ## county shp 
-county <- inputs_new$county
+# county <- inputs_new$county
 
 ### process into groups 
-allRasters_new <- prepClim(rasters = clim_new, ssps = c("hist","126","245","370", "585"))
+#allRasters_new <- prepClim(rasters = clim_new, ssps = c("hist","126","245","370", "585"))
 
 
 
