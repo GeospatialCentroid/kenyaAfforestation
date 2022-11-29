@@ -65,6 +65,9 @@ renderInputs <- function(){
   # new climate data -- unprojected. 
   # clim <- readRDS("data/climData_112022.rds")
   ### projected climate data 
+  
+
+# This works, but input data is incorrect  -------------------------------------------------------------
   climCRS <- readRDS("data/Climate_absolute.RDS")
   # list of three rasterbrick, 17 layers each. 
   rastNames <- lapply(climCRS, FUN = names) %>% unlist()
@@ -86,4 +89,27 @@ renderInputs <- function(){
   return(inputs)
 }
 
+
+renderForestChangeInputs <- function(){
+  # new climate data -- unprojected. 
+  # clim <- readRDS("data/climData_112022.rds")
+  ### projected climate data 
+  climCRS <- readRDS("data/climate_change_files(2).rds")
+  # list of three rasterbrick, 17 layers each. 
+  rastNames <- lapply(climCRS, FUN = names) %>% unlist()
+  # 
+  clim <- climCRS %>%
+    map(rast)%>%
+    map(terra::project, county)%>%
+    map(terra::crop, county) %>%
+    rast() # reduce to a layered raster that makes indexing easier 
+  ### 
+  names(clim) <- rastNames
+  
+  # generate export object 
+  inputs <- list(rasters = clim,
+                 countyNames = county_names,
+                 county = county)
+
+}
 

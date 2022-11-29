@@ -40,18 +40,23 @@ map_UI <- function(id, panelName){
 
 
 # define server  ---------------------------------------------------------- 
-map_server <- function(id,histRasters,sspRasters,ssp,countyFeat){
+map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal){
   moduleServer(id,function(input,output,session){
     # filter for the historic data
     index0 <- reactive({grep(pattern = input$Layer, x = names(histRasters))})
     r0 <-reactive({raster(histRasters[[index0()]])})
-
+    # historic palette
+    index0p <-reactive({grep(pattern = input$Layer, x = names(histPal))})
+    pal0 <-reactive({histPal[[index0p()]]})
     # not the most efficent process but it works. Tricky to get all the reactive
     # call posistions lined up so use this as a model for changes 
     n1 <- reactive({paste0(input$Layer,"_",ssp,"_",input$Timeline)})
     index1 <- reactive({grep(pattern = n1(), x = names(sspRasters))})
     r1 <- reactive({raster(sspRasters[[index1()]])})
-
+    # ssp palette
+    index1p <-reactive({grep(pattern = n1(), x = names(sspPal))})
+    pal1 <-reactive({sspPal[[index1p()]]})
+    
     # generate legend values --------------------------------------------------
     ### might be easier to declare of of these before hand and index them similar 
     ### to how the rasters are being brought together. 
@@ -86,12 +91,12 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat){
         leaflet.extras::addResetMapButton() %>%
       # add ssp raster features -----------------------------------------------------
         addRasterImage(r1(),
-                       # colors = pal, 
+                       colors = pal1(), 
                        group = "Data",
                        opacity = 0.9)%>%
       # add historic raster -----------------------------------------------------
-        addRasterImage(r1(),
-                       colors = colorBin("Greens", domain = NULL, bins = 5, na.color = "transparent"), 
+        addRasterImage(r0(),
+                       colors = pal0(), 
                        group = "histData",
                        opacity = 0.9)%>%
       # add county features -----------------------------------------------------
@@ -143,7 +148,12 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat){
         clon <- click$lng
         # filter data
         point <- as(st_point(x = c(clon, clat)), "Spatial")
-        extractVal <- raster::extract(r1(), point)%>%
+        # I need a historic and current value
+        # current
+        extractVal1 <- raster::extract(r1(), point)%>%
+          round(digits = 2)
+        #historic
+        extractVal0 <- raster::extract(r0(), point)%>%
           round(digits = 2)
         
         # condition for setting the label based on input value 
@@ -155,7 +165,10 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat){
           }
         })
         
-        output$cnty <- renderText(paste0("the value at the selected location is ",as.character(extractVal)," ",label1()))#n1()
+        output$cnty <- renderText(paste0("The historic value at the selected location is "
+                                         ,as.character(extractVal0)," ",label1(),
+                                  ". The future projected value is "
+                                  ,as.character(extractVal1)," ",label1()))#n1()
       })
     }
   )

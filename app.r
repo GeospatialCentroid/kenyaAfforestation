@@ -32,7 +32,7 @@ lapply(list.files(
 
 # input dataset -----------------------------------------------------------
 ## returns a named list with specific inputs 
-inputs <- renderInputOld()
+# inputs <- renderInputOld()
 
 # global variables -----------------------------------------
 ## define names for the climate features
@@ -43,21 +43,9 @@ panelNames <-
     "Pessimistic Climate Future",
     "Extreme Climate Future"
   )
-## raster inputs 
-clim2 <- inputs$rasters
-## county names 
-county_names <- inputs$countyNames
-## county shp 
-county <- inputs$county
-
-# parse out climate data into subsets for each module -- indepent blocks to feed 
-# as inputs. 
-allRasters <- prepClim(rasters = clim2, ssps = c("126","245","370"))
-
-
 
 # new input datasets  -----------------------------------------------------
-# inputs_new <- renderInputs()
+inputs_new <- renderInputs()
 ## raster inputs
 clim_new <- inputs_new$rasters
 ## county names
@@ -67,13 +55,11 @@ county <- inputs_new$county
 
 ### process into groups
 allRasters_new <- prepClim(rasters = clim_new, ssps = c("hist","126","245","370", "585"))
-
+### preprocess all palette objects 
+palettes <- getPallette(allRasters_new)
 
 
 ###** note: content to be added based on previous feedback 
-### buffer the clip process so it encludes all the country feature 
-### redo labels (2030,50,70,90) - split into 20 year chunks of times 
-### input new datasets 
 ### evaluate the implementation of the second map page 
 
 
@@ -98,7 +84,7 @@ ui <- navbarPage(
   # header = h5("This content appears at the top of every page "),
   # footer = "This content appears at the bottom of every page",
 
-  # Home page --------------------------------------------------------------- 
+  ## Home page --------------------------------------------------------------- 
   tabPanel(title = "Home",
            htmlTemplate("www/homepage.html",
                         button_opt = pageButtonUi(id = "optimistic"),
@@ -210,17 +196,36 @@ server <- function(input, output, session) {
   map_server(id = "ssp126", histRasters = allRasters_new$hist, 
              sspRasters =  allRasters_new$`126`,
              ssp = "126",
+             histPal = palettes[[1]],
+             sspPal = palettes[[2]],
              countyFeat = county)
   map2_server("ssp126_2")
   # ssp245 data
-  # map_server("ssp245", rasters = allRasters$`245`,countyFeat = county)
+  map_server(id = "ssp245", 
+             histRasters = allRasters_new$hist, 
+             sspRasters =  allRasters_new$`245`,
+             ssp = "245",
+             histPal = palettes[[1]],
+             sspPal = palettes[[3]],
+             countyFeat = county)  
   map2_server("ssp245_2")
   # ssp370 data
-  # map_server("ssp370", rasters = allRasters$`370`,countyFeat = county)
+  map_server(id = "ssp370", 
+             histRasters = allRasters_new$hist, 
+             sspRasters =  allRasters_new$`370`,
+             ssp = "370",
+             histPal = palettes[[1]],
+             sspPal = palettes[[4]],
+             countyFeat = county)  
   map2_server("ssp370_2")
   # ssp585 data
-  # map_server("ssp585", rasters = allRasters$`585`,countyFeat = county)
-  # map2_server("ssp585_2")
+  map_server(id = "ssp585", 
+             histRasters = allRasters_new$hist, 
+             sspRasters =  allRasters_new$`585`,
+             ssp = "585",
+             histPal = palettes[[1]],
+             sspPal = palettes[[5]],
+             countyFeat = county)    # map2_server("ssp585_2")
   
   
   # passing reactive elements to module functions  --------------------------
