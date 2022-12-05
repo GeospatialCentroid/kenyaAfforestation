@@ -57,7 +57,7 @@ county <- inputs_new$county
 allRasters_new <- prepClim(rasters = clim_new, ssps = c("hist","126","245","370", "585"))
 ### preprocess all palette objects 
 palettes <- getPallette(allRasters_new)
-
+palTest <- generatePalettes(clim_new)
 
 ###** note: content to be added based on previous feedback 
 ### evaluate the implementation of the second map page 
@@ -198,6 +198,7 @@ server <- function(input, output, session) {
              ssp = "126",
              histPal = palettes[[1]],
              sspPal = palettes[[2]],
+             pals = palTest,
              countyFeat = county)
   map2_server("ssp126_2")
   # ssp245 data

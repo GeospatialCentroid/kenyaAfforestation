@@ -40,7 +40,7 @@ map_UI <- function(id, panelName){
 
 
 # define server  ---------------------------------------------------------- 
-map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal){
+map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal, pals){
   moduleServer(id,function(input,output,session){
     # filter for the historic data
     index0 <- reactive({grep(pattern = input$Layer, x = names(histRasters))})
@@ -57,6 +57,7 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal)
     index1p <-reactive({grep(pattern = n1(), x = names(sspPal))})
     pal1 <-reactive({sspPal[[index1p()]]})
     
+    pal <- reactive(pals[[input$Layer]])
     # generate legend values --------------------------------------------------
     ### might be easier to declare of of these before hand and index them similar 
     ### to how the rasters are being brought together. 
@@ -80,7 +81,7 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal)
       #set zoom levels 
         setView( lng = 37.826119933082545
                  , lat = 0.3347526538983459
-                 , zoom = 5 )%>%
+                 , zoom = 6 )%>%
       # add z levels ------------------------------------------------------------
         addMapPane("histData", zIndex = 407) %>%
         addMapPane("data", zIndex = 408) %>%
@@ -91,12 +92,14 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal)
         leaflet.extras::addResetMapButton() %>%
       # add ssp raster features -----------------------------------------------------
         addRasterImage(r1(),
-                       colors = pal1(), 
+                       #colors = pal1(),
+                       colors = pal(),
                        group = "Data",
                        opacity = 0.9)%>%
       # add historic raster -----------------------------------------------------
         addRasterImage(r0(),
-                       colors = pal0(), 
+                       #colors = pal0(), 
+                       colors = pal(),
                        group = "histData",
                        opacity = 0.9)%>%
       # add county features -----------------------------------------------------
@@ -117,24 +120,25 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal)
           ),
           position = "topleft", 
           options = layersControlOptions(collapsed = TRUE)
-        )
+        ) %>% 
       # add legend --------------------------------------------------------------
         ###
         # Need to figure out assigning a color palette before I can create a legend
         ### 
         
-        # addLegend(
-        #   "topright",
-        #   colors = pal,
+         addLegend(
+           "bottomright",
+           pal = pal(),
+           values = values(r1()),
         #   title = "% change",
         #   labels = c("Low Change", "", "", "", "High Change"),
-        #   opacity = 1,
-        #   layerId = "firstLegend",
-        #   group = "Data",
+           opacity = 1,
+           layerId = "firstLegend",
+           group = "Data",
         #   na.label = "No Data"
         # 
         #   # labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
-        # )
+         )
         
       })
       
