@@ -3,89 +3,76 @@
 ### 20221014
 
 library(shiny)
+library(shinyWidgets)
 library(leaflet)
 library(bslib)
 library(terra)
 library(sf)
 library(purrr)
 library(raster)
-
-###
-# we are using renv for package management of this application.
-# use renv::snapshot() occasionally to update the package dependencies "Think save"
-# renv will automatically load require packages and version with initalization
-# of the .Rproj file. renv::restore() can be load the renv.lock file that store
-# save from snapshot()
-# *note: it is not clear how this will work within the shiny deployment.
-###
-#remove this for now, not working on some computers
-#renv::restore()
+library(rgdal)
+library(leaflet.extras)
 
 
-
-# source modules
+# source modules --------------------------------------------------------
 lapply(list.files(
   path = "modules/",
   pattern = ".R",
   full.names = TRUE
-),
-source)
-# source UI or Server only functions
+  ),
+  source)
+
+# source UI or Server only functions ------------------------------------
 lapply(list.files(
   path = "functions/",
   pattern = ".R",
   full.names = TRUE
-),
-source)
+  ),
+  source)
 
-### define names for the climate features
+
+# input dataset -----------------------------------------------------------
+## returns a named list with specific inputs 
+# inputs <- renderInputOld()
+
+# global variables -----------------------------------------
+## define names for the climate features
 panelNames <-
   c(
     "Optimistic Climate Future",
     "Middle of the Road Climate Future",
     "Pessimistic Climate Future",
-    "Extreme Heat Climate Future"
+    "Extreme Climate Future"
   )
 
+# new input datasets  -----------------------------------------------------
+inputs_new <- renderInputs()
+## raster inputs
+clim_new <- inputs_new$rasters
+## county names
+county_names <- inputs_new$countyNames
+## county shp
+county <- inputs_new$county
 
-# input dataset -----------------------------------------------------------
-###
-# this section will become a preprocessing step, but it is needed for the mark up phase of the project.
-###
+### process into groups
+allRasters_new <- prepClim(rasters = clim_new, ssps = c("hist","126","245","370", "585"))
+### preprocess all palette objects 
+palettes <- getPallette(allRasters_new)
+palList <- generatePalettes(clim_new)
 
-### projection raster template  -- required for maintaining the cell size of the input features.
-pro_template <- rast("data/wgs_ext_res_temp.asc")
-### test to see if this is needed.
-crs(pro_template) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-# mask features
-mask <- rast("data/ken_mask.tif") %>%
-  terra::project(pro_template) # reprotion assing some decimal values
-# replace 0 qith NA
-mask[which(mask[] == 0)] <- NA
-# replace all non NA with 1
-mask[which(!is.na(mask[]))] <- 1
+###** note: content to be added based on previous feedback 
+### evaluate the implementation of the second map page 
 
-# primary dataset for  the clim
-clim <- readRDS("data/temp_pr_change.rds") %>%
-  map(rast) %>%
-  map(project, pro_template) %>%
-  map(terra::mask, mask)%>%
-  rast() # reduce to a layered raster that makes indexing easier 
-  ### not sure if map applying is faster or slow. could test position of the rast call
 
 ###
 # this content will present in application
 ###
-# county spatial feature
-county <- sf::st_read("./data/KE_Admin1_pro.shp", stringsAsFactors = F)
-county <- st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-
-# vector of county names
-county_names <- county$ADMIN1
 
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
-  theme = bs_theme(version = 5, bootswatch = "minty",
+    # required as reference for the button selection process. 
+    id = "pages",
+    theme = bs_theme(version = 5, bootswatch = "minty",
                    primary = "#2F4F4F",
                    secondary = "#2F4F4F") %>% 
     bslib::bs_add_rules(sass::sass_file("www/style.scss")),
@@ -98,13 +85,15 @@ ui <- navbarPage(
   # header = h5("This content appears at the top of every page "),
   # footer = "This content appears at the bottom of every page",
 
-  # Home page --------------------------------------------------------------- 
+  ## Home page --------------------------------------------------------------- 
   tabPanel(title = "Home",
            htmlTemplate("www/homepage.html",
-                        button_opt = actionButton("button-opt", "View Scenario"),
-                        button_status = actionButton("button-status", "View Scenario"),
-                        button_pess = actionButton("button-pess", "View Scenario"),
-                        button_ex = actionButton("button-ex", "View Scenario")
+                        button_opt = pageButtonUi(id = "optimistic"),
+                        button_status = pageButtonUi(id = "middle"),
+                        button_pess = pageButtonUi(id = "pessimistic"),
+                        button_ex = pageButtonUi(id = "extreme"),
+                        button_ssp_link = actionButton("ssp-link", "Click here to read more about Shared Socio-Economic Pathways",
+                                                       onClick = "window.open('https://www.carbonbrief.org/explainer-how-shared-socioeconomic-pathways-explore-future-climate-change/')")
            )
   ),
 
@@ -163,7 +152,7 @@ ui <- navbarPage(
              )
            )),
   ## Extreme Heat ------------------------------------------------------------
-  tabPanel(title = "Extreme Heat",
+  tabPanel(title = "Extreme",
            tabsetPanel(
              type = "pills",
              tabPanel(
@@ -184,11 +173,11 @@ ui <- navbarPage(
   ## Additional Nav bar objects ----------------------------------------------
   
   tabPanel(title = "Downloads",
-           h2("content will be added to Model Downloads")),
+           h2("Under construction")),
   tabPanel(title = "Model Validation",
-           h2("content will be added to Model Validation")),
+           h2("Under construction")),
   tabPanel(title = "Simulation Details",
-           h2("content will be added to Simulation Details"))
+           h2("Under construction"))
   
 )
 
@@ -198,22 +187,50 @@ ui <- navbarPage(
 
 
 server <- function(input, output, session) {
+  # page transfer for buttons 
+  pageButtonServer("optimistic", parentSession = session,pageName = "Optimistic" )
+  pageButtonServer("middle", parentSession = session,pageName = "Middle of the Road" )
+  pageButtonServer("pessimistic", parentSession = session,pageName = "Pessimistic" )
+  pageButtonServer("extreme", parentSession = session,pageName = "Extreme" )
   
-  # parse out climate data into subsets for each module
-  rasters <- prepClim(rasters = clim, ssps = c("126","245","370"))
-  
-  # ssp126 data
-  map_server(id = "ssp126", rasters = rasters[[1]])
+  # ssp126 data 
+  map_server(id = "ssp126", histRasters = allRasters_new$hist, 
+             sspRasters =  allRasters_new$`126`,
+             ssp = "126",
+             histPal = palettes[[1]],
+             sspPal = palettes[[2]],
+             pals = palList,
+             countyFeat = county)
   map2_server("ssp126_2")
   # ssp245 data
-  map_server("ssp245")
+  map_server(id = "ssp245", 
+             histRasters = allRasters_new$hist, 
+             sspRasters =  allRasters_new$`245`,
+             ssp = "245",
+             histPal = palettes[[1]],
+             sspPal = palettes[[3]],
+             pals = palList,
+             countyFeat = county)  
   map2_server("ssp245_2")
   # ssp370 data
-  map_server("ssp370")
+  map_server(id = "ssp370", 
+             histRasters = allRasters_new$hist, 
+             sspRasters =  allRasters_new$`370`,
+             ssp = "370",
+             histPal = palettes[[1]],
+             sspPal = palettes[[4]],
+             pals = palList,
+             countyFeat = county)  
   map2_server("ssp370_2")
   # ssp585 data
-  map_server("ssp585")
-  map2_server("ssp585_2")
+  map_server(id = "ssp585", 
+             histRasters = allRasters_new$hist, 
+             sspRasters =  allRasters_new$`585`,
+             ssp = "585",
+             histPal = palettes[[1]],
+             sspPal = palettes[[5]],
+             pals = palList,
+             countyFeat = county)    # map2_server("ssp585_2")
   
   
   # passing reactive elements to module functions  --------------------------

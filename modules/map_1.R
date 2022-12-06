@@ -12,57 +12,172 @@ map_UI <- function(id, panelName){
                    radioButtons(
                      inputId=ns("Timeline"),
                      label= tags$strong("Pick a future timeperiod:"),
-                     choices = list("Near term (2030)" = "30",
-                                    "Medium term (2050)" = "50",
-                                    "Long term (2100)" = "100")
+                     choices = list("2021-2040" = "30",  # these will need to change to match the new input dataset naming convention
+                                    "2041-2060" = "50",
+                                    "2061-2080" = "70",
+                                    "2081-2100" = "90"),
+                     selected = "30"
                    ),
                    # select mapped variable 
                    selectInput(
                      inputId=ns("Layer"),
-                     label=tags$strong("Pick a variable that you would like to visualize:"),
-                     choices = list("Min Temperature" = "tmin",
+                     label=tags$strong("Pick a variable to visualize on the map:"),
+                     choices = list("Min Temperature" = "tmin",  ## this will need to change to match the new dataset convention
                                     "Max Temperature" = "tmax",
-                                    "Precipitation" = "prcp")
+                                    "Precipitation" = "pr"),
+                     selected = "tmin"
                      ),
-                   tags$p(span("Large maps may take a few seconds to render.", style = "color:red")),
-                   tags$p(tags$strong("Click"), "on a pixel within Kenya to see the county name and pixel value."),
+                   # choose between actual value and percent change
+                   materialSwitch(inputId = ns("percentLayer"), label = "View Percent Change", status = "danger"),
+                   tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
+                   h5(htmlOutput(ns("cnty")))
                  ),
           # main panel -------------------------------------------------------------- 
-          mainPanel(width = 8,
-                   leafletOutput(ns("varchange")),
-                   textOutput(ns("cnty")),
-                   textOutput(ns("facdat")),
-                   textOutput(ns("explain")),
-                   "I think we can remove this. Or find a better spot.",
-                   tags$p(HTML("<b> Click here </b> to see how these data were generated and to learn more about caveats (under construction)"))
-                 )
+          mainPanel(width = 9,
+                   leafletOutput(ns("map1"), width="100%",height="500px")
+      )
     )
   )
 }
 
 
 # define server  ---------------------------------------------------------- 
-map_server <- function(id, rasters){
+map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal, pals){
   moduleServer(id,function(input,output,session){
-    # generate our display raster
-    facresults<-reactive({ 
-      # compile inputs from the radio buttons 
-      n1 <- paste0(input$layer,"_",input$Timeline)
-      # test for the presence of values in names and subset 
-      r1 <- rasters[[ grep(pattern = n1, x = names(rasters))]]
-      return(raster::raster(r1))
-    })
+    # filter for the historic data
+    index0 <- reactive({grep(pattern = input$Layer, x = names(histRasters))})
+    r0 <-reactive({raster(histRasters[[index0()]])})
+    # historic palette
+    index0p <-reactive({grep(pattern = input$Layer, x = names(histPal))})
+    pal0 <-reactive({histPal[[index0p()]]})
+    # not the most efficent process but it works. Tricky to get all the reactive
+    # call posistions lined up so use this as a model for changes 
+    n1 <- reactive({paste0(input$Layer,"_",ssp,"_",input$Timeline)})
+    index1 <- reactive({grep(pattern = n1(), x = names(sspRasters))})
+    r1 <- reactive({raster(sspRasters[[index1()]])})
+    # ssp palette
+    index1p <-reactive({grep(pattern = n1(), x = names(sspPal))})
+    pal1 <-reactive({sspPal[[index1p()]]})
     
-      map <- leaflet(options = leafletOptions(minZoom = 4)) %>%
+    pal <- reactive(pals[[input$Layer]]$palette)
+    vals <- reactive(pals[[input$Layer]]$values)
+    title <- reactive(pals[[input$Layer]]$title)
+    # generate legend values --------------------------------------------------
+    ### might be easier to declare of of these before hand and index them similar 
+    ### to how the rasters are being brought together. 
+
+    # minval <-  reactive({r1()@data@min})
+    # maxval <-  reactive({r1()@data@max})
+    # dom<- reactive({c(minval(), maxval())})
+    # val<- reactive({seq(minval(),maxval())})
+    # colorPal <-  reactive({c(colorRampPalette(colors = c("#330000", "white"),space = "Lab")(abs(minval())),
+    #                 colorRampPalette(colors = c("white", "#003300"),space = "Lab")(abs(maxval())))})
+    # # Color platte think is odd,
+    # pal <- reactive({ifelse(
+    #   test = minval() < 0 & maxval() > 0,
+    #   yes = colorNumeric(colorPal(), dom()),
+    #   no = colorNumeric(colorRampPalette(colors = c("white", "#003300"),space = "Lab")(abs(maxval())), dom())
+    # )})
+
+    # this works with a direct index on raster input object. 
+      map1 <- reactive({
+        leaflet(options = leafletOptions(minZoom = 4)) %>%
+      #set zoom levels 
         setView( lng = 37.826119933082545
                  , lat = 0.3347526538983459
-                 , zoom = 2 )%>%
-        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")#%>%
-        #addRasterImage(x = facresults)
-
-      output$varchange <- renderLeaflet({map})
+                 , zoom = 6 )%>%
+      # add z levels ------------------------------------------------------------
+        addMapPane("Historic Data", zIndex = 407) %>%
+        addMapPane("Projected Data", zIndex = 408) %>%
+        addMapPane("Counties", zIndex = 409) %>%
+      # tile providers ----------------------------------------------------------
+        addProviderTiles("Stamen.Toner", group = "Light")%>%
+        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
+        leaflet.extras::addResetMapButton() %>%
+      # add ssp raster features -----------------------------------------------------
+        addRasterImage(r1(),
+                       #colors = pal1(),
+                       colors = pal(),
+                       group = "Projected Data",
+                       opacity = 0.9)%>%
+      # add historic raster -----------------------------------------------------
+        addRasterImage(r0(),
+                       #colors = pal0(), 
+                       colors = pal(),
+                       group = "Historic Data",
+                       opacity = 0.9)%>%
+      # add county features -----------------------------------------------------
+        addPolygons(data = countyFeat, 
+                    fillColor = "", 
+                    fillOpacity = 0,
+                    color = "black",
+                    layerId = ~ADMIN1,
+                    weight = 1.5,
+                    group = "Counties")%>%
+      # add control groups ------------------------------------------------------
+        addLayersControl(
+          baseGroups = c("OpenStreetMap","Light"),
+          overlayGroups = c(
+            "Historic Data",
+            "Projected Data",
+            "Counties"
+          ),
+          position = "topleft", 
+          options = layersControlOptions(collapsed = TRUE)
+        ) %>% 
+      # add legend --------------------------------------------------------------
+        ###
+        # Need to figure out assigning a color palette before I can create a legend
+        ### 
+        
+         addLegend(
+           "bottomright",
+           pal = pal(),
+           values = vals(),
+           title = title(),
+        #   labels = c("Low Change", "", "", "", "High Change"),
+           opacity = 1,
+           layerId = "firstLegend",
+           group = "Projected Data",
+        #   na.label = "No Data"
+        # 
+        #   # labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
+         )
+        
+      })
       
-      output$cnty <- renderText("This is printed content ")
+      
+      output$map1 <- renderLeaflet({map1()})
+      
+      #map click
+      observeEvent(input$map1_click, {
+        click <- input$map1_click
+        clat <- click$lat
+        clon <- click$lng
+        # filter data
+        point <- as(st_point(x = c(clon, clat)), "Spatial")
+        # I need a historic and current value
+        # current
+        extractVal1 <- raster::extract(r1(), point)%>%
+          round(digits = 2)
+        #historic
+        extractVal0 <- raster::extract(r0(), point)%>%
+          round(digits = 2)
+        
+        # condition for setting the label based on input value 
+        label1 <- reactive({
+          if(input$Layer == "pr"){
+            "mm"
+          }else{
+            paste("C", intToUtf8(176))
+          }
+        })
+        
+        output$cnty <- renderText(paste("Historic value:",
+                                         "<b>", as.character(extractVal0), "</b>",label1(), "<br>",
+                                  "Projected value:",
+                                  "<b>", as.character(extractVal1),"</b>",label1()))
+      })
     }
   )
 }

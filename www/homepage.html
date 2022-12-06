@@ -1,55 +1,101 @@
 <!DOCTYPE html>
 <html>
-
   <body class="homepage">
-    <div class="header">
+    <!--<div class="header">
       <h1 class="header-title">
-        Understanding how various climate scenarios could affect afforestation efforts in Kenya
+        <! Understanding how various climate scenarios could affect afforestation efforts in Kenya >
       </h1>
      <! <img class="stock-img" src="stock-photo.png" alt="Stock Photo" /> >
     </div>
-    <br />
+    <br /> -->
+    <div class="sub-header">
+      <div class="header-text">
+        <h3>Lorem ipsum dolor sit amet</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Massa massa ultricies mi quis hendrerit dolor magna. Pretium vulputate sapien nec sagittis.</p>
+      </div>
+      <div class="header-photo">
+        <img class="map-image" src="map-screenshot.png" alt="Map Viewer Screenshot" />
+      </div>
+    </div>
+    <hr style="margin-left:25% !important; margin-right:25% !important; margin-top:5% !important; margin-bottom:5% !important"/>
     <div >
-      <h3 class="sub-title">
+      <h3 class="scenario-title">
         Choose a climate scenario:
       </h3>
     </div>
    
     <div class="row-scenarios">
-        <div class="col-scen" style="background-color:#0D98BA">
-        <h2>SSP1</h2>
-        <h3>Optimistic</h3>
-        <img class = "smiley" src="smile.png" title="Optimistic">
-           {{ button_opt }}
+        <div class="flip-card" style="background-color:#0D98BA">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <h2>SSP1</h2>
+              <h3>Optimistic</h3>
+              <img class = "smiley" src="smile.png" title="Optimistic">
+
+            </div>
+            <div class="flip-card-back">
+              <p>The world shifts gradually toward a more sustainable path, emphasizing more inclusive development that repsects environmental boundaries.</p>
+              {{ button_opt }}
+            </div>
+          </div>
       </div>
-      <div class="col-scen" style="background-color:#FFC82F">
-        <h2>SSP2</h2>
-        <h3>Middle of <br /> the Road</h3>
-        <img class = "smiley" src="middle.png" title="Middle of the road">
-        {{ button_status }}
+      <div class="flip-card" style="background-color:#FFC82F">
+           <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <h2>SSP2</h2>
+                <h3>Middle of the Road</h3>
+                <img class = "smiley" src="middle.png" title="Middle of the road">
+              </div>
+              <div class="flip-card-back">
+                <br />
+                <p>The world follows a path in which social, economic, and technological trends do not shift markedly from historical patterns.</p>
+                {{ button_status }}
+              </div>
+           </div>
+
       </div>
-      <div class="col-scen" style="background-color:#E7331A">
-        <h2>SSP3</h2>
-        <h3>Pessimistic</h3>
-        <img class = "smiley" src="sad.png" title="Pessimistic">
-        {{ button_pess }}
+      <div class="flip-card" style="background-color:#E7331A">
+          <div class = "flip-card-inner">
+            <div class="flip-card-front">
+              <h2>SSP3</h2>
+              <h3>Pessimistic</h3>
+              <img class = "smiley" src="sad.png" title="Pessimistic">
+            </div>
+            <div class="flip-card-back">
+              <p>Regional Rivalry - A resurgent nationalism, concerns about competitiveness and security, and regional conflicts push countires to increasingly focus on domestic or, at most, regional issues.</p>
+              {{ button_pess }}
+            </div>
+          </div>
       </div>
-      <div class="col-scen" style="background-color:#643741db">
-        <h2>SSP5</h2>
-        <h3>Extreme</h3>
-        <img class = "smiley" src="extreme.png" title="Extreme">
-        {{ button_ex }}
+      <div class="flip-card" style="background-color:#643741db">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <h2>SSP5</h2>
+            <h3>Extreme</h3>
+            <img class = "smiley" src="extreme.png" title="Extreme">
+          </div>
+          <div class="flip-card-back">
+            <p>Fossil-fueled Development - This world places increasing faith in competitive markets, innovation and participatory societites to produce rapid technological progress.</p>
+            {{ button_ex }}
+          </div>
+        </div>
       </div>
     </div>
-    <hr style="margin-left:25% !important; margin-right:25% !important; margin-top:10% !important"/>
+    <div class="disclaimer">
+      <p>Where's SSP4? Click <em>here</em> to learn more.</p>
+    </div>
+    <hr style="margin-left:25% !important; margin-right:25% !important; margin-top:5% !important"/>
     <br />
     <div class="row-details">
-      <h5 class="row-details-text"><em>Insert text and similar graphic for SSP scenarios</em></h5>
-      <img class = "ssp-image" src="ssp.jpg" alt="SSP Scenarios" />
-      <br />
-      <button class="ssp-link" onclick="https://climatescenarios.org/primer/socioeconomic-development/">
-        Click here to read more about Shared Socio-Economic Pathways
-      </button>
+      <div class="ssp-fig">
+        <figure>
+          <img class = "ssp-image" src="ssp.png" alt="SSP Scenarios" />
+          <figcaption>Infographic from <a href="https://climatescenarios.org">climatescenarios.org</a> </figcaption>
+        </figure>
+      </div>
+      <div class="ssp-button">
+        {{ button_ssp_link }}
+      </div>
     </div>
     <br />
     <br />
