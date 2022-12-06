@@ -30,10 +30,10 @@ map_UI <- function(id, panelName){
                    # choose between actual value and percent change
                    materialSwitch(inputId = ns("percentLayer"), label = "View Percent Change", status = "danger"),
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
-                   htmlOutput(ns("cnty"))
+                   h5(htmlOutput(ns("cnty")))
                  ),
           # main panel -------------------------------------------------------------- 
-          mainPanel(width = 8,
+          mainPanel(width = 9,
                    leafletOutput(ns("map1"), width="100%",height="800px")
       )
     )
@@ -87,9 +87,9 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
                  , lat = 0.3347526538983459
                  , zoom = 7 )%>%
       # add z levels ------------------------------------------------------------
-        addMapPane("histData", zIndex = 407) %>%
-        addMapPane("data", zIndex = 408) %>%
-        addMapPane("county", zIndex = 409) %>%
+        addMapPane("Historic Data", zIndex = 407) %>%
+        addMapPane("Projected Data", zIndex = 408) %>%
+        addMapPane("Counties", zIndex = 409) %>%
       # tile providers ----------------------------------------------------------
         addProviderTiles("Stamen.Toner", group = "Light")%>%
         addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
@@ -98,13 +98,13 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
         addRasterImage(r1(),
                        #colors = pal1(),
                        colors = pal(),
-                       group = "Data",
+                       group = "Projected Data",
                        opacity = 0.9)%>%
       # add historic raster -----------------------------------------------------
         addRasterImage(r0(),
                        #colors = pal0(), 
                        colors = pal(),
-                       group = "histData",
+                       group = "Historic Data",
                        opacity = 0.9)%>%
       # add county features -----------------------------------------------------
         addPolygons(data = countyFeat, 
@@ -113,14 +113,14 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
                     color = "black",
                     layerId = ~ADMIN1,
                     weight = 1.5,
-                    group = "County")%>%
+                    group = "Counties")%>%
       # add control groups ------------------------------------------------------
         addLayersControl(
           baseGroups = c("OpenStreetMap","Light"),
           overlayGroups = c(
-            "histData",
-            "Data",
-            "County"
+            "Historic Data",
+            "Projected Data",
+            "Counties"
           ),
           position = "topleft", 
           options = layersControlOptions(collapsed = TRUE)
@@ -138,7 +138,7 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
         #   labels = c("Low Change", "", "", "", "High Change"),
            opacity = 1,
            layerId = "firstLegend",
-           group = "Data",
+           group = "Projected Data",
         #   na.label = "No Data"
         # 
         #   # labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))

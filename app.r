@@ -209,6 +209,7 @@ server <- function(input, output, session) {
              ssp = "245",
              histPal = palettes[[1]],
              sspPal = palettes[[3]],
+             pals = palList,
              countyFeat = county)  
   map2_server("ssp245_2")
   # ssp370 data
@@ -218,6 +219,7 @@ server <- function(input, output, session) {
              ssp = "370",
              histPal = palettes[[1]],
              sspPal = palettes[[4]],
+             pals = palList,
              countyFeat = county)  
   map2_server("ssp370_2")
   # ssp585 data
@@ -227,6 +229,7 @@ server <- function(input, output, session) {
              ssp = "585",
              histPal = palettes[[1]],
              sspPal = palettes[[5]],
+             pals = palList,
              countyFeat = county)    # map2_server("ssp585_2")
   
   

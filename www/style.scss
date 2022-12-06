@@ -7,7 +7,7 @@ ul.nav.navbar-nav {
 }
 
 //////////////////////////////// header //////////////////////////////////////
-.header-title {
+/* .header-title {
   color: beige;
   padding-bottom: 20px;
   letter-spacing: 1px;
@@ -17,16 +17,16 @@ ul.nav.navbar-nav {
   padding: 40px;
   text-shadow: 2px 2px 5px #000000c4;
   
-}
+} */
 
 
-.header {
+/*.header {
   background-image: url(https://globalforestcoalition.org/wp-content/uploads/2015/07/nature-forest-trees-bamboo.jpeg);
   background-size: cover;
   margin-right: -1em;
   margin-left: -1em;
   margin-top: -2em;
-}
+} */
 
 /*img.stock-img {
   z-index:0;
@@ -191,7 +191,8 @@ div.flip-card{
 .flip-card p {
   color: beige;
   font-weight: 400;
-  letter-spacing: 1.3px;
+  letter-spacing: 0.3px;
+  margin-top: 1rem;
 }
 
 /* bucket button properties */
