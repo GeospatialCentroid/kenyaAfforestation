@@ -34,7 +34,7 @@ map_UI <- function(id, panelName){
                  ),
           # main panel -------------------------------------------------------------- 
           mainPanel(width = 9,
-                   leafletOutput(ns("map1"), width="100%",height="800px")
+                   leafletOutput(ns("map1"), width="100%",height="500px")
       )
     )
   )
@@ -85,7 +85,7 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
       #set zoom levels 
         setView( lng = 37.826119933082545
                  , lat = 0.3347526538983459
-                 , zoom = 7 )%>%
+                 , zoom = 6 )%>%
       # add z levels ------------------------------------------------------------
         addMapPane("Historic Data", zIndex = 407) %>%
         addMapPane("Projected Data", zIndex = 408) %>%

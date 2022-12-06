@@ -33,7 +33,7 @@ map2_UI <- function(id, panelName, county_names){
                    ),
                    tags$p(span("Large maps may take a few seconds to render.", style = "color:red")),
                    tags$p(tags$strong("Click")," on a pixel within Kenya to see the county name and pixel value.")),
-      mainPanel(width = 8,
+      mainPanel(width = 9,
         leafletOutput(ns("varchange1")),
         textOutput(ns("cnty3")),
         textOutput(ns("facdat3")),
@@ -55,7 +55,7 @@ map2_server <- function(id){
 
     output$varchange1 <- renderLeaflet({map})
 
-    output$cnty3 <- renderText("This is printed content ")
+    output$cnty3 <- renderText("")
     }
   )
 }
