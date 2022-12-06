@@ -9,15 +9,28 @@ generatePalettes <- function(rasters){
   
   
   #precipitation palette
-  pals[[1]] <-  colorNumeric(c("#FFFFCC", "#41B6C4", "#0C2C84"), values(pr_rast),
+  pals[["pr"]]$palette <-  colorNumeric(c("#FFFFCC", "#41B6C4", "#0C2C84"), values(pr_rast),
                              na.color = "transparent")
   
-  pals[[2]] <-  colorNumeric(palette = "RdYlBu", reverse = TRUE, values(tmin_rast),
+  pals[["pr"]]$title <- "Precipitation (mm)"
+  
+  pals[["pr"]]$values <- values(pr_rast)
+  
+  #tmin palette
+  pals[["tmin"]]$palette <-  colorNumeric(palette = "RdYlBu", reverse = TRUE, values(tmin_rast),
                              na.color = "transparent")
   
+  pals[["tmin"]]$title <- paste("Minimum Temperature C", intToUtf8(176))
   
-  pals[[3]] <-  colorNumeric(palette = "RdYlBu", reverse = TRUE, values(tmax_rast),
+  pals[["tmin"]]$values <- values(tmin_rast)
+  
+  #tmax palette
+  pals[["tmax"]]$palette <-  colorNumeric(palette = "RdYlBu", reverse = TRUE, values(tmax_rast),
                              na.color = "transparent")
+  
+  pals[["tmax"]]$title <- paste("Maximum Temperature C", intToUtf8(176))
+  
+  pals[["tmax"]]$values <- values(tmax_rast)
   
   
   return(pals)

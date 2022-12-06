@@ -21,18 +21,20 @@ map_UI <- function(id, panelName){
                    # select mapped variable 
                    selectInput(
                      inputId=ns("Layer"),
-                     label=tags$strong("Pick a variable that you would like to visualize:"),
+                     label=tags$strong("Pick a variable to visualize on the map:"),
                      choices = list("Min Temperature" = "tmin",  ## this will need to change to match the new dataset convention
                                     "Max Temperature" = "tmax",
                                     "Precipitation" = "pr"),
                      selected = "tmin"
                      ),
-                   tags$p(tags$strong("Click"), "on a pixel within Kenya to see the county name and pixel value."),
+                   # choose between actual value and percent change
+                   materialSwitch(inputId = ns("percentLayer"), label = "View Percent Change", status = "danger"),
+                   tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
+                   htmlOutput(ns("cnty"))
                  ),
           # main panel -------------------------------------------------------------- 
           mainPanel(width = 8,
-                   leafletOutput(ns("map1")),
-                   h3(textOutput(ns("cnty"))),
+                   leafletOutput(ns("map1"), width="100%",height="800px")
       )
     )
   )
@@ -57,7 +59,9 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
     index1p <-reactive({grep(pattern = n1(), x = names(sspPal))})
     pal1 <-reactive({sspPal[[index1p()]]})
     
-    pal <- reactive(pals[[input$Layer]])
+    pal <- reactive(pals[[input$Layer]]$palette)
+    vals <- reactive(pals[[input$Layer]]$values)
+    title <- reactive(pals[[input$Layer]]$title)
     # generate legend values --------------------------------------------------
     ### might be easier to declare of of these before hand and index them similar 
     ### to how the rasters are being brought together. 
@@ -81,7 +85,7 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
       #set zoom levels 
         setView( lng = 37.826119933082545
                  , lat = 0.3347526538983459
-                 , zoom = 6 )%>%
+                 , zoom = 7 )%>%
       # add z levels ------------------------------------------------------------
         addMapPane("histData", zIndex = 407) %>%
         addMapPane("data", zIndex = 408) %>%
@@ -129,8 +133,8 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
          addLegend(
            "bottomright",
            pal = pal(),
-           values = values(r1()),
-        #   title = "% change",
+           values = vals(),
+           title = title(),
         #   labels = c("Low Change", "", "", "", "High Change"),
            opacity = 1,
            layerId = "firstLegend",
@@ -165,14 +169,14 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
           if(input$Layer == "pr"){
             "mm"
           }else{
-            "c"
+            paste("C", intToUtf8(176))
           }
         })
         
-        output$cnty <- renderText(paste0("The historic value at the selected location is "
-                                         ,as.character(extractVal0)," ",label1(),
-                                  ". The future projected value is "
-                                  ,as.character(extractVal1)," ",label1()))#n1()
+        output$cnty <- renderText(paste("Historic value:",
+                                         "<b>", as.character(extractVal0), "</b>",label1(), "<br>",
+                                  "Projected value:",
+                                  "<b>", as.character(extractVal1),"</b>",label1()))
       })
     }
   )
