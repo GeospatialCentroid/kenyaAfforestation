@@ -27,8 +27,15 @@ map_UI <- function(id, panelName){
                                     "Precipitation" = "pr"),
                      selected = "tmin"
                      ),
+                   em("You can view Percent Change by turning the layer on via the map controls"),
                    # choose between actual value and percent change
-                   materialSwitch(inputId = ns("percentLayer"), label = "View Percent Change", status = "danger"),
+                   ## can't get switch to function correctly
+                   # materialSwitch(
+                   #   inputId = ns("percentLayer"),
+                   #   label = "View Percent Change",
+                   #   status = "danger"
+                   # ),
+                   hr(),
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
                    h5(htmlOutput(ns("cnty")))
                  ),
@@ -42,26 +49,39 @@ map_UI <- function(id, panelName){
 
 
 # define server  ---------------------------------------------------------- 
-map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal, pals){
+map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
+                       countyFeat, 
+                       #histPal, sspPal, 
+                       pals1, pals2){
   moduleServer(id,function(input,output,session){
     # filter for the historic data
     index0 <- reactive({grep(pattern = input$Layer, x = names(histRasters))})
-    r0 <-reactive({raster(histRasters[[index0()]])})
+    r0 <-reactive({histRasters[[index0()]]})
     # historic palette
-    index0p <-reactive({grep(pattern = input$Layer, x = names(histPal))})
-    pal0 <-reactive({histPal[[index0p()]]})
+    # index0p <-reactive({grep(pattern = input$Layer, x = names(histPal))})
+    # pal0 <-reactive({histPal[[index0p()]]})
     # not the most efficent process but it works. Tricky to get all the reactive
     # call posistions lined up so use this as a model for changes 
     n1 <- reactive({paste0(input$Layer,"_",ssp,"_",input$Timeline)})
     index1 <- reactive({grep(pattern = n1(), x = names(sspRasters))})
-    r1 <- reactive({raster(sspRasters[[index1()]])})
+    r1 <- reactive({sspRasters[[index1()]]})
     # ssp palette
-    index1p <-reactive({grep(pattern = n1(), x = names(sspPal))})
-    pal1 <-reactive({sspPal[[index1p()]]})
+    # index1p <-reactive({grep(pattern = n1(), x = names(sspPal))})
+    # pal1 <-reactive({sspPal[[index1p()]]})
     
-    pal <- reactive(pals[[input$Layer]]$palette)
-    vals <- reactive(pals[[input$Layer]]$values)
-    title <- reactive(pals[[input$Layer]]$title)
+    
+    pal <- reactive(pals1[[input$Layer]]$palette)
+    vals <- reactive(pals1[[input$Layer]]$values)
+    title <- reactive(pals1[[input$Layer]]$title)
+    
+    
+    #percent change layer and palette
+    r2 <- reactive({changeRasters[[index1()]]})
+    
+    pal2 <- reactive(pals2[[input$Layer]]$palette)
+    vals2 <- reactive(pals2[[input$Layer]]$values)
+    title2 <- reactive(pals2[[input$Layer]]$title) 
+    
     # generate legend values --------------------------------------------------
     ### might be easier to declare of of these before hand and index them similar 
     ### to how the rasters are being brought together. 
@@ -79,72 +99,94 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
     #   no = colorNumeric(colorRampPalette(colors = c("white", "#003300"),space = "Lab")(abs(maxval())), dom())
     # )})
 
-    # this works with a direct index on raster input object. 
-      map1 <- reactive({
+    # this works with a direct index on raster input object.
+    map1 <- reactive({
         leaflet(options = leafletOptions(minZoom = 4)) %>%
-      #set zoom levels 
-        setView( lng = 37.826119933082545
-                 , lat = 0.3347526538983459
-                 , zoom = 6 )%>%
-      # add z levels ------------------------------------------------------------
-        addMapPane("Historic Data", zIndex = 407) %>%
-        addMapPane("Projected Data", zIndex = 408) %>%
+        #set zoom levels
+        setView(lng = 37.826119933082545
+                , lat = 0.3347526538983459
+                , zoom = 6) %>%
+        # add z levels ------------------------------------------------------------
+      addMapPane("Historic Data", zIndex = 406) %>%
+        addMapPane("Projected Data", zIndex = 407) %>%
+        addMapPane("Percent Change", zIndex = 408) %>%
         addMapPane("Counties", zIndex = 409) %>%
-      # tile providers ----------------------------------------------------------
-        addProviderTiles("Stamen.Toner", group = "Light")%>%
-        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
+        # tile providers ----------------------------------------------------------
+      addProviderTiles("Stamen.Toner", group = "Light") %>%
+        addProviderTiles("OpenStreetMap", group = "OpenStreetMap") %>%
         leaflet.extras::addResetMapButton() %>%
-      # add ssp raster features -----------------------------------------------------
-        addRasterImage(r1(),
-                       #colors = pal1(),
-                       colors = pal(),
-                       group = "Projected Data",
-                       opacity = 0.9)%>%
-      # add historic raster -----------------------------------------------------
-        addRasterImage(r0(),
-                       #colors = pal0(), 
-                       colors = pal(),
-                       group = "Historic Data",
-                       opacity = 0.9)%>%
-      # add county features -----------------------------------------------------
-        addPolygons(data = countyFeat, 
-                    fillColor = "", 
-                    fillOpacity = 0,
-                    color = "black",
-                    layerId = ~ADMIN1,
-                    weight = 1.5,
-                    group = "Counties")%>%
-      # add control groups ------------------------------------------------------
-        addLayersControl(
-          baseGroups = c("OpenStreetMap","Light"),
-          overlayGroups = c(
-            "Historic Data",
-            "Projected Data",
-            "Counties"
-          ),
-          position = "topleft", 
-          options = layersControlOptions(collapsed = TRUE)
-        ) %>% 
-      # add legend --------------------------------------------------------------
-        ###
-        # Need to figure out assigning a color palette before I can create a legend
-        ### 
-        
-         addLegend(
-           "bottomright",
-           pal = pal(),
-           values = vals(),
-           title = title(),
+        # add ssp raster features -----------------------------------------------------
+      addRasterImage(r1(),
+                     #colors = pal1(),
+                     colors = pal(),
+                     group = "Projected Data",
+                     opacity = 0.9) %>%
+        # add historic raster -----------------------------------------------------
+      addRasterImage(r0(),
+                     #colors = pal0(),
+                     colors = pal(),
+                     group = "Historic Data",
+                     opacity = 0.9) %>%
+        # add percent change layer ------------------------------------------------
+      addRasterImage(
+        r2(),
+        layerId = "change",
+        #colors = pal1(),
+        colors = pal2(),
+        group = "Percent Change",
+        opacity = 0.9
+      ) %>%
+        # add county features -----------------------------------------------------
+      addPolygons(
+        data = countyFeat,
+        fillColor = "",
+        fillOpacity = 0,
+        color = "black",
+        layerId = ~ ADMIN1,
+        weight = 1.5,
+        group = "Counties"
+      ) %>%
+        # add legend --------------------------------------------------------------
+
+      addLegend(
+        "bottomright",
+        pal = pal(),
+        values = vals(),
+        title = title(),
         #   labels = c("Low Change", "", "", "", "High Change"),
-           opacity = 1,
-           layerId = "firstLegend",
-           group = "Projected Data",
+        opacity = 1,
+        layerId = "firstLegend",
+        group = "Projected Data",
         #   na.label = "No Data"
-        # 
+        #
         #   # labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
-         )
-        
-      })
+      ) %>%
+        addLegend(
+          "bottomleft",
+          pal = pal2(),
+          values = vals2(),
+          title = title2(),
+          #   labels = c("Low Change", "", "", "", "High Change"),
+          opacity = 1,
+          layerId = "secondLegend",
+          group = "Percent Change",
+        ) %>% 
+        # add control groups ------------------------------------------------------
+      addLayersControl(
+        baseGroups = c("OpenStreetMap", "Light"),
+        overlayGroups = c(
+          "Historic Data",
+          "Projected Data",
+          "Percent Change",
+          "Counties"
+        ),
+        position = "topleft",
+        options = layersControlOptions(collapsed = TRUE)
+      ) %>% 
+        # Keep projected layer off by default
+        hideGroup("Percent Change")
+      
+    })
       
       
       output$map1 <- renderLeaflet({map1()})
@@ -178,6 +220,8 @@ map_server <- function(id,histRasters,sspRasters,ssp,countyFeat,histPal, sspPal,
                                   "Projected value:",
                                   "<b>", as.character(extractVal1),"</b>",label1()))
       })
+      
+      
     }
   )
 }

@@ -29,8 +29,8 @@ addProviderTiles("Stamen.Toner", group = "Light") %>%
   leaflet.extras::addResetMapButton() %>%
   # add ssp raster features -----------------------------------------------------
 addRasterImage(
-  raster(allRasters_new$`126`[[1]]),
-  colors = pals[[3]],
+  allRasters_change$`126`[[4]],
+  colors = pal_change$pr$palette,
   group = "Data",
   opacity = 0.9
 ) %>%

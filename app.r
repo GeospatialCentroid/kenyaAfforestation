@@ -46,19 +46,29 @@ panelNames <-
   )
 
 # new input datasets  -----------------------------------------------------
-inputs_new <- renderInputs()
+#inputs_new <- renderInputs()
+# save the output from renderInputs to reduce app load time
+inputs_new <- readRDS("data/inputs.rds")
 ## raster inputs
-clim_new <- inputs_new$rasters
+clim_abs <- inputs_new$abs_rasters
+
+clim_change <- inputs_new$change_rasters
+
 ## county names
 county_names <- inputs_new$countyNames
 ## county shp
 county <- inputs_new$county
 
 ### process into groups
-allRasters_new <- prepClim(rasters = clim_new, ssps = c("hist","126","245","370", "585"))
+allRasters_abs <- prepClim(rasters = clim_abs, ssps = c("hist","126","245","370", "585"))
+
+allRasters_change <- prepClim(rasters = clim_change, ssps = c("126","245","370", "585"))
+
 ### preprocess all palette objects 
-palettes <- getPallette(allRasters_new)
-palList <- generatePalettes(clim_new)
+#palettes <- getPallette(allRasters_abs)
+pal_abs <- generatePalettes(clim_abs, type = "abs")
+
+pal_change <- generatePalettes(clim_change, type = "change")
 
 ###** note: content to be added based on previous feedback 
 ### evaluate the implementation of the second map page 
@@ -194,44 +204,53 @@ server <- function(input, output, session) {
   pageButtonServer("extreme", parentSession = session,pageName = "Extreme" )
   
   # ssp126 data 
-  map_server(id = "ssp126", histRasters = allRasters_new$hist, 
-             sspRasters =  allRasters_new$`126`,
+  map_server(id = "ssp126", histRasters = allRasters_abs$hist, 
+             sspRasters =  allRasters_abs$`126`,
+             changeRasters = allRasters_change$`126`,
              ssp = "126",
-             histPal = palettes[[1]],
-             sspPal = palettes[[2]],
-             pals = palList,
+             #histPal = palettes[[1]],
+             #sspPal = palettes[[2]],
+             pals1 = pal_abs,
+             pals2 = pal_change,
              countyFeat = county)
   map2_server("ssp126_2")
   # ssp245 data
-  map_server(id = "ssp245", 
-             histRasters = allRasters_new$hist, 
-             sspRasters =  allRasters_new$`245`,
+  map_server(id = "ssp245",
+             histRasters = allRasters_abs$hist,
+             sspRasters =  allRasters_abs$`245`,
+             changeRasters = allRasters_change$`245`,
              ssp = "245",
-             histPal = palettes[[1]],
-             sspPal = palettes[[3]],
-             pals = palList,
-             countyFeat = county)  
+             # histPal = palettes[[1]],
+             # sspPal = palettes[[3]],
+             pals1 = pal_abs,
+             pals2 = pal_change,
+             countyFeat = county)
   map2_server("ssp245_2")
   # ssp370 data
-  map_server(id = "ssp370", 
-             histRasters = allRasters_new$hist, 
-             sspRasters =  allRasters_new$`370`,
+  map_server(id = "ssp370",
+             histRasters = allRasters_abs$hist,
+             sspRasters =  allRasters_abs$`370`,
+             changeRasters = allRasters_change$`370`,
              ssp = "370",
-             histPal = palettes[[1]],
-             sspPal = palettes[[4]],
-             pals = palList,
-             countyFeat = county)  
+             # histPal = palettes[[1]],
+             # sspPal = palettes[[4]],
+             pals1 = pal_abs,
+             pals2 = pal_change,
+             countyFeat = county)
   map2_server("ssp370_2")
   # ssp585 data
-  map_server(id = "ssp585", 
-             histRasters = allRasters_new$hist, 
-             sspRasters =  allRasters_new$`585`,
+  map_server(id = "ssp585",
+             histRasters = allRasters_abs$hist,
+             sspRasters =  allRasters_abs$`585`,
+             changeRasters = allRasters_change$`585`,
              ssp = "585",
-             histPal = palettes[[1]],
-             sspPal = palettes[[5]],
-             pals = palList,
-             countyFeat = county)    # map2_server("ssp585_2")
-  
+             # histPal = palettes[[1]],
+             # sspPal = palettes[[5]],
+             pals1 = pal_abs,
+             pals2 = pal_change,
+             countyFeat = county)   
+  map2_server("ssp585_2")
+
   
   # passing reactive elements to module functions  --------------------------
   # from  https://www.youtube.com/watch?v=oOYaHsPXLvs&ab_channel=RConsortium 40min

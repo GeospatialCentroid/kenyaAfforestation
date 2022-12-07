@@ -67,21 +67,40 @@ renderInputs <- function(){
   ### projected climate data 
   
 
-# This works, but input data is incorrect  -------------------------------------------------------------
-  climCRS <- readRDS("data/Climate_absolute.RDS")
-  # list of three rasterbrick, 17 layers each. 
-  rastNames <- lapply(climCRS, FUN = names) %>% unlist()
-  # 
-  clim <- climCRS %>%
-     map(rast)%>%
-     map(terra::project, county)%>%
-     map(terra::crop, county) %>%
-     rast() # reduce to a layered raster that makes indexing easier 
-  ### 
-  names(clim) <- rastNames
+# # This works, but input data is incorrect  -------------------------------------------------------------
+#   climCRS <- readRDS("data/Climate_absolute.RDS")
+#   # list of three rasterbrick, 17 layers each. 
+#   rastNames <- lapply(climCRS, FUN = names) %>% unlist()
+#   # 
+#   clim <- climCRS %>%
+#      map(rast)%>%
+#      map(terra::project, county)%>%
+#      map(terra::crop, county) %>%
+#      rast() # reduce to a layered raster that makes indexing easier 
+#   ### 
+#   names(clim) <- rastNames
 
+# Updated data --------------------------------------------------  
+  climCRS <- readRDS("data/climate_change_files(2).rds")
+  
+  #pull out absolute and change maps
+  clim_abs <- climCRS[["absolute_rasters"]] %>% 
+    terra::rast()%>%
+    terra::project(county)%>%
+    terra::crop(county) %>% 
+    #change to raster, terra objects don't save as .rds and need raster for leaflet anyways
+    raster::stack()
+
+
+  clim_change <- climCRS[["change_rasters"]] %>% 
+    terra::rast()%>%
+    terra::project(county)%>%
+    terra::crop(county) %>% 
+    raster::stack()
+  
   # generate export object 
-  inputs <- list(rasters = clim,
+  inputs <- list(abs_rasters = clim_abs,
+                 change_rasters = clim_change,
                  countyNames = county_names,
                  county = county)
   
