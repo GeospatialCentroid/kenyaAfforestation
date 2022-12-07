@@ -147,7 +147,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         group = "Counties"
       ) %>%
         # add legend --------------------------------------------------------------
-
+      # Including it as it's own control group because it applies to both temp map objects. 
       addLegend(
         "bottomright",
         pal = pal(),
@@ -156,7 +156,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         #   labels = c("Low Change", "", "", "", "High Change"),
         opacity = 1,
         layerId = "firstLegend",
-        group = "Projected Data",
+        group =  "Temperature Legend",  ### c("Historic Data","Projected Data") did not work as expected 
         #   na.label = "No Data"
         #
         #   # labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
@@ -178,6 +178,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           "Historic Data",
           "Projected Data",
           "Percent Change",
+          "Temperature Legend",
           "Counties"
         ),
         position = "topleft",
