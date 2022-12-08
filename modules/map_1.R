@@ -120,13 +120,13 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
                      #colors = pal1(),
                      colors = pal(),
                      group = "Projected Data",
-                     opacity = 0.9) %>%
+                     opacity = 1) %>%
         # add historic raster -----------------------------------------------------
       addRasterImage(r0(),
                      #colors = pal0(),
                      colors = pal(),
                      group = "Historic Data",
-                     opacity = 0.9) %>%
+                     opacity = 1) %>%
         # add percent change layer ------------------------------------------------
       addRasterImage(
         r2(),
@@ -134,7 +134,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         #colors = pal1(),
         colors = pal2(),
         group = "Percent Change",
-        opacity = 0.9
+        opacity = 1
       ) %>%
         # add county features -----------------------------------------------------
       addPolygons(
