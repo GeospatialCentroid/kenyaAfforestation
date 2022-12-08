@@ -167,7 +167,7 @@ ui <- navbarPage(
              type = "pills",
              tabPanel(
                "Climate change in Kenya",
-               map_UI(id = "ssp585", panelName = panelNames[4])
+                 map_UI(id = "ssp585", panelName = panelNames[4])
              ),
              tabPanel(
                "Climate and management effects on forests",
