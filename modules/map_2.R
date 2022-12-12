@@ -8,36 +8,58 @@ map2_UI <- function(id, panelName, county_names){
     sidebarLayout(
       sidebarPanel(width = 3,
                    radioButtons(
-                     inputId = ns("Timeline2"),
-                     label = tags$strong("Pick a future timeperiod:"),
-                     choices = c("Near term (2030)", "Medium term (2050)", "Long term (2100)") 
+                     inputId=ns("Timeline"),
+                     label= tags$strong("Pick a future timeperiod:"),
+                     choices = list("2021-2040" = "30",  # these will need to change to match the new input dataset naming convention
+                                    "2041-2060" = "50",
+                                    "2061-2080" = "70",
+                                    "2081-2100" = "90"),
+                     selected = "30"
                    ),
+                   # select mapped variable 
                    selectInput(
-                     inputId = ns("Management"),
-                     label = tags$strong("Pick a management scenario:"),
-                     choices = c("Do nothing", "Stop grazing", "Stop fires", "Reduce water stress"), multiple = F
+                     inputId=ns("Layer"),
+                     label=tags$strong("Pick a variable to visualize on the map:"),
+                     choices = list("No Management Action",  ## this will need to change to match the new dataset convention
+                                    "Stop Fires"),
+                     selected = "tmin"
                    ),
-                   hr(style = "border-all: 1px solid #000000;"),
-                   radioButtons(
-                     inputId=ns("Visualize"),label= tags$strong("Visualize an expanded forest cover scenario"),
-                     choices = c("Forest cover in 2030")
-                   ),
-                   h4("How does this cover change over time?"),
-                   selectInput(
-                     inputId=ns("Management22"), label=tags$strong("Pick a management scenario:"),
-                     choices = c( "Do nothing", "Stop fires"), multiple = F
-                   ),
+                   em("You can view current and near future forest Cover on via the map controls"),
+                   
+                   
+                   # radioButtons(
+                   #   inputId = ns("Timeline2"),
+                   #   label = tags$strong("Pick a future timeperiod:"),
+                   #   choices = c("Near term (2030)", "Medium term (2050)", "Long term (2100)") 
+                   # ),
+                   # selectInput(
+                   #   inputId = ns("Management"),
+                   #   label = tags$strong("Pick a management scenario:"),
+                   #   choices = c("Do nothing", "Stop fires"), multiple = F
+                   # ),
+                   # hr(style = "border-all: 1px solid #000000;"),
+                   # radioButtons(
+                   #   inputId=ns("Visualize"),label= tags$strong("Visualize an expanded forest cover scenario"),
+                   #   choices = c("Forest cover in 2030")
+                   # ),
+                   # h4("How does this cover change over time?"),
+                   # selectInput(
+                   #   inputId=ns("Management22"), label=tags$strong("Pick a management scenario:"),
+                   #   choices = c( "Do nothing", "Stop fires"), multiple = F
+                   # ),
                    selectInput(
                      inputId=ns("County23"), label=tags$strong("Pick a county to visualize forest cover changes:"),
                      choices = c("All", county_names), multiple = F
                    ),
-                   tags$p(span("Large maps may take a few seconds to render.", style = "color:red")),
-                   tags$p(tags$strong("Click")," on a pixel within Kenya to see the county name and pixel value.")),
+                   # tags$p(span("Large maps may take a few seconds to render.", style = "color:red")),
+                   # tags$p(tags$strong("Click")," on a pixel within Kenya to see the county name and pixel value.")
+                   ),
       mainPanel(width = 9,
         leafletOutput(ns("varchange1")),
         textOutput(ns("cnty3")),
         textOutput(ns("facdat3")),
         textOutput(ns("explain3"))
+      
       )
     )
   )

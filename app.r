@@ -66,7 +66,7 @@ allRasters_change <- prepClim(rasters = clim_change, ssps = c("126","245","370",
 
 ### preprocess all palette objects 
 #palettes <- getPallette(allRasters_abs)
-pal_abs <- generatePalettes(clim_abs, type = "abs")
+pal_abs <- generatePalettes(rasters = clim_abs, type = "abs")
 
 pal_change <- generatePalettes(clim_change, type = "change")
 
@@ -167,7 +167,7 @@ ui <- navbarPage(
              type = "pills",
              tabPanel(
                "Climate change in Kenya",
-               map_UI(id = "ssp585", panelName = panelNames[4])
+                 map_UI(id = "ssp585", panelName = panelNames[4])
              ),
              tabPanel(
                "Climate and management effects on forests",
