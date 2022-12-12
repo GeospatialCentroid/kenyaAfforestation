@@ -5,10 +5,10 @@ account: geocentroid
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7347536
-bundleId: 6606472
+bundleId: 6628498
 url: https://geocentroid.shinyapps.io/kenyaAfforestation/
-when: 1670441120.69009
-lastSyncTime: 1670441120.6901
+when: 1670873428.64583
+lastSyncTime: 1670873428.64584
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: paletteTest.R|README.md|stackExchange.R|test.r

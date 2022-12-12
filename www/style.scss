@@ -150,6 +150,7 @@ div.flip-card{
   transition: transform 0.8s;
   transform-style: preserve-3d;
   width: 100%;
+  -moz-backface-visibility: hidden;
 }
 
 /* Do an horizontal flip when you move the mouse over the flip box container */
@@ -166,15 +167,20 @@ div.flip-card{
   -webkit-backface-visibility: hidden; /* Safari */
   backface-visibility: hidden;
   text-shadow: 0.5px 0.5px 3px #9a9b9c;
-  
+
 }
 
+/* set z-index for front to fix Firefox issues */
+.flip-card-front {
+  z-index: 2;
+}
 
 /* Style the back side */
 .flip-card-back {
   transform: rotateY(180deg);
   position: absolute;
   top: -5%;
+  z-index: 3;
 }
 
 /* edit text within buckets */
