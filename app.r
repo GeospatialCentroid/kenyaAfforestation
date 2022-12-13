@@ -73,6 +73,27 @@ pal_change <- generatePalettes(clim_change, type = "change")
 ###** note: content to be added based on previous feedback 
 ### evaluate the implementation of the second map page 
 
+### structure will change once we have full dataset 
+files <- list.files(path = "data/Forest_Cover_layers_for_SSP126", 
+                    full.names = TRUE)
+
+# rasters and df 
+doNothing <- readRDS(files[4])
+# rasters and df 
+stopFires<- readRDS(files[5])
+names(stopFires$areas_change_df) <- names(doNothing$areas_change_df)
+
+# single file of historic forest cover 
+existingForest <- raster(files[1])
+crs(existingForest) <- "+proj=sinu +lon_0=36.5 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+# single file with project 2030 forest cover 
+expandedForest <- raster(files[2])
+crs(expandedForest) <- "+proj=sinu +lon_0=36.5 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+
+
+
+
+
 
 ###
 # this content will present in application
@@ -213,7 +234,12 @@ server <- function(input, output, session) {
              pals1 = pal_abs,
              pals2 = pal_change,
              countyFeat = county)
-  map2_server("ssp126_2")
+  map2_server(id = "ssp126_2",
+              histRaster = existingForest,
+              futureRaster = expandedForest,
+              noChangeRasters = doNothing,
+              stopFireRasters = stopFires, 
+              countyFeat = county)
   # ssp245 data
   map_server(id = "ssp245",
              histRasters = allRasters_abs$hist,
@@ -225,7 +251,7 @@ server <- function(input, output, session) {
              pals1 = pal_abs,
              pals2 = pal_change,
              countyFeat = county)
-  map2_server("ssp245_2")
+  # map2_server("ssp245_2")
   # ssp370 data
   map_server(id = "ssp370",
              histRasters = allRasters_abs$hist,
@@ -237,7 +263,7 @@ server <- function(input, output, session) {
              pals1 = pal_abs,
              pals2 = pal_change,
              countyFeat = county)
-  map2_server("ssp370_2")
+  # map2_server("ssp370_2")
   # ssp585 data
   map_server(id = "ssp585",
              histRasters = allRasters_abs$hist,
@@ -249,7 +275,7 @@ server <- function(input, output, session) {
              pals1 = pal_abs,
              pals2 = pal_change,
              countyFeat = county)   
-  map2_server("ssp585_2")
+  # map2_server("ssp585_2")
 
   
   # passing reactive elements to module functions  --------------------------
