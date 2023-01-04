@@ -12,7 +12,7 @@ library(purrr)
 library(raster)
 library(rgdal)
 library(leaflet.extras)
-
+library(plotly)
 
 # source modules --------------------------------------------------------
 lapply(list.files(
@@ -30,11 +30,6 @@ lapply(list.files(
   ),
   source)
 
-
-# input dataset -----------------------------------------------------------
-## returns a named list with specific inputs 
-# inputs <- renderInputOld()
-
 # global variables -----------------------------------------
 ## define names for the climate features
 panelNames <-
@@ -47,6 +42,11 @@ panelNames <-
 
 # new input datasets  -----------------------------------------------------
 #inputs_new <- renderInputs()
+
+## move all data processing input steps into scripts that are ran outside 
+## of the shiny app and store content for shiny as a rds
+
+
 # save the output from renderInputs to reduce app load time
 inputs_new <- readRDS("data/inputs.rds")
 ## raster inputs
