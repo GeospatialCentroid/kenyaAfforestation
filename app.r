@@ -170,8 +170,9 @@ ui <- navbarPage(
   
   ## Additional Nav bar objects ----------------------------------------------
   
-  tabPanel(title = "Downloads",
-           h2("Under construction")),
+  ### this is backburner for the time being... might be something to work on after the inperson event. 
+  # tabPanel(title = "Downloads",
+  #          h2("Under construction")),
   tabPanel(title = "Model Validation",
            h2("Under construction")),
   tabPanel(title = "Simulation Details",
@@ -209,41 +210,41 @@ server <- function(input, output, session) {
               pal1 = pal_management,
               countyFeat = county)
   # ssp245 data
-  # map_server(id = "ssp245",
-  #            histRasters = allRasters_abs$hist,
-  #            sspRasters =  allRasters_abs$`245`,
-  #            changeRasters = allRasters_change$`245`,
-  #            ssp = "245",
-  #            # histPal = palettes[[1]],
-  #            # sspPal = palettes[[3]],
-  #            pals1 = pal_abs,
-  #            pals2 = pal_change,
-  #            countyFeat = county)
-  # map2_server("ssp245_2")
+  map_server(id = "ssp245",
+             histRasters = allRasters_abs$hist,
+             sspRasters =  allRasters_abs$`245`,
+             changeRasters = allRasters_change$`245`,
+             ssp = "245",
+             # histPal = palettes[[1]],
+             # sspPal = palettes[[3]],
+             pals1 = pal_abs,
+             pals2 = pal_change,
+             countyFeat = county)
+  map2_server("ssp245_2")
   # ssp370 data
-  # map_server(id = "ssp370",
-  #            histRasters = allRasters_abs$hist,
-  #            sspRasters =  allRasters_abs$`370`,
-  #            changeRasters = allRasters_change$`370`,
-  #            ssp = "370",
-  #            # histPal = palettes[[1]],
-  #            # sspPal = palettes[[4]],
-  #            pals1 = pal_abs,
-  #            pals2 = pal_change,
-  #            countyFeat = county)
-  # map2_server("ssp370_2")
+  map_server(id = "ssp370",
+             histRasters = allRasters_abs$hist,
+             sspRasters =  allRasters_abs$`370`,
+             changeRasters = allRasters_change$`370`,
+             ssp = "370",
+             # histPal = palettes[[1]],
+             # sspPal = palettes[[4]],
+             pals1 = pal_abs,
+             pals2 = pal_change,
+             countyFeat = county)
+  map2_server("ssp370_2")
   # ssp585 data
-  # map_server(id = "ssp585",
-  #            histRasters = allRasters_abs$hist,
-  #            sspRasters =  allRasters_abs$`585`,
-  #            changeRasters = allRasters_change$`585`,
-  #            ssp = "585",
-  #            # histPal = palettes[[1]],
-  #            # sspPal = palettes[[5]],
-  #            pals1 = pal_abs,
-  #            pals2 = pal_change,
-  #            countyFeat = county)   
-  # map2_server("ssp585_2")
+  map_server(id = "ssp585",
+             histRasters = allRasters_abs$hist,
+             sspRasters =  allRasters_abs$`585`,
+             changeRasters = allRasters_change$`585`,
+             ssp = "585",
+             # histPal = palettes[[1]],
+             # sspPal = palettes[[5]],
+             pals1 = pal_abs,
+             pals2 = pal_change,
+             countyFeat = county)
+  map2_server("ssp585_2")
   
 }
 
