@@ -39,15 +39,23 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
   doNothing <- readRDS(files[4])
   stopFires<- readRDS(files[5])
   names(stopFires$areas_change_df) <- names(doNothing$areas_change_df)
+  
+  # store dataframes in new list 
+  areaChangeDF <- list()
+  areaChangeDF$doNothing <- doNothing$areas_change_df
+  areaChangeDF$stopFires <- stopFires$areas_change_df
+  
+  # store rasters in new list 
+  forestChangeRasters <- list()
   # reproject and crop rasters 
-  doNothing$forest_change_rasters <- doNothing$forest_change_rasters %>%
+  forestChangeRasters$doNothing <- doNothing$forest_change_rasters %>%
     terra::rast()%>%
     terra::project(county)%>%
     terra::crop(countyBuff) %>% 
     terra::mask(countyBuff)%>%
     raster::stack()
   
-  stopFires$forest_change_rasters <- stopFires$forest_change_rasters %>%
+  forestChangeRasters$stopFires <- stopFires$forest_change_rasters %>%
     terra::rast()%>%
     terra::project(county)%>%
     terra::crop(countyBuff) %>% 
@@ -75,8 +83,8 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
     raster::raster()
   
   # generate export object 
-  inputs <- list(doNothing = doNothing,
-                 stopFires = stopFires, 
+  inputs <- list(areaChangeDF = areaChangeDF,
+                 forestChangeRasters = forestChangeRasters, 
                  expandedForest = expandedForest,
                  existingForest = existingForest,
                  county = county)

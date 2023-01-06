@@ -34,7 +34,7 @@ map2_UI <- function(id, panelName, county_names){
                    ),
       mainPanel(width = 9,
         leafletOutput(ns("varchange1")),
-        h3("County wide changes in tree cover"),
+        h3("Country wide changes in tree cover"),
         plotlyOutput(ns("percentChange")),
         p("This plot summarizes the total change in tree cover throughout the country."),
         textOutput(ns("cnty3")),
@@ -48,8 +48,8 @@ map2_UI <- function(id, panelName, county_names){
 
 
 # define server  ---------------------------------------------------------- 
-map2_server <- function(id, histRaster, futureRaster, noChangeRasters, 
-                        stopFireRasters, countyFeat
+map2_server <- function(id, histRaster, futureRaster, managementRasters, 
+                        managementDF, pal1, countyFeat
                         # ssp, will need to add once all data is present. 
                         ){
   moduleServer(id,function(input,output,session){
@@ -64,15 +64,19 @@ map2_server <- function(id, histRaster, futureRaster, noChangeRasters,
    
   # bind features to single list  
    r1 <- list(
-     nothing = noChangeRasters$forest_change_rasters,
-     fire = stopFireRasters$forest_change_rasters
+     nothing = managementRasters$doNothing,
+     fire = managementRasters$stopFires
    )
-   # select object based on set name, then drop list to get raster brick
+   # select object based on set name, then drop list to get raster brick -- input$layer : fire, nothing
   r2 <-  reactive({r1[grep(pattern = input$Layer, x = names(r1))][[1]]})
   # select raster layer based on the selected timeline --- double brackets on raster bricks 
   r3 <-  reactive({r2()[[grep(pattern = input$Timeline, x = names(r2()))]]})
-  ### this becomes the raster object to gather 
 
+  pal2 <- reactive(pal1[[input$Layer]]$palette)
+  vals2 <- reactive(pal1[[input$Layer]]$values)
+  title2 <- reactive(pal1[[input$Layer]]$title)
+
+  
    #  generarte the map object 
     map <-reactive({ 
       leaflet(options = leafletOptions(minZoom = 5)) %>%
@@ -90,23 +94,20 @@ map2_server <- function(id, histRaster, futureRaster, noChangeRasters,
       addMapPane("Counties", zIndex = 409) %>%
   #   # add historic raster -----------------------------------------------------
       addRasterImage(hist1,
-                   #colors = pal1(),
+                   colors = pal1$hf$palette,
                    group = "Historic Data",
                    opacity = 1) %>%
       # add baseline raster features -----------------------------------------------------
-    addRasterImage(base1,
-                   #colors = pal0(),
-                   # colors = pal(),
+      addRasterImage(base1,
+                   colors = pal1$ef$palette,
                    group = "Baseline Data",
                    opacity = 1) %>%
     # %>%
   #     # add percent change layer ------------------------------------------------
     addRasterImage(
-      #r2()[[1]][[1]],
       r3(),
       layerId = "change",
-      #colors = pal1(),
-      # colors = pal2(),
+      colors = pal2(),
       group = "Projected Data",
       opacity = 1
     ) %>%
@@ -120,31 +121,40 @@ map2_server <- function(id, histRaster, futureRaster, noChangeRasters,
       weight = 1.5,
       group = "Counties"
     ) %>%
-      # add legend --------------------------------------------------------------
-  #   # Including it as it's own control group because it applies to both temp map objects. 
-  #   addLegend(
-  #     "bottomright",
-  #     pal = pal(),
-  #     values = vals(),
-  #     title = title(),
-  #     #   labels = c("Low Change", "", "", "", "High Change"),
-  #     opacity = 1,
-  #     layerId = "firstLegend",
-  #     group =  "Temperature Legend",  ### c("Historic Data","Projected Data") did not work as expected 
-  #     #   na.label = "No Data"
-  #     #
-  #     #   # labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
-  #   ) %>%
-  #     addLegend(
-  #       "bottomleft",
-  #       pal = pal2(),
-  #       values = vals2(),
-  #       title = title2(),
-  #       #   labels = c("Low Change", "", "", "", "High Change"),
-  #       opacity = 1,
-  #       layerId = "secondLegend",
-  #       group = "Percent Change",
-  #     ) %>% 
+    # add legends  ------------------------------------------------------------
+    addLegend_decreasing(
+        "bottomright",
+        pal = pal2(),
+        values = vals2(),
+        title = title2(),
+        #   labels = c("Low Change", "", "", "", "High Change"),
+        opacity = 1,
+        layerId = "changeLegend",
+        group = "Projected Data",
+        decreasing = TRUE
+    ) %>%
+    addLegend_decreasing(
+      "bottomright",
+      pal = pal1$hf$palette,
+      values = pal1$hf$values,
+      title = pal1$hf$title,
+      #   labels = c("Low Change", "", "", "", "High Change"),
+      opacity = 1,
+      layerId = "histLegend",
+      group = "Historic Data",
+      decreasing = TRUE
+    )%>%
+    addLegend_decreasing(
+      "bottomright",
+      pal = pal1$ef$palette,
+      values = pal1$ef$values,
+      title = pal1$ef$title,
+      #   labels = c("Low Change", "", "", "", "High Change"),
+      opacity = 1,
+      layerId = "baseLegend",
+      group = "Baseline Data",
+      decreasing = TRUE
+    ) %>% 
       # add control groups ------------------------------------------------------
     addLayersControl(
       baseGroups = c("OpenStreetMap", "Light"),
@@ -156,21 +166,22 @@ map2_server <- function(id, histRaster, futureRaster, noChangeRasters,
       ),
       position = "topleft",
       options = layersControlOptions(collapsed = TRUE)
-    ) 
-    # %>%
-  #     # Keep projected layer off by default
-  #     hideGroup("Percent Change")
+    )%>%
+    hideGroup(
+      group = c(
+        "Historic Data",
+        "Baseline Data"))
   #   
   })
   
 
   # generate the count plots  -----------------------------------------------
-    # bind features to single list  
+    # bind features to single list
     df1 <- list(
-      nothing = noChangeRasters$areas_change_df,
-      fire = stopFireRasters$areas_change_df
+      nothing = managementDF$doNothing,
+      fire = managementDF$stopFires
     )
-    # select df based on name 
+    # select df based on name
     df2 <-  reactive({df1[grep(pattern = input$Layer, x = names(df1))][[1]]})
 
     p1 <-  reactive({plot_ly(data = df2(), y = ~`%Change`, x = ~Year, type = "bar",

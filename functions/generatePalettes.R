@@ -1,3 +1,8 @@
+
+
+
+
+# function for climate data -----------------------------------------------
 generatePalettes <- function(rasters, type){
   
   pr_rast <- rasters[[grep("pr", names(rasters))]]
@@ -82,4 +87,53 @@ generatePalettes <- function(rasters, type){
   
   return(pals)
   
+}
+
+
+#function for forest cover data 
+genPalettes_forestCover <- function(rasters){
+  
+  doNothing <- rasters$forestChangeRasters$doNothing
+  stopFires <-rasters$forestChangeRasters$stopFires
+  histForest <- rasters$existingForest
+  expForest <- rasters$expandedForest
+  
+  pals <- vector("list", length = 4)
+  names(pals) <- c("nothing","fire", "hf", "ef")
+
+  #historic forest cover palette
+  pals[["hf"]]$palette <- colorNumeric(c("#edf8fb","#b2e2e2","#66c2a4","#2ca25f","#006d2c"), values(histForest),
+                                       na.color = "transparent")
+  
+  pals[["hf"]]$title <- "Historic Forest Cover (%)"
+  
+  pals[["hf"]]$values <- values(histForest)
+  
+  #Expected base line forest cover palette
+  pals[["ef"]]$palette <- colorNumeric(c("#edf8fb","#b2e2e2","#66c2a4","#2ca25f","#006d2c"), values(expForest),
+                                       na.color = "transparent")
+  
+  pals[["ef"]]$title <- "Expected 2030 Forest Cover (%)"
+  
+  pals[["ef"]]$values <- values(expForest)
+  
+  ### these should be combined... Trouble is we are passing them in as a list of raster object, will need to reduce down to a stack I think. 
+  #forest cover change - do nothing
+  pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#80cdc1","#018571"), values(doNothing),
+                                       na.color = "transparent")
+  
+  pals[["nothing"]]$title <- "Expected Forest Cover Change No Management (%)"
+  
+  pals[["nothing"]]$values <- values(doNothing)
+  
+  #forest cover change - do nothing
+  pals[["fire"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#80cdc1","#018571"), values(stopFires),
+                                       na.color = "transparent")
+  
+  pals[["fire"]]$title <- "Expected Forest Cover Change Stop Fires (%)"
+  
+  pals[["fire"]]$values <- values(stopFires)
+  
+  return(pals)
+    
 }

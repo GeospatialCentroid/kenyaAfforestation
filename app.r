@@ -40,64 +40,31 @@ panelNames <-
     "Extreme Climate Future"
   )
 
-# new input datasets  -----------------------------------------------------
-#inputs_new <- renderInputs()
 
-## move all data processing input steps into scripts that are ran outside 
-## of the shiny app and store content for shiny as a rds
-
-
-# save the output from renderInputs to reduce app load time
-inputs_new <- readRDS("data/inputs.rds")
+# Climate Change Page -----------------------------------------------------
+climateChangeInputs <- readRDS("data/climateChangeInputs.RDS")
 ## raster inputs
-clim_abs <- inputs_new$abs_rasters
-
-clim_change <- inputs_new$change_rasters
-
+clim_abs <- climateChangeInputs$abs_rasters
+clim_change <- climateChangeInputs$change_rasters
 ## county names
-county_names <- inputs_new$countyNames
+county_names <- climateChangeInputs$countyNames
 ## county shp
-county <- inputs_new$county
+county <- climateChangeInputs$county
 
 ### process into groups
 allRasters_abs <- prepClim(rasters = clim_abs, ssps = c("hist","126","245","370", "585"))
-
 allRasters_change <- prepClim(rasters = clim_change, ssps = c("126","245","370", "585"))
 
 ### preprocess all palette objects 
-#palettes <- getPallette(allRasters_abs)
 pal_abs <- generatePalettes(rasters = clim_abs, type = "abs")
-
 pal_change <- generatePalettes(clim_change, type = "change")
 
-###** note: content to be added based on previous feedback 
-### evaluate the implementation of the second map page 
 
-### structure will change once we have full dataset 
-files <- list.files(path = "data/Forest_Cover_layers_for_SSP126", 
-                    full.names = TRUE)
+# Climate Management Inputs -----------------------------------------------
+climateManagementInputs <- readRDS("data/climateManagementInputs.RDS")
 
-# rasters and df 
-doNothing <- readRDS(files[4])
-# rasters and df 
-stopFires<- readRDS(files[5])
-names(stopFires$areas_change_df) <- names(doNothing$areas_change_df)
+pal_management <- genPalettes_forestCover(climateManagementInputs)
 
-# single file of historic forest cover 
-existingForest <- raster(files[1])
-crs(existingForest) <- "+proj=sinu +lon_0=36.5 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
-# single file with project 2030 forest cover 
-expandedForest <- raster(files[2])
-crs(expandedForest) <- "+proj=sinu +lon_0=36.5 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
-
-
-
-
-
-
-###
-# this content will present in application
-###
 
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
@@ -235,62 +202,48 @@ server <- function(input, output, session) {
              pals2 = pal_change,
              countyFeat = county)
   map2_server(id = "ssp126_2",
-              histRaster = existingForest,
-              futureRaster = expandedForest,
-              noChangeRasters = doNothing,
-              stopFireRasters = stopFires, 
+              histRaster = climateManagementInputs$existingForest,
+              futureRaster = climateManagementInputs$expandedForest,
+              managementRasters = climateManagementInputs$forestChangeRasters,
+              managementDF = climateManagementInputs$areaChangeDF,
+              pal1 = pal_management,
               countyFeat = county)
   # ssp245 data
-  map_server(id = "ssp245",
-             histRasters = allRasters_abs$hist,
-             sspRasters =  allRasters_abs$`245`,
-             changeRasters = allRasters_change$`245`,
-             ssp = "245",
-             # histPal = palettes[[1]],
-             # sspPal = palettes[[3]],
-             pals1 = pal_abs,
-             pals2 = pal_change,
-             countyFeat = county)
+  # map_server(id = "ssp245",
+  #            histRasters = allRasters_abs$hist,
+  #            sspRasters =  allRasters_abs$`245`,
+  #            changeRasters = allRasters_change$`245`,
+  #            ssp = "245",
+  #            # histPal = palettes[[1]],
+  #            # sspPal = palettes[[3]],
+  #            pals1 = pal_abs,
+  #            pals2 = pal_change,
+  #            countyFeat = county)
   # map2_server("ssp245_2")
   # ssp370 data
-  map_server(id = "ssp370",
-             histRasters = allRasters_abs$hist,
-             sspRasters =  allRasters_abs$`370`,
-             changeRasters = allRasters_change$`370`,
-             ssp = "370",
-             # histPal = palettes[[1]],
-             # sspPal = palettes[[4]],
-             pals1 = pal_abs,
-             pals2 = pal_change,
-             countyFeat = county)
+  # map_server(id = "ssp370",
+  #            histRasters = allRasters_abs$hist,
+  #            sspRasters =  allRasters_abs$`370`,
+  #            changeRasters = allRasters_change$`370`,
+  #            ssp = "370",
+  #            # histPal = palettes[[1]],
+  #            # sspPal = palettes[[4]],
+  #            pals1 = pal_abs,
+  #            pals2 = pal_change,
+  #            countyFeat = county)
   # map2_server("ssp370_2")
   # ssp585 data
-  map_server(id = "ssp585",
-             histRasters = allRasters_abs$hist,
-             sspRasters =  allRasters_abs$`585`,
-             changeRasters = allRasters_change$`585`,
-             ssp = "585",
-             # histPal = palettes[[1]],
-             # sspPal = palettes[[5]],
-             pals1 = pal_abs,
-             pals2 = pal_change,
-             countyFeat = county)   
+  # map_server(id = "ssp585",
+  #            histRasters = allRasters_abs$hist,
+  #            sspRasters =  allRasters_abs$`585`,
+  #            changeRasters = allRasters_change$`585`,
+  #            ssp = "585",
+  #            # histPal = palettes[[1]],
+  #            # sspPal = palettes[[5]],
+  #            pals1 = pal_abs,
+  #            pals2 = pal_change,
+  #            countyFeat = county)   
   # map2_server("ssp585_2")
-
-  
-  # passing reactive elements to module functions  --------------------------
-  # from  https://www.youtube.com/watch?v=oOYaHsPXLvs&ab_channel=RConsortium 40min
-  # test <- reactiveVal(1)
-  # morevals <- reactiveValues(test = 1)
-  #
-  # module_server(id = "id_1", results = test )# this works
-  # module_server(id = "id_2", results = test() )# this will only return the initial value
-  #
-  # module_server(id - "id_3", results = morevals) # this works
-  # module_server(id = "id_4", results = morevals$test) # this does not work
-  # ## passing a object defined in the ui
-  # module_server(id - "id_5", results = reactive({input$test})) # this works
-  # module_server(id - "id_5", results = input$test) # this does not work.
   
 }
 
