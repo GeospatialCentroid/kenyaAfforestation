@@ -91,12 +91,16 @@ generatePalettes <- function(rasters, type){
 
 
 #function for forest cover data 
-genPalettes_forestCover <- function(rasters){
+genPalettes_forestCover <- function(data){
   
-  doNothing <- rasters$forestChangeRasters$doNothing
-  stopFires <-rasters$forestChangeRasters$stopFires
-  histForest <- rasters$existingForest
-  expForest <- rasters$expandedForest
+  # subset out change rasters 
+  changeRasters <- data$forestChangeRasters
+  
+  
+  doNothing <- changeRasters[grepl(pattern = "DoNothing", x = names(changeRasters))]
+  stopFires <-changeRasters[grepl(pattern = "StopFires", x = names(changeRasters))]
+  histForest <- data$existingForest
+  expForest <- data$expandedForest
   
   pals <- vector("list", length = 4)
   names(pals) <- c("nothing","fire", "hf", "ef")
@@ -119,20 +123,24 @@ genPalettes_forestCover <- function(rasters){
   
   ### these should be combined... Trouble is we are passing them in as a list of raster object, will need to reduce down to a stack I think. 
   #forest cover change - do nothing
-  pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#80cdc1","#018571"), values(doNothing),
+  nothingStack <- raster::stack(doNothing)
+  ###! ITS NOT CLEAR HOW palette is handling a dataframe of values... might need to collapse all values into a single list.  
+  
+  pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#80cdc1","#018571"), values(nothingStack),
                                        na.color = "transparent")
   
   pals[["nothing"]]$title <- "Expected Forest Cover Change No Management (%)"
   
-  pals[["nothing"]]$values <- values(doNothing)
+  pals[["nothing"]]$values <- values(nothingStack)
   
-  #forest cover change - do nothing
-  pals[["fire"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#80cdc1","#018571"), values(stopFires),
-                                       na.color = "transparent")
+  #forest cover change - stop fires 
+  ## no fire data to work with at the moment. 
+  # pals[["fire"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#80cdc1","#018571"), values(stopFires),
+  #                                    na.color = "transparent")
   
-  pals[["fire"]]$title <- "Expected Forest Cover Change Stop Fires (%)"
+  # pals[["fire"]]$title <- "Expected Forest Cover Change Stop Fires (%)"
   
-  pals[["fire"]]$values <- values(stopFires)
+  # pals[["fire"]]$values <- values(stopFires)
   
   return(pals)
     

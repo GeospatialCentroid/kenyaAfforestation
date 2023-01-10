@@ -49,7 +49,7 @@ map2_UI <- function(id, panelName, county_names){
 
 # define server  ---------------------------------------------------------- 
 map2_server <- function(id, histRaster, futureRaster, managementRasters, 
-                        managementDF, pal1, countyFeat
+                        countryDF,countyDF, pal1, countyFeat, ssp
                         # ssp, will need to add once all data is present. 
                         ){
   moduleServer(id,function(input,output,session){
@@ -58,19 +58,25 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   # define raster features  -------------------------------------------------
    hist1 <- histRaster
    base1 <- futureRaster
-  ## reactive elements to select the project data to show 
-  #  r1 <-noChangeRasters$forest_change_rasters$X126_50_DoNothing
   
+
+  # filter datasets to specific spp -----------------------------------------
+  managementRasters <- managementRasters[grepl(pattern = ssp, x = names(managementRasters))]
+  countryDF <- countryDF[grepl(pattern = ssp, x = names(countryDF))]
+  countyDF <- countyDF[grepl(pattern = ssp, x = names(countyDF))] 
+   
    
   # bind features to single list  
    r1 <- list(
-     nothing = managementRasters$doNothing,
-     fire = managementRasters$stopFires
+     nothing = managementRasters[[paste0("ssp",ssp,"_DoNothing")]],
+     fire = managementRasters[[paste0("ssp",ssp,"_StopFires")]]
    )
+
+   
    # select object based on set name, then drop list to get raster brick -- input$layer : fire, nothing
   r2 <-  reactive({r1[grep(pattern = input$Layer, x = names(r1))][[1]]})
   # select raster layer based on the selected timeline --- double brackets on raster bricks 
-  r3 <-  reactive({r2()[[grep(pattern = input$Timeline, x = names(r2()))]]})
+  r3 <-  reactive({r2()[[grep(pattern = input$Timeline, x = names(r2()[[1]]))]]})
 
   pal2 <- reactive(pal1[[input$Layer]]$palette)
   vals2 <- reactive(pal1[[input$Layer]]$values)
@@ -178,13 +184,13 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   # generate the count plots  -----------------------------------------------
     # bind features to single list
     df1 <- list(
-      nothing = managementDF$doNothing,
-      fire = managementDF$stopFires
+      nothing = countryDF[[paste0("ssp",ssp,"_DoNothing")]],
+      fire = countryDF[[paste0("ssp",ssp,"_StopFires")]]
     )
     # select df based on name
     df2 <-  reactive({df1[grep(pattern = input$Layer, x = names(df1))][[1]]})
 
-    p1 <-  reactive({plot_ly(data = df2(), y = ~`%Change`, x = ~Year, type = "bar",
+    p1 <-  reactive({plot_ly(data = df2(), y = ~Change, x = ~Year, type = "bar",
                    color = ~Areas, name = ~Areas)})
       
   

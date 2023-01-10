@@ -35,59 +35,75 @@ renderClimateChangeInputs <- function(county,countyBuff, climateRasters){
 }
 
 renderClimateManagementInputs <- function(county, countyBuff, files){
-  # rasters and df 
-  doNothing <- readRDS(files[4])
-  stopFires<- readRDS(files[5])
-  names(stopFires$areas_change_df) <- names(doNothing$areas_change_df)
   
-  # store dataframes in new list 
-  areaChangeDF <- list()
-  areaChangeDF$doNothing <- doNothing$areas_change_df
-  areaChangeDF$stopFires <- stopFires$areas_change_df
+
+  # processing function, mostly for lappy -----------------------------------
+  projClipCrop <- function(raster, county, countyBuff){
+    #reproject
+    crs(raster) <- "+proj=sinu +lon_0=36.5 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+    
+    # reprojects rasters 
+    raster <- raster %>% 
+      terra::rast()%>%
+      terra::project(county)%>%
+      terra::crop(countyBuff) %>% 
+      terra::mask(countyBuff)%>%
+      raster::raster()
+    return(raster)
+  }
   
-  # store rasters in new list 
-  forestChangeRasters <- list()
-  # reproject and crop rasters 
-  forestChangeRasters$doNothing <- doNothing$forest_change_rasters %>%
-    terra::rast()%>%
-    terra::project(county)%>%
-    terra::crop(countyBuff) %>% 
-    terra::mask(countyBuff)%>%
-    raster::stack()
   
-  forestChangeRasters$stopFires <- stopFires$forest_change_rasters %>%
-    terra::rast()%>%
-    terra::project(county)%>%
-    terra::crop(countyBuff) %>% 
-    terra::mask(countyBuff)%>%
-    raster::stack()
+  # create stand alone rasters 
+  f1 <- files[grepl(pattern = ".tif" , x = files)]
   
-  # single file of historic forest cover 
-  existingForest <- raster(files[1])
+  existingForest <- raster(f1[grepl(pattern = "existing", f1)])
   crs(existingForest) <- "+proj=sinu +lon_0=36.5 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
-  existingForest <- existingForest %>%
-    terra::rast()%>%
-    terra::project(county)%>%
-    terra::crop(countyBuff) %>% 
-    terra::mask(countyBuff)%>%
-    raster::raster()
+  existingForest <- projClipCrop(raster = existingForest, county = county, countyBuff = countyBuff)
+  
+  
   
   # single file with project 2030 forest cover 
-  expandedForest <- raster(files[2])
-  crs(expandedForest) <- "+proj=sinu +lon_0=36.5 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
-  expandedForest <- expandedForest %>%
-    terra::rast()%>%
-    terra::project(county)%>%
-    terra::crop(countyBuff) %>% 
-    terra::mask(countyBuff)%>%
-    raster::raster()
+  expandedForest <- raster(f1[grepl(pattern = "expanded", f1)])
+  expandedForest <- projClipCrop(raster = expandedForest, county = county, countyBuff = countyBuff)
+  
+  
+  
+  # list containers for combining 
+  rasters <- list()
+  areaCountry <- list()
+  areaCounty <- list()
+  listNames <- c()
+  
+  # grab all .rds files 
+  f2 <- files[grepl(pattern = ".rds" , x = files)]
+  
+  for(i in seq_along(f2)){
+    # read in objects
+    r1 <- readRDS(f2[1])
+    # gather name from the file name 
+    n1 <- stringr::str_split(f2[i], pattern = "/") %>% unlist()
+    name <- substr(x = n1[3], start = 1, stop = nchar(n1[3])-4)
+    listNames[i] <- name
+    # define list element
+    rasters[[i]] <- r1$forest_change_rasters
+    areaCountry[[i]] <- r1$areas_change_df 
+    areaCounty[[i]] <- r1$county_change_df
+
+  }
+  #name list objects 
+  names(rasters) <- listNames
+  names(areaCountry) <- listNames
+  names(areaCounty) <- listNames
+  
+  # reprojects rasters 
+  rasters <- lapply(X = rasters, FUN = projClipCrop, county = county, countyBuff = countyBuff)
   
   # generate export object 
-  inputs <- list(areaChangeDF = areaChangeDF,
-                 forestChangeRasters = forestChangeRasters, 
+  inputs <- list(areaCountry = areaCountry,
+                 areaCounty = areaCounty,
+                 forestChangeRasters = rasters, 
                  expandedForest = expandedForest,
-                 existingForest = existingForest,
-                 county = county)
+                 existingForest = existingForest)
   return(inputs)
 }
 
@@ -115,7 +131,7 @@ climCRS <- readRDS("data/climate_change_files.rds")
 ### evaluate the implementation of the second map page 
 
 ### structure will change once we have full dataset 
-files <- list.files(path = "data/Forest_Cover_layers_for_SSP126", 
+files <- list.files(path = "data/managementLayers", 
                     full.names = TRUE)
 
 
