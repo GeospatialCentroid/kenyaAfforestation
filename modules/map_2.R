@@ -6,7 +6,7 @@ map2_UI <- function(id, panelName, county_names){
   tagList( # ensures that correct html returns. Functions as a list. 
     h3(panelName),
     sidebarLayout(
-      sidebarPanel(width = 3,
+      sidebarPanel(width = 2,
                    radioButtons(
                      inputId=ns("Timeline"),
                      label= tags$strong("Pick a future timeperiod:"),
@@ -27,20 +27,28 @@ map2_UI <- function(id, panelName, county_names){
                    # select County features 
                    selectInput(
                      inputId=ns("County23"), label=tags$strong("Pick a county to visualize forest cover changes:"),
-                     choices = c("All", county_names), multiple = F
+                     choices = county_names, multiple = F,selected = "Bomet"
                    ),
                    # tags$p(span("Large maps may take a few seconds to render.", style = "color:red")),
                    # tags$p(tags$strong("Click")," on a pixel within Kenya to see the county name and pixel value.")
                    ),
-      mainPanel(width = 9,
-        leafletOutput(ns("varchange1")),
-        h3("Country wide changes in tree cover"),
-        plotlyOutput(ns("percentChange")),
-        p("This plot summarizes the total change in tree cover throughout the country."),
+      mainPanel(width = 10,
+        leafletOutput(ns("varchange1"),height = "80%"),
         textOutput(ns("cnty3")),
         textOutput(ns("facdat3")),
-        textOutput(ns("explain3"))
-      
+        textOutput(ns("explain3")),
+        fluidRow(
+          column(width = 5, 
+                 h3("Country wide changes in tree cover"),
+                 plotlyOutput(ns("percentChangeCountry")),
+                 p("This plot summarizes the total change in tree cover throughout the country.")
+          ),
+          column(width = 5, 
+                 h3(paste0("Changes in tree cover in the selected County")),
+                 # plotlyOutput(ns("percentChangeCounty")),
+                 p("This plot summarizes the total change in tree cover throughout the county")
+          )
+        )
       )
     )
   )
@@ -138,35 +146,25 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         layerId = "changeLegend",
         group = "Projected Data",
         decreasing = TRUE
-    ) %>%
-    addLegend_decreasing(
-      "bottomright",
-      pal = pal1$hf$palette,
-      values = pal1$hf$values,
-      title = pal1$hf$title,
-      #   labels = c("Low Change", "", "", "", "High Change"),
-      opacity = 1,
-      layerId = "histLegend",
-      group = "Historic Data",
-      decreasing = TRUE
     )%>%
     addLegend_decreasing(
       "bottomright",
       pal = pal1$ef$palette,
       values = pal1$ef$values,
-      title = pal1$ef$title,
+      title = "Forest Cover(%)",
       #   labels = c("Low Change", "", "", "", "High Change"),
-      opacity = 1,
-      layerId = "baseLegend",
-      group = "Baseline Data",
+      opacity = 0.8,
+      layerId = "sharedLegend",
+      group = "Forest Cover Data",
       decreasing = TRUE
-    ) %>% 
+    )%>%
       # add control groups ------------------------------------------------------
     addLayersControl(
       baseGroups = c("OpenStreetMap", "Light"),
       overlayGroups = c(
         "Historic Data",
         "Baseline Data",
+        "Forest Cover Data",
         "Projected Data",
         "Counties"
       ),
@@ -175,6 +173,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     )%>%
     hideGroup(
       group = c(
+        "Forest Cover Data",
         "Historic Data",
         "Baseline Data"))
   #   
@@ -193,10 +192,25 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     p1 <-  reactive({plot_ly(data = df2(), y = ~Change, x = ~Year, type = "bar",
                    color = ~Areas, name = ~Areas)})
       
-  
+
+    # plot data for County level ----------------------------------------------
+    df1_a <- list(
+      nothing = countyDF[[paste0("ssp",ssp,"_DoNothing")]],
+      fire = countyDF[[paste0("ssp",ssp,"_StopFires")]]
+    )
+    # select df based on name
+    df2_a <-  reactive({df1_a[grep(pattern = input$Layer, x = names(df1_a))][[1]]})
+    # select county based on inputs 
+    df3_a <- reactive({df2_a %>% filter(County == input$County23)})
+    
+    p2 <- reactive({
+      plot_ly(data = df3_a(), y = ~Change, x = ~Year, type = "bar",
+              color = ~Areas, name = ~Areas)
+      })
     
     output$varchange1 <- renderLeaflet({map()})
-    output$percentChange <- renderPlotly({p1()})
+    output$percentChangeCountry <- renderPlotly({p1()})
+    output$percentChangeCounty <- renderPlotly({p2()})
     output$cnty3 <- renderText("")
     }
   )

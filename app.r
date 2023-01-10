@@ -218,13 +218,18 @@ server <- function(input, output, session) {
              sspRasters =  allRasters_abs$`245`,
              changeRasters = allRasters_change$`245`,
              ssp = "245",
-             # histPal = palettes[[1]],
-             # sspPal = palettes[[3]],
              pals1 = pal_abs,
              pals2 = pal_change,
              countyFeat = county)
-  #map2_server("ssp245_2")
-  
+  map2_server(id = "ssp245_2",
+              histRaster = climateManagementInputs$existingForest,
+              futureRaster = climateManagementInputs$expandedForest,
+              managementRasters = climateManagementInputs$forestChangeRasters,
+              countryDF = climateManagementInputs$areaCountry,
+              countyDF = climateManagementInputs$areaCounty,
+              pal1 = pal_management,
+              ssp = "245",
+              countyFeat = county)  
   # ssp370 data
   map_server(id = "ssp370",
              histRasters = allRasters_abs$hist,
