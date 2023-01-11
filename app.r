@@ -186,6 +186,7 @@ ui <- navbarPage(
 
 
 server <- function(input, output, session) {
+  
   # page transfer for buttons 
   pageButtonServer("optimistic", parentSession = session,pageName = "Optimistic" )
   pageButtonServer("middle", parentSession = session,pageName = "Middle of the Road" )

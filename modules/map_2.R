@@ -33,7 +33,7 @@ map2_UI <- function(id, panelName, county_names){
                    # tags$p(tags$strong("Click")," on a pixel within Kenya to see the county name and pixel value.")
                    ),
       mainPanel(width = 9,
-        leafletOutput(ns("varchange1"),height = "80%"),
+        leafletOutput(ns("map2"),height = "80%"),
         textOutput(ns("cnty3")),
         textOutput(ns("facdat3")),
         textOutput(ns("explain3")),
@@ -63,7 +63,6 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
                         # ssp, will need to add once all data is present. 
                         ){
   moduleServer(id,function(input,output,session){
-    
 
   # define raster features  -------------------------------------------------
    hist1 <- histRaster
@@ -86,7 +85,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
    # select object based on set name, then drop list to get raster brick -- input$layer : fire, nothing
   r2 <-  reactive({r1[grep(pattern = input$Layer, x = names(r1))][[1]]})
   # select raster layer based on the selected timeline --- double brackets on raster bricks 
-  r3 <-  reactive({r2()[[grep(pattern = input$Timeline, x = names(r2()[[1]]))]]})
+  r3 <-  reactive({r2()[[grep(pattern = paste0("_", input$Timeline), x = names(r2()))]]})
 
   pal2 <- reactive(pal1[[input$Layer]]$palette)
   vals2 <- reactive(pal1[[input$Layer]]$values)
@@ -94,105 +93,143 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
 
   
    #  generarte the map object 
-    map <-reactive({ 
-      leaflet(options = leafletOptions(minZoom = 5)) %>%
-      setView( lng = 37.826119933082545
-               , lat = 0.3347526538983459
-               , zoom = 2 )%>%
-      # tile providers ----------------------------------------------------------
+    output$map2 <- leaflet::renderLeaflet({
+      #map <-reactive({ 
+      leaflet(options = leafletOptions(minZoom = 4)) %>%
+        setView( lng = 37.826119933082545
+                 , lat = 0.3347526538983459
+                 , zoom = 6 )%>%
+        # tile providers ----------------------------------------------------------
       addProviderTiles("Stamen.Toner", group = "Light") %>%
-      addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
-      leaflet.extras::addResetMapButton() %>%
-      # add z levels ------------------------------------------------------------
-      addMapPane("Historic Data", zIndex = 406) %>%
-      addMapPane("Baseline Data", zIndex = 407) %>%
-      addMapPane("Projected Data", zIndex = 408) %>%
-      addMapPane("Counties", zIndex = 409) %>%
-  #   # add historic raster -----------------------------------------------------
-      addRasterImage(hist1,
-                   colors = pal1$hf$palette,
-                   group = "Historic Data",
-                   opacity = 1) %>%
-      # add baseline raster features -----------------------------------------------------
-      addRasterImage(base1,
-                   colors = pal1$ef$palette,
-                   group = "Baseline Data",
-                   opacity = 1) %>%
-    # %>%
-  #     # add percent change layer ------------------------------------------------
-    addRasterImage(
-      r3(),
-      layerId = "change",
-      colors = pal2(),
-      group = "Projected Data",
-      opacity = 1
-    ) %>%
-      # add county features -----------------------------------------------------
-    addPolygons(
-      data = countyFeat,
-      fillColor = "",
-      fillOpacity = 0,
-      color = "black",
-      layerId = ~ ADMIN1,
-      weight = 1.5,
-      group = "Counties"
-    ) %>%
-    # add legends  ------------------------------------------------------------
-    addLegend_decreasing(
-        "bottomright",
-        pal = pal2(),
-        values = vals2(),
-        title = title2(),
-        #   labels = c("Low Change", "", "", "", "High Change"),
-        opacity = 1,
-        layerId = "changeLegend",
-        group = "Projected Data",
-        decreasing = TRUE
-    )%>%
-    addLegend_decreasing(
-      "bottomright",
-      pal = pal1$ef$palette,
-      values = pal1$ef$values,
-      title = "Forest Cover(%)",
-      #   labels = c("Low Change", "", "", "", "High Change"),
-      opacity = 0.8,
-      layerId = "sharedLegend",
-      group = "Forest Cover Data",
-      decreasing = TRUE
-    )%>%
+        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
+        #leaflet.extras::addResetMapButton() %>%
+        # add z levels ------------------------------------------------------------
+      # addMapPane("Historic Data", zIndex = 406) %>%
+      #   addMapPane("Baseline Data", zIndex = 407) %>%
+      #   addMapPane("Projected Data", zIndex = 408) %>%
+         addMapPane("Counties", zIndex = 409) %>%
+        # add county features -----------------------------------------------------
+      addPolygons(
+        data = countyFeat,
+        fillColor = "",
+        fillOpacity = 0,
+        color = "black",
+        layerId = ~ ADMIN1,
+        weight = 1.5,
+        group = "Counties",
+        options = pathOptions(pane = "Counties")
+      ) %>%
       # add control groups ------------------------------------------------------
-    addLayersControl(
-      baseGroups = c("OpenStreetMap", "Light"),
-      overlayGroups = c(
-        "Historic Data",
-        "Baseline Data",
-        "Forest Cover Data",
-        "Projected Data",
-        "Counties"
-      ),
-      position = "topleft",
-      options = layersControlOptions(collapsed = TRUE)
-    )%>%
-    hideGroup(
-      group = c(
-        "Forest Cover Data",
-        "Historic Data",
-        "Baseline Data"))
-  #   
-  })
+      addLayersControl(
+        baseGroups = c("OpenStreetMap", "Light"),
+        overlayGroups = c(
+          "Historic Forest Cover",
+          "Baseline Forest Cover",
+          #"Forest Cover Data",
+          "Projected Change",
+          "Counties"
+        ),
+        position = "topleft",
+        options = layersControlOptions(collapsed = TRUE)
+      ) %>% 
+        hideGroup(
+          group = c(
+            #"Forest Cover Data",
+            "Historic Forest Cover",
+            "Baseline Forest Cover"))
+
+    })
+    
+    # this makes it so the proxy map is rendered in the background, otherwise the map is empty when you first navigate to this page
+    outputOptions(output, "map2", suspendWhenHidden=FALSE)
+    
+    
+    # add rasters to proxy map
+    observe({
+
+      leafletProxy("map2") %>% 
+        #removeImage(layerId = "change") %>% 
+        # add historic raster -----------------------------------------------------
+      addRasterImage(hist1,
+                     colors = pal1$hf$palette,
+                     group = "Historic Forest Cover",
+                     opacity = 1) %>%
+        # add baseline raster features -----------------------------------------------------
+      addRasterImage(base1,
+                     colors = pal1$ef$palette,
+                     group = "Baseline Forest Cover",
+                     opacity = 1) %>%
+        # add percent change layer ------------------------------------------------
+      addRasterImage(
+        r3(),
+        layerId = "change",
+        colors = pal2(),
+        group = "Projected Change",
+        opacity = 1
+      ) %>%
+        # add legend for percent change
+        addLegend_decreasing(
+          "bottomright",
+          pal = pal2(),
+          values = vals2(),
+          title = title2(),
+          #   labels = c("Low Change", "", "", "", "High Change"),
+          opacity = 1,
+          layerId = "changeLegend",
+          group = "Projected Change",
+          decreasing = TRUE
+        ) 
+        
+        
+    })
+    
+    # add forest % legend  ------------------------------------------------------------
+    observeEvent(input$map2_groups,{
+
+      leafletProxy("map2") %>%
+        removeControl(layerId = "sharedLegend")
+
+      if ('Historic Forest Cover' %in% input$map2_groups | 'Baseline Forest Cover' %in% input$map2_groups){
+        leafletProxy("map2") %>%
+          addLegend_decreasing(
+            "bottomright",
+            pal = pal1$ef$palette,
+            values = pal1$ef$values,
+            title = "Forest Cover(%)",
+            #   labels = c("Low Change", "", "", "", "High Change"),
+            opacity = 0.8,
+            layerId = "sharedLegend",
+            decreasing = TRUE
+          )
+
+      }
+
+
+
+    })
+    
+    
+  
   
 
   # generate the count plots  -----------------------------------------------
+   
+    #set plotly parameters
+    forest_pal <- c("#2d4221","#32a850", "#87c7cd",  "goldenrod")
+    forest_pal <- setNames(forest_pal, c("All", "Evergreen", "Deciduous", "New"))
+    
+    
+    
     # bind features to single list
     df1 <- list(
       nothing = countryDF[[paste0("ssp",ssp,"_DoNothing")]],
       fire = countryDF[[paste0("ssp",ssp,"_StopFires")]]
     )
-    # select df based on name
+    # select df based on management action
     df2 <-  reactive({df1[grep(pattern = input$Layer, x = names(df1))][[1]]})
 
     p1 <-  reactive({plot_ly(data = df2(), y = ~Change, x = ~Year, type = "bar",
-                   color = ~Areas, name = ~Areas)})
+                   color = ~Areas, name = ~Areas, colors = forest_pal)})
       
 
     # plot data for County level ----------------------------------------------
@@ -200,17 +237,18 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       nothing = countyDF[[paste0("ssp",ssp,"_DoNothing")]],
       fire = countyDF[[paste0("ssp",ssp,"_StopFires")]]
     )
-    # select df based on name
+    # select df based on management action
     df2_a <-  reactive({df1_a[grep(pattern = input$Layer, x = names(df1_a))][[1]]})
+    
     # select county based on inputs 
     df3_a <- reactive({df2_a() %>% filter(County == input$County23)})
     
     p2 <- reactive({
       plot_ly(data = df3_a(), y = ~Change, x = ~Year, type = "bar",
-              color = ~Areas, name = ~Areas)
+              color = ~Areas, name = ~Areas, colors = forest_pal)
       })
     
-    output$varchange1 <- renderLeaflet({map()})
+    #output$varchange1 <- renderLeaflet({map()})
     output$percentChangeCountry <- renderPlotly({p1()})
     output$percentChangeCounty <- renderPlotly({p2()})
     output$cnty3 <- renderText("")

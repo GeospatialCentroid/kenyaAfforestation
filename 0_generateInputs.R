@@ -49,7 +49,8 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
       terra::project(county)%>%
       terra::crop(countyBuff) %>% 
       terra::mask(countyBuff)%>%
-      raster::raster()
+      #this has to be 'brick', otherwise 'raster()' only returns the first layer
+      raster::brick()
     return(raster)
   }
   
@@ -90,7 +91,7 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
   
   for(i in seq_along(f2)){
     # read in objects
-    r1 <- readRDS(f2[1])
+    r1 <- readRDS(f2[i])
     # gather name from the file name 
     n1 <- stringr::str_split(f2[i], pattern = "/") %>% unlist()
     name <- substr(x = n1[3], start = 1, stop = nchar(n1[3])-4)
@@ -105,14 +106,6 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
   names(rasters) <- listNames
   names(areaCountry) <- listNames
   names(areaCounty) <- listNames
-  
-  
-  library(dplyr)
-  mini_iris <-
-    iris %>%
-    group_by(Species) %>%
-    slice(1)
-  mini_iris %>% gather(key = "flower_att", value = "measurement", -Species)
   
   
 
