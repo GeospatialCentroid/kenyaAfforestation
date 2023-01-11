@@ -241,7 +241,15 @@ server <- function(input, output, session) {
              pals1 = pal_abs,
              pals2 = pal_change,
              countyFeat = county)
-  #map2_server("ssp370_2")
+  map2_server(id = "ssp370_2",
+              histRaster = climateManagementInputs$existingForest,
+              futureRaster = climateManagementInputs$expandedForest,
+              managementRasters = climateManagementInputs$forestChangeRasters,
+              countryDF = climateManagementInputs$areaCountry,
+              countyDF = climateManagementInputs$areaCounty,
+              pal1 = pal_management,
+              ssp = "370",
+              countyFeat = county)  
   
   # ssp585 data
   map_server(id = "ssp585",
@@ -254,7 +262,15 @@ server <- function(input, output, session) {
              pals1 = pal_abs,
              pals2 = pal_change,
              countyFeat = county)
-  #map2_server("ssp585_2")
+  map2_server(id = "ssp585_2",
+              histRaster = climateManagementInputs$existingForest,
+              futureRaster = climateManagementInputs$expandedForest,
+              managementRasters = climateManagementInputs$forestChangeRasters,
+              countryDF = climateManagementInputs$areaCountry,
+              countyDF = climateManagementInputs$areaCounty,
+              pal1 = pal_management,
+              ssp = "585",
+              countyFeat = county)  
   
 }
 

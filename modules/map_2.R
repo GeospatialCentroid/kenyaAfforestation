@@ -6,7 +6,7 @@ map2_UI <- function(id, panelName, county_names){
   tagList( # ensures that correct html returns. Functions as a list. 
     h3(panelName),
     sidebarLayout(
-      sidebarPanel(width = 2,
+      sidebarPanel(width = 3,
                    radioButtons(
                      inputId=ns("Timeline"),
                      label= tags$strong("Pick a future timeperiod:"),
@@ -32,20 +32,22 @@ map2_UI <- function(id, panelName, county_names){
                    # tags$p(span("Large maps may take a few seconds to render.", style = "color:red")),
                    # tags$p(tags$strong("Click")," on a pixel within Kenya to see the county name and pixel value.")
                    ),
-      mainPanel(width = 10,
+      mainPanel(width = 9,
         leafletOutput(ns("varchange1"),height = "80%"),
         textOutput(ns("cnty3")),
         textOutput(ns("facdat3")),
         textOutput(ns("explain3")),
-        fluidRow(
+        fluidRow( ### even through this is still within the 10 unit wide main panel, width operates out of 12. 
+          column(width = 1),
           column(width = 5, 
                  h3("Country wide changes in tree cover"),
                  plotlyOutput(ns("percentChangeCountry")),
                  p("This plot summarizes the total change in tree cover throughout the country.")
           ),
+          column(width = 1),
           column(width = 5, 
                  h3(paste0("Changes in tree cover in the selected County")),
-                 # plotlyOutput(ns("percentChangeCounty")),
+                 plotlyOutput(ns("percentChangeCounty")),
                  p("This plot summarizes the total change in tree cover throughout the county")
           )
         )
@@ -201,7 +203,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     # select df based on name
     df2_a <-  reactive({df1_a[grep(pattern = input$Layer, x = names(df1_a))][[1]]})
     # select county based on inputs 
-    df3_a <- reactive({df2_a %>% filter(County == input$County23)})
+    df3_a <- reactive({df2_a() %>% filter(County == input$County23)})
     
     p2 <- reactive({
       plot_ly(data = df3_a(), y = ~Change, x = ~Year, type = "bar",

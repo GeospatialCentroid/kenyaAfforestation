@@ -3,6 +3,7 @@
 # carverd@colostate.edu
 # 20230104 
 ###
+pacman::p_load(tidyr, dplyr, raster,terra)
 
 renderClimateChangeInputs <- function(county,countyBuff, climateRasters){
   # vector of county names
@@ -52,6 +53,16 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
     return(raster)
   }
   
+
+  # Gather funtion for county level data ------------------------------------
+  gatherCounty <- function(data){
+    data <- data %>%
+      tidyr::gather(key = Year, value = Change, -County, -areas )
+    names(data) <- c("County", "Areas","Year", "Change")
+    return(data)
+  }
+  
+  
   
   # create stand alone rasters 
   f1 <- files[grepl(pattern = ".tif" , x = files)]
@@ -94,6 +105,19 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
   names(rasters) <- listNames
   names(areaCountry) <- listNames
   names(areaCounty) <- listNames
+  
+  
+  library(dplyr)
+  mini_iris <-
+    iris %>%
+    group_by(Species) %>%
+    slice(1)
+  mini_iris %>% gather(key = "flower_att", value = "measurement", -Species)
+  
+  
+
+  # restructure the county data ---------------------------------------------
+  areaCounty <- lapply(X = areaCounty, FUN = gatherCounty)
   
   # reprojects rasters 
   rasters <- lapply(X = rasters, FUN = projClipCrop, county = county, countyBuff = countyBuff)
