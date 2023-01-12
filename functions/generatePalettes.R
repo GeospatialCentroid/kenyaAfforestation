@@ -1,3 +1,8 @@
+
+
+
+
+# function for climate data -----------------------------------------------
 generatePalettes <- function(rasters, type){
   
   pr_rast <- rasters[[grep("pr", names(rasters))]]
@@ -82,4 +87,69 @@ generatePalettes <- function(rasters, type){
   
   return(pals)
   
+}
+
+
+#function for forest cover data 
+genPalettes_forestCover <- function(data){
+  
+  # subset out change rasters 
+  changeRasters <- data$forestChangeRasters
+  
+  
+  doNothing <- changeRasters[grepl(pattern = "DoNothing", x = names(changeRasters))]
+  stopFires <-changeRasters[grepl(pattern = "StopFires", x = names(changeRasters))]
+  histForest <- data$existingForest
+  expForest <- data$expandedForest
+  
+  pals <- vector("list", length = 4)
+  names(pals) <- c("nothing","fire", "hf", "ef")
+
+  #historic forest cover palette
+  pals[["hf"]]$palette <- colorNumeric(c("#edf8fb","#b2e2e2","#66c2a4","#2ca25f","#006d2c"), values(histForest),
+                                       na.color = "transparent")
+  
+  pals[["hf"]]$title <- "Historic Forest Cover (%)"
+  
+  pals[["hf"]]$values <- values(histForest)
+  
+  #Expected base line forest cover palette
+  pals[["ef"]]$palette <- colorNumeric(c("#edf8fb","#b2e2e2","#66c2a4","#2ca25f","#006d2c"), values(expForest),
+                                       na.color = "transparent")
+  
+  pals[["ef"]]$title <- "Expected 2030 Forest Cover (%)"
+  
+  pals[["ef"]]$values <- values(expForest)
+  
+  ### these should be combined... Trouble is we are passing them in as a list of raster object, will need to reduce down to a stack I think. 
+  #forest cover change - do nothing
+  nothingStack <- raster::stack(doNothing)
+  ###! ITS NOT CLEAR HOW palette is handling a dataframe of values... might need to collapse all values into a single list.  
+  
+  colorForest <-  c(colorRampPalette(colors = c("#a6611a", "#d46c02",  "white"),space = "Lab")(abs(min(values(nothingStack), na.rm = TRUE))),
+                  colorRampPalette(colors = c("white", "#32CD32", "#003300"),space = "Lab")(max(values(nothingStack), na.rm = TRUE)))
+  
+  
+  pals[["nothing"]]$palette <- colorNumeric(palette = colorForest, as.numeric(values(nothingStack)),
+                                        na.color = "transparent")
+  
+  
+  # pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#66c2a4","#006d2c"), as.numeric(values(nothingStack)),
+  #                                      na.color = "transparent")
+  
+  pals[["nothing"]]$title <- "Predicted Change (%) </br> No Management Action"
+  
+  pals[["nothing"]]$values <- as.numeric(values(nothingStack))
+  
+  #forest cover change - stop fires 
+  ## no fire data to work with at the moment. 
+  # pals[["fire"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#80cdc1","#018571"), values(stopFires),
+  #                                    na.color = "transparent")
+  
+  # pals[["fire"]]$title <- "Expected Forest Cover Change Stop Fires (%)"
+  
+  # pals[["fire"]]$values <- values(stopFires)
+  
+  return(pals)
+    
 }

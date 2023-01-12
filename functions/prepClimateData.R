@@ -108,6 +108,10 @@ renderInputs <- function(){
   return(inputs)
 }
 
+renderClimateChangeInputs <- function(){
+  
+}
+
 
 renderForestChangeInputs <- function(){
   # new climate data -- unprojected. 
