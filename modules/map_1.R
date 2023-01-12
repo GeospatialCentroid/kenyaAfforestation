@@ -98,98 +98,120 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
     #   yes = colorNumeric(colorPal(), dom()),
     #   no = colorNumeric(colorRampPalette(colors = c("white", "#003300"),space = "Lab")(abs(maxval())), dom())
     # )})
-
-    # this works with a direct index on raster input object.
-    map1 <- reactive({
+      
+      
+      output$map1 <- leaflet::renderLeaflet({
         leaflet(options = leafletOptions(minZoom = 4)) %>%
-        #set zoom levels
-        setView(lng = 37.826119933082545
-                , lat = 0.3347526538983459
-                , zoom = 6) %>%
-        # add z levels ------------------------------------------------------------
-      addMapPane("Historic Data", zIndex = 406) %>%
-        addMapPane("Projected Data", zIndex = 407) %>%
-        addMapPane("Percent Change", zIndex = 408) %>%
-        addMapPane("Counties", zIndex = 409) %>%
-        # tile providers ----------------------------------------------------------
-      addProviderTiles("Stamen.Toner", group = "Light") %>%
-        addProviderTiles("OpenStreetMap", group = "OpenStreetMap") %>%
-        leaflet.extras::addResetMapButton() %>%
-        # add ssp raster features -----------------------------------------------------
-      addRasterImage(r1(),
-                     #colors = pal1(),
-                     colors = pal(),
-                     group = "Projected Data",
-                     opacity = 1) %>%
-        # add historic raster -----------------------------------------------------
-      addRasterImage(r0(),
-                     #colors = pal0(),
-                     colors = pal(),
-                     group = "Historic Data",
-                     opacity = 1) %>%
-        # add percent change layer ------------------------------------------------
-      addRasterImage(
-        r2(),
-        layerId = "change",
-        #colors = pal1(),
-        colors = pal2(),
-        group = "Percent Change",
-        opacity = 1
-      ) %>%
-        # add county features -----------------------------------------------------
-      addPolygons(
-        data = countyFeat,
-        fillColor = "",
-        fillOpacity = 0,
-        color = "black",
-        layerId = ~ ADMIN1,
-        weight = 1.5,
-        group = "Counties"
-      ) %>%
-        # add legend --------------------------------------------------------------
-      # Including it as it's own control group because it applies to both temp map objects. 
-      addLegend_decreasing(
-        "bottomright",
-        pal = pal(),
-        values = vals(),
-        title = title(),
-        #   labels = c("Low Change", "", "", "", "High Change"),
-        opacity = 1,
-        layerId = "firstLegend",
-        group =  "Temperature/Precipitation Legend",
-        decreasing = TRUE
-      )%>%
-      addLegend_decreasing(
-        "bottomleft",
-        pal = pal2(),
-        values = vals2(),
-        title = title2(),
-        #   labels = c("Low Change", "", "", "", "High Change"),
-        opacity = 1,
-        layerId = "secondLegend",
-        group = "Percent Change",
-        decreasing = TRUE
-      )%>%
+          #set zoom levels
+          setView(lng = 37.826119933082545
+                  , lat = 0.3347526538983459
+                  , zoom = 6) %>%
+          # add z levels ------------------------------------------------------------
+        addMapPane("Historic Data", zIndex = 406) %>%
+          addMapPane("Projected Data", zIndex = 407) %>%
+          addMapPane("Percent Change", zIndex = 408) %>%
+          addMapPane("Counties", zIndex = 409) %>%
+          # tile providers ----------------------------------------------------------
+        addProviderTiles("Stamen.Toner", group = "Light") %>%
+          addProviderTiles("OpenStreetMap", group = "OpenStreetMap") %>%
+          #leaflet.extras::addResetMapButton() %>%
+          # add county features -----------------------------------------------------
+        addPolygons(
+          data = countyFeat,
+          fillColor = "",
+          fillOpacity = 0,
+          color = "black",
+          layerId = ~ ADMIN1,
+          weight = 1.5,
+          group = "Counties",
+          options = pathOptions(pane = "Counties")
+        ) %>%
+          # add percent change legend
+          addLegend_decreasing(
+            "topright",
+            pal = pal2(),
+            values = vals2(),
+            title = title2(),
+            #   labels = c("Low Change", "", "", "", "High Change"),
+            opacity = 1,
+            layerId = "secondLegend",
+            group = "Percent Change",
+            decreasing = TRUE
+          ) %>% 
         # add control groups ------------------------------------------------------
-      addLayersControl(
-        baseGroups = c("OpenStreetMap", "Light"),
-        overlayGroups = c(
-          "Historic Data",
-          "Projected Data",
-          "Percent Change",
-          "Temperature/Precipitation Legend",
-          "Counties"
-        ),
-        position = "topleft",
-        options = layersControlOptions(collapsed = TRUE)
-      ) %>% 
-        # Keep projected layer off by default
+        addLayersControl(
+          baseGroups = c("OpenStreetMap", "Light"),
+          overlayGroups = c(
+            "Historic Data",
+            "Projected Data",
+            "Percent Change",
+            "Counties"
+          ),
+          position = "topleft",
+          options = layersControlOptions(collapsed = TRUE)
+        )   %>%         # Keep projected layer off by default
         hideGroup("Percent Change")
+
+      })
       
-    })
       
+      # this makes it so the proxy map is rendered in the background, otherwise the map is empty when you first navigate to this page
+      outputOptions(output, "map1", suspendWhenHidden=FALSE)
       
-      output$map1 <- renderLeaflet({map1()})
+      # add rasters to proxy map
+      observe({
+        
+        leafletProxy("map1") %>%
+          # add historic raster -----------------------------------------------------
+        addRasterImage(r0(),
+                       #colors = pal0(),
+                       colors = pal(),
+                       group = "Historic Data",
+                       opacity = 1) %>%
+          # add ssp raster features -----------------------------------------------------
+        addRasterImage(r1(),
+                       #colors = pal1(),
+                       colors = pal(),
+                       group = "Projected Data",
+                       opacity = 1) %>%
+          
+          # add percent change layer ------------------------------------------------
+        addRasterImage(
+          r2(),
+          layerId = "change",
+          #colors = pal1(),
+          colors = pal2(),
+          group = "Percent Change",
+          opacity = 1
+        )
+        
+      })
+          
+         
+      # add shared temperature legend  ------------------------------------------------------------
+      observeEvent(input$map1_groups,{
+        
+        leafletProxy("map1") %>%
+          removeControl(layerId = "firstLegend")
+        
+        if ('Historic Data' %in% input$map1_groups | 'Projected Data' %in% input$map1_groups){
+          leafletProxy("map1") %>%
+            addLegend_decreasing(
+              "bottomright",
+              pal = pal(),
+              values = vals(),
+              title = title(),
+              opacity = 1,
+              layerId = "firstLegend",
+              decreasing = TRUE
+            )
+            
+        }
+
+      })
+      
+          
+          
       
       #map click
       observeEvent(input$map1_click, {

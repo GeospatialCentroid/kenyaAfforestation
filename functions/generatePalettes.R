@@ -126,12 +126,20 @@ genPalettes_forestCover <- function(data){
   nothingStack <- raster::stack(doNothing)
   ###! ITS NOT CLEAR HOW palette is handling a dataframe of values... might need to collapse all values into a single list.  
   
-  pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#80cdc1","#018571"), values(nothingStack),
-                                       na.color = "transparent")
+  colorForest <-  c(colorRampPalette(colors = c("#a6611a", "#d46c02",  "white"),space = "Lab")(abs(min(values(nothingStack), na.rm = TRUE))),
+                  colorRampPalette(colors = c("white", "#32CD32", "#003300"),space = "Lab")(max(values(nothingStack), na.rm = TRUE)))
   
-  pals[["nothing"]]$title <- "Expected Forest Cover Change No Management (%)"
   
-  pals[["nothing"]]$values <- values(nothingStack)
+  pals[["nothing"]]$palette <- colorNumeric(palette = colorForest, as.numeric(values(nothingStack)),
+                                        na.color = "transparent")
+  
+  
+  # pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#66c2a4","#006d2c"), as.numeric(values(nothingStack)),
+  #                                      na.color = "transparent")
+  
+  pals[["nothing"]]$title <- "Expected Forest Cover Change (%) </br> No Management Action"
+  
+  pals[["nothing"]]$values <- as.numeric(values(nothingStack))
   
   #forest cover change - stop fires 
   ## no fire data to work with at the moment. 

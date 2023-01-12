@@ -24,6 +24,7 @@ map2_UI <- function(id, panelName, county_names){
                      selected = "nothing"
                    ),
                    em("You can view current and near future (2030) forest cover layers via the map controls"),
+                   hr(),
                    # select County features 
                    selectInput(
                      inputId=ns("County23"), label=tags$strong("Pick a county to visualize forest cover changes:"),
@@ -33,21 +34,20 @@ map2_UI <- function(id, panelName, county_names){
                    # tags$p(tags$strong("Click")," on a pixel within Kenya to see the county name and pixel value.")
                    ),
       mainPanel(width = 9,
-        leafletOutput(ns("map2"),height = "80%"),
+        leafletOutput(ns("map2"),height = "100%"),
         textOutput(ns("cnty3")),
         textOutput(ns("facdat3")),
         textOutput(ns("explain3")),
-        fluidRow( ### even through this is still within the 10 unit wide main panel, width operates out of 12. 
-          #column(width = 1),
+        fluidRow( ### even through this is still within the 10 unit wide main panel, width operates out of 12.
+          align = "center",
           column(width = 6, 
-                 h3("Kenya"),
-                 plotlyOutput(ns("percentChangeCountry"))
+                 h5("Kenya"),
+                 plotlyOutput(ns("percentChangeCountry")),
                  #p("This plot summarizes the total change in tree cover throughout the country.")
           ),
-          #column(width = 1),
           column(width = 6, 
-                 h3(textOutput("countyText")),
-                 plotlyOutput(ns("percentChangeCounty"))
+                 h5(textOutput(ns("countyText"))),
+                 plotlyOutput(ns("percentChangeCounty")),
                  #p("This plot summarizes the total change in tree cover throughout the county")
           )
         )
@@ -252,7 +252,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     p1 <-  reactive({plot_ly(data = df2(), y = ~Change, x = ~Year, type = "bar",
                    color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
         layout(yaxis = list(title = "<b>% Change</b>", range = range()),
-               xaxis = list(title = "", tickfont = list(size = 18), side = "top"))
+               xaxis = list(title = "", tickfont = list(size = 16), side = "top"))
       })
       
 
@@ -261,7 +261,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         plot_ly(data = df3_a(), y = ~Change, x = ~Year, type = "bar",
                 color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
           layout(yaxis = list(title = "<b>% Change</b>", range = range()),
-                 xaxis = list(title = "", tickfont = list(size = 18), side = "top"))
+                 xaxis = list(title = "", tickfont = list(size = 16), side = "top"))
       })
       
     
@@ -273,11 +273,11 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         p2()
       } else {
         return(NULL)
-        
+
       }
     })
-    output$cnty3 <- renderText("")
-    output$countyText <- renderText(input$County23)
+    # output$cnty3 <- renderText("")
+    output$countyText <- renderText(paste(input$County23, "County"))
     
     }
   )
