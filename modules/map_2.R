@@ -23,32 +23,31 @@ map2_UI <- function(id, panelName, county_names){
                                     "Stop Fires" = "fire"),
                      selected = "nothing"
                    ),
-                   em("You can view current and near future (2030) forest cover layers via the map controls"),
                    hr(),
                    # select County features 
                    selectInput(
                      inputId=ns("County23"), label=tags$strong("Pick a county to visualize forest cover changes:"),
                      choices = county_names, multiple = F,selected = "Bomet"
                    ),
-                   # tags$p(span("Large maps may take a few seconds to render.", style = "color:red")),
-                   # tags$p(tags$strong("Click")," on a pixel within Kenya to see the county name and pixel value.")
-                   ),
+                   hr(),
+                   tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
+                   h6(htmlOutput(ns("pixelVal2"))),
+                   em("You can view historic and baseline (2030) forest cover layers via the map controls"),
+      ),
       mainPanel(width = 9,
-        leafletOutput(ns("map2"),height = "100%"),
-        textOutput(ns("cnty3")),
-        textOutput(ns("facdat3")),
-        textOutput(ns("explain3")),
+        leafletOutput(ns("map2")),
         fluidRow( ### even through this is still within the 10 unit wide main panel, width operates out of 12.
           align = "center",
-          column(width = 6, 
+          column(width = 6, height = "100%",
                  h5("Kenya"),
-                 plotlyOutput(ns("percentChangeCountry")),
+                 plotlyOutput(ns("percentChangeCountry"))
                  #p("This plot summarizes the total change in tree cover throughout the country.")
           ),
           column(width = 6, 
                  h5(textOutput(ns("countyText"))),
-                 plotlyOutput(ns("percentChangeCounty")),
+                 plotlyOutput(ns("percentChangeCounty"))
                  #p("This plot summarizes the total change in tree cover throughout the county")
+            
           )
         )
       )
@@ -192,7 +191,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       if ('Historic Forest Cover' %in% input$map2_groups | 'Baseline Forest Cover' %in% input$map2_groups){
         leafletProxy("map2") %>%
           addLegend_decreasing(
-            "bottomright",
+            "topright",
             pal = pal1$ef$palette,
             values = pal1$ef$values,
             title = "Forest Cover(%)",
@@ -209,7 +208,35 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     })
     
     
-  
+    #map click ---------------------------------------------------------
+    observeEvent(input$map2_click, {
+      click <- input$map2_click
+      clat <- click$lat
+      clon <- click$lng
+      # filter data
+      point <- as(st_point(x = c(clon, clat)), "Spatial")
+      # Get need baseline and percent change values
+      # baseline
+      extractVal1 <- raster::extract(base1, point)%>%
+        round(digits = 2)
+      #percent change
+      extractVal2 <- raster::extract(r3(), point)%>%
+        round(digits = 2)
+      
+      # condition for setting the label based on input value 
+      label1 <- reactive({
+        if(input$Layer == "pr"){
+          "mm"
+        }else{
+          paste("C", intToUtf8(176))
+        }
+      })
+      
+      output$pixelVal2 <- renderText(paste("Baseline Forest Cover:",
+                                      "<b>", as.character(extractVal1), "</b>","%", "<br>",
+                                      "Projected Change:",
+                                      "<b>", as.character(extractVal2),"</b>","%"))
+    })
   
 
   # generate the forest change plots  -----------------------------------------------

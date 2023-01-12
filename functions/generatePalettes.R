@@ -137,7 +137,7 @@ genPalettes_forestCover <- function(data){
   # pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#66c2a4","#006d2c"), as.numeric(values(nothingStack)),
   #                                      na.color = "transparent")
   
-  pals[["nothing"]]$title <- "Expected Forest Cover Change (%) </br> No Management Action"
+  pals[["nothing"]]$title <- "Predicted Change (%) </br> No Management Action"
   
   pals[["nothing"]]$values <- as.numeric(values(nothingStack))
   

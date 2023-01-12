@@ -17,7 +17,9 @@ plot_ly(data = country_df, y = ~Change, x = ~Year, type = "bar",
         color = ~Areas, name = ~Areas, colors = pal) %>% 
   layout(yaxis = list(title = "<b>% Change</b>", range = range),
          xaxis = list(title = "", tickfont = list(size = 22), side = "top"),
-         margin=list(l=20, r=20, t=20, b=20))
+         #margin=list(l=20, r=20, t=0, b=-200),
+         legend = list( x = 0.95, y = 0,
+                       font = list(size = 15)))
 
 
 
