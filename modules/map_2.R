@@ -9,7 +9,7 @@ map2_UI <- function(id, panelName, county_names){
       sidebarPanel(width = 3,
                    radioButtons(
                      inputId=ns("Timeline"),
-                     label= tags$strong("Pick a future timeperiod:"),
+                     label= tags$strong("Pick a future time period:"),
                      choices = list("2041-2060" = "50",
                                     "2061-2080" = "70",
                                     "2081-2100" = "100"),
@@ -18,12 +18,12 @@ map2_UI <- function(id, panelName, county_names){
                    # select mapped variable 
                    selectInput(
                      inputId=ns("Layer"),
-                     label=tags$strong("Pick a variable to visualize on the map:"),
+                     label=tags$strong("Pick a management scenario to visualize predicted forest cover change:"),
                      choices = list("No Management Action" = "nothing",  ## this will need to change to match the new dataset convention
                                     "Stop Fires" = "fire"),
                      selected = "nothing"
                    ),
-                   em("You can view current and near future forest Cover on via the map controls"),
+                   em("You can view current and near future (2030) forest cover layers via the map controls"),
                    # select County features 
                    selectInput(
                      inputId=ns("County23"), label=tags$strong("Pick a county to visualize forest cover changes:"),
@@ -38,17 +38,17 @@ map2_UI <- function(id, panelName, county_names){
         textOutput(ns("facdat3")),
         textOutput(ns("explain3")),
         fluidRow( ### even through this is still within the 10 unit wide main panel, width operates out of 12. 
-          column(width = 1),
-          column(width = 5, 
-                 h3("Country wide changes in tree cover"),
-                 plotlyOutput(ns("percentChangeCountry")),
-                 p("This plot summarizes the total change in tree cover throughout the country.")
+          #column(width = 1),
+          column(width = 6, 
+                 h3("Kenya"),
+                 plotlyOutput(ns("percentChangeCountry"))
+                 #p("This plot summarizes the total change in tree cover throughout the country.")
           ),
-          column(width = 1),
-          column(width = 5, 
-                 h3(paste0("Changes in tree cover in the selected County")),
-                 plotlyOutput(ns("percentChangeCounty")),
-                 p("This plot summarizes the total change in tree cover throughout the county")
+          #column(width = 1),
+          column(width = 6, 
+                 h3(textOutput("countyText")),
+                 plotlyOutput(ns("percentChangeCounty"))
+                 #p("This plot summarizes the total change in tree cover throughout the county")
           )
         )
       )
@@ -212,27 +212,22 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   
   
 
-  # generate the count plots  -----------------------------------------------
+  # generate the forest change plots  -----------------------------------------------
    
-    #set plotly parameters
-    forest_pal <- c("#2d4221","#32a850", "#87c7cd",  "goldenrod")
-    forest_pal <- setNames(forest_pal, c("All", "Evergreen", "Deciduous", "New"))
+  
     
+    # get reactive dataframes
     
-    
-    # bind features to single list
+    ## COUNTRY
     df1 <- list(
       nothing = countryDF[[paste0("ssp",ssp,"_DoNothing")]],
       fire = countryDF[[paste0("ssp",ssp,"_StopFires")]]
     )
     # select df based on management action
     df2 <-  reactive({df1[grep(pattern = input$Layer, x = names(df1))][[1]]})
-
-    p1 <-  reactive({plot_ly(data = df2(), y = ~Change, x = ~Year, type = "bar",
-                   color = ~Areas, name = ~Areas, colors = forest_pal)})
-      
-
-    # plot data for County level ----------------------------------------------
+    
+    
+    ## COUNTY
     df1_a <- list(
       nothing = countyDF[[paste0("ssp",ssp,"_DoNothing")]],
       fire = countyDF[[paste0("ssp",ssp,"_StopFires")]]
@@ -243,15 +238,47 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     # select county based on inputs 
     df3_a <- reactive({df2_a() %>% filter(County == input$County23)})
     
-    p2 <- reactive({
-      plot_ly(data = df3_a(), y = ~Change, x = ~Year, type = "bar",
-              color = ~Areas, name = ~Areas, colors = forest_pal)
+    
+    #set plotly parameters
+    forest_pal <-c("#2d4221","#32a850", "#87c7cd",  "#d8cb39")
+    forest_pal <- setNames(forest_pal, c("All", "Evergreen", "Deciduous", "New"))
+    
+    # set axis range based on county max and min
+    range <- reactive({list(min(df2_a()$Change, na.rm = TRUE), max(df2_a()$Change, na.rm = TRUE))})
+    
+
+    ## plotly for Country --------------------------------------------------------
+
+    p1 <-  reactive({plot_ly(data = df2(), y = ~Change, x = ~Year, type = "bar",
+                   color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
+        layout(yaxis = list(title = "<b>% Change</b>", range = range()),
+               xaxis = list(title = "", tickfont = list(size = 18), side = "top"))
       })
+      
+
+    ## plotly data for County ----------------------------------------------
+    p2 <- reactive({
+        plot_ly(data = df3_a(), y = ~Change, x = ~Year, type = "bar",
+                color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
+          layout(yaxis = list(title = "<b>% Change</b>", range = range()),
+                 xaxis = list(title = "", tickfont = list(size = 18), side = "top"))
+      })
+      
+    
     
     #output$varchange1 <- renderLeaflet({map()})
     output$percentChangeCountry <- renderPlotly({p1()})
-    output$percentChangeCounty <- renderPlotly({p2()})
+    output$percentChangeCounty <- renderPlotly({
+      if (req(!all(is.na(df3_a()[, 4])))) {
+        p2()
+      } else {
+        return(NULL)
+        
+      }
+    })
     output$cnty3 <- renderText("")
+    output$countyText <- renderText(input$County23)
+    
     }
   )
 }
