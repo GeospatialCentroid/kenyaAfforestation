@@ -215,6 +215,18 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
 
 
     })
+    # set map zoom based on county --------------------------------------------
+    
+    observeEvent(input$county23,{
+      c1 <- countyFeat %>% 
+        filter(ADMIN1  == input$county23) %>% 
+        sf::st_centroid()%>%
+        st_coordinates()
+      # not sure about the zoom level 
+      leafletProxy('map2') %>% 
+        setView(lng =  c1[1], lat = c1[2], zoom = 8)
+    })
+    
     
     
     #map click ---------------------------------------------------------
@@ -248,6 +260,9 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     })
   
 
+
+    
+
   # generate the forest change plots  -----------------------------------------------
    
   
@@ -257,7 +272,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     ## COUNTRY
     df1 <- list(
       nothing = countryDF[[paste0("ssp",ssp,"_DoNothing")]],
-      fire = countryDF[[paste0("ssp",ssp,"_StopFires")]]
+      fire = countryDF[[paste0("ssp",ssp,"_NoFires")]]
     )
     # select df based on management action
     df2 <-  reactive({df1[grep(pattern = input$Layer, x = names(df1))][[1]]})
@@ -266,7 +281,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     ## COUNTY
     df1_a <- list(
       nothing = countyDF[[paste0("ssp",ssp,"_DoNothing")]],
-      fire = countyDF[[paste0("ssp",ssp,"_StopFires")]]
+      fire = countyDF[[paste0("ssp",ssp,"_NoFires")]]
     )
     # select df based on management action
     df2_a <-  reactive({df1_a[grep(pattern = input$Layer, x = names(df1_a))][[1]]})
