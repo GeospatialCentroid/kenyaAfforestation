@@ -98,7 +98,7 @@ genPalettes_forestCover <- function(data){
   
   
   doNothing <- changeRasters[grepl(pattern = "DoNothing", x = names(changeRasters))]
-  stopFires <-changeRasters[grepl(pattern = "StopFires", x = names(changeRasters))]
+  noFires <-changeRasters[grepl(pattern = "NoFires", x = names(changeRasters))]
   histForest <- data$existingForest
   expForest <- data$expandedForest
   
@@ -143,6 +143,28 @@ genPalettes_forestCover <- function(data){
   
   #forest cover change - stop fires 
   ## no fire data to work with at the moment. 
+  fireStack <- raster::stack(noFires)
+  ###! ITS NOT CLEAR HOW palette is handling a dataframe of values... might need to collapse all values into a single list.  
+  
+  colorForest <-  c(colorRampPalette(colors = c("#a6611a", "#d46c02",  "white"),space = "Lab")(abs(min(values(fireStack), na.rm = TRUE))),
+                    colorRampPalette(colors = c("white", "#32CD32", "#003300"),space = "Lab")(max(values(fireStack), na.rm = TRUE)))
+  
+  
+  pals[["fire"]]$palette <- colorNumeric(palette = colorForest, as.numeric(values(fireStack)),
+                                            na.color = "transparent")
+  
+  
+  # pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#66c2a4","#006d2c"), as.numeric(values(nothingStack)),
+  #                                      na.color = "transparent")
+  
+  pals[["fire"]]$title <- "Predicted Change (%) </br> No Fires"
+  
+  pals[["fire"]]$values <- as.numeric(values(fireStack))
+  
+  
+  
+  
+  
   # pals[["fire"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#80cdc1","#018571"), values(stopFires),
   #                                    na.color = "transparent")
   
