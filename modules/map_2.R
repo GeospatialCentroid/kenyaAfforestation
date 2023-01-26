@@ -20,14 +20,14 @@ map2_UI <- function(id, panelName, county_names){
                      inputId=ns("Layer"),
                      label=tags$strong("Pick a management scenario to visualize predicted forest cover change:"),
                      choices = list("No Management Action" = "nothing",  ## this will need to change to match the new dataset convention
-                                    "No Fires" = "fire"),
+                                    "Stop Fires" = "fire"),
                      selected = "nothing"
                    ),
                    hr(),
                    # select County features 
                    selectInput(
                      inputId=ns("County23"), label=tags$strong("Pick a county to visualize forest cover changes:"),
-                     choices = county_names, multiple = F,selected = "Bomet"
+                     choices = county_names, multiple = F,selected = NULL
                    ),
                    hr(),
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
@@ -119,10 +119,13 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         options = pathOptions(pane = "Counties"),
         # add hover over lables 
         label= ~ ADMIN1,
-        labelOptions = labelOptions(noHide = F),
+        labelOptions = labelOptions(noHide = F,
+                                    style = list("font-weight" = "bold"),
+                                    textsize = "15px"),
         # add highlight options to make labels a bit more intuitive 
         highlightOptions = highlightOptions(
-          color = "#762a83",
+          color = "yellow",
+          opacity = 1,
           weight = 3,
           bringToFront = TRUE
         )
@@ -217,14 +220,15 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     })
     # set map zoom based on county --------------------------------------------
     
-    observeEvent(input$county23,{
-      c1 <- countyFeat %>% 
-        filter(ADMIN1  == input$county23) %>% 
+    observeEvent(input$County23,{
+      c1 <- reactive({countyFeat %>% 
+        filter(ADMIN1  == input$County23) %>% 
         sf::st_centroid()%>%
         st_coordinates()
+      })
       # not sure about the zoom level 
       leafletProxy('map2') %>% 
-        setView(lng =  c1[1], lat = c1[2], zoom = 8)
+        setView(lng =  c1()[1], lat = c1()[2], zoom = 8)
     })
     
     

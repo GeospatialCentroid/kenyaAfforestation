@@ -127,10 +127,13 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           options = pathOptions(pane = "Counties"),
           # add hover over lables 
           label= ~ ADMIN1,
-          labelOptions = labelOptions(noHide = F),
+          labelOptions = labelOptions(noHide = F,
+                                      style = list("font-weight" = "bold"),
+                                      textsize = "15px"),
           # add highlight options to make labels a bit more intuitive 
           highlightOptions = highlightOptions(
-            color = "#762a83",
+            color = "yellow",
+            opacity = 1,
             weight = 3,
             bringToFront = TRUE
           )
