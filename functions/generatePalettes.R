@@ -137,7 +137,7 @@ genPalettes_forestCover <- function(data){
   # pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#66c2a4","#006d2c"), as.numeric(values(nothingStack)),
   #                                      na.color = "transparent")
   
-  pals[["nothing"]]$title <- "Predicted Change (%) </br> No Management Action"
+  pals[["nothing"]]$title <- "Change in % Forest Area </br> No Management Action"
   
   pals[["nothing"]]$values <- as.numeric(values(nothingStack))
   
@@ -157,7 +157,7 @@ genPalettes_forestCover <- function(data){
   # pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#66c2a4","#006d2c"), as.numeric(values(nothingStack)),
   #                                      na.color = "transparent")
   
-  pals[["fire"]]$title <- "Predicted Change (%) </br> No Fires"
+  pals[["fire"]]$title <- "Change in % Forest Area </br> No Fires"
   
   pals[["fire"]]$values <- as.numeric(values(fireStack))
   
