@@ -29,6 +29,8 @@ map2_UI <- function(id, panelName, county_names){
                      inputId=ns("County23"), label=tags$strong("Pick a county to visualize forest cover changes:"),
                      choices = county_names, multiple = F,selected = NULL
                    ),
+                   #add button to zoom to County
+                   actionButton(inputId = ns("Zoom"), label = "Zoom to County"),
                    hr(),
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
                    h6(htmlOutput(ns("pixelVal2"))),
@@ -220,11 +222,13 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     })
     # set map zoom based on county --------------------------------------------
     
-    observeEvent(input$County23,{
-      c1 <- reactive({countyFeat %>% 
-        filter(ADMIN1  == input$County23) %>% 
-        sf::st_centroid()%>%
-        st_coordinates()
+    observeEvent(input$Zoom,{
+      c1 <- reactive({
+        countyFeat %>%
+          filter(ADMIN1  == input$County23) %>%
+          st_set_agr("constant") %>% # attributes constant over geometries (suppresses warning message)
+          sf::st_centroid() %>%
+          st_coordinates()
       })
       # not sure about the zoom level 
       leafletProxy('map2') %>% 
