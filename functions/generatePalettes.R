@@ -98,7 +98,7 @@ genPalettes_forestCover <- function(data){
   
   
   doNothing <- changeRasters[grepl(pattern = "DoNothing", x = names(changeRasters))]
-  stopFires <-changeRasters[grepl(pattern = "StopFires", x = names(changeRasters))]
+  noFires <-changeRasters[grepl(pattern = "NoFires", x = names(changeRasters))]
   histForest <- data$existingForest
   expForest <- data$expandedForest
   
@@ -124,7 +124,6 @@ genPalettes_forestCover <- function(data){
   ### these should be combined... Trouble is we are passing them in as a list of raster object, will need to reduce down to a stack I think. 
   #forest cover change - do nothing
   nothingStack <- raster::stack(doNothing)
-  ###! ITS NOT CLEAR HOW palette is handling a dataframe of values... might need to collapse all values into a single list.  
   
   colorForest <-  c(colorRampPalette(colors = c("#a6611a", "#d46c02",  "white"),space = "Lab")(abs(min(values(nothingStack), na.rm = TRUE))),
                   colorRampPalette(colors = c("white", "#32CD32", "#003300"),space = "Lab")(max(values(nothingStack), na.rm = TRUE)))
@@ -134,21 +133,26 @@ genPalettes_forestCover <- function(data){
                                         na.color = "transparent")
   
   
-  # pals[["nothing"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#66c2a4","#006d2c"), as.numeric(values(nothingStack)),
-  #                                      na.color = "transparent")
-  
-  pals[["nothing"]]$title <- "Predicted Change (%) </br> No Management Action"
+  pals[["nothing"]]$title <- "Change in % Forest Area </br> No Management Action"
   
   pals[["nothing"]]$values <- as.numeric(values(nothingStack))
   
   #forest cover change - stop fires 
   ## no fire data to work with at the moment. 
-  # pals[["fire"]]$palette <- colorNumeric(c("#a6611a","#dfc27d","#f5f5f5","#80cdc1","#018571"), values(stopFires),
-  #                                    na.color = "transparent")
+  fireStack <- raster::stack(noFires)
   
-  # pals[["fire"]]$title <- "Expected Forest Cover Change Stop Fires (%)"
+  colorForest <-  c(colorRampPalette(colors = c("#a6611a", "#d46c02",  "white"),space = "Lab")(abs(min(values(fireStack), na.rm = TRUE))),
+                    colorRampPalette(colors = c("white", "#32CD32", "#003300"),space = "Lab")(max(values(fireStack), na.rm = TRUE)))
   
-  # pals[["fire"]]$values <- values(stopFires)
+  
+  pals[["fire"]]$palette <- colorNumeric(palette = colorForest, as.numeric(values(fireStack)),
+                                            na.color = "transparent")
+  
+  pals[["fire"]]$title <- "Change in % Forest Area </br> No Fires"
+  
+  pals[["fire"]]$values <- as.numeric(values(fireStack))
+  
+
   
   return(pals)
     

@@ -27,8 +27,10 @@ map2_UI <- function(id, panelName, county_names){
                    # select County features 
                    selectInput(
                      inputId=ns("County23"), label=tags$strong("Pick a county to visualize forest cover changes:"),
-                     choices = county_names, multiple = F,selected = "Bomet"
+                     choices = county_names, multiple = F,selected = NULL
                    ),
+                   #add button to zoom to County
+                   actionButton(inputId = ns("Zoom"), label = "Zoom to County"),
                    hr(),
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
                    h6(htmlOutput(ns("pixelVal2"))),
@@ -77,7 +79,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   # bind features to single list  
    r1 <- list(
      nothing = managementRasters[[paste0("ssp",ssp,"_DoNothing")]],
-     fire = managementRasters[[paste0("ssp",ssp,"_StopFires")]]
+     fire = managementRasters[[paste0("ssp",ssp,"_NoFires")]]
    )
 
    
@@ -116,7 +118,19 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         layerId = ~ ADMIN1,
         weight = 1.5,
         group = "Counties",
-        options = pathOptions(pane = "Counties")
+        options = pathOptions(pane = "Counties"),
+        # add hover over lables 
+        label= ~ ADMIN1,
+        labelOptions = labelOptions(noHide = F,
+                                    style = list("font-weight" = "bold"),
+                                    textsize = "15px"),
+        # add highlight options to make labels a bit more intuitive 
+        highlightOptions = highlightOptions(
+          color = "yellow",
+          opacity = 1,
+          weight = 3,
+          bringToFront = TRUE
+        )
       ) %>%
       # add control groups ------------------------------------------------------
       addLayersControl(
@@ -206,6 +220,21 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
 
 
     })
+    # set map zoom based on county --------------------------------------------
+    
+    observeEvent(input$Zoom,{
+      c1 <- reactive({
+        countyFeat %>%
+          filter(ADMIN1  == input$County23) %>%
+          st_set_agr("constant") %>% # attributes constant over geometries (suppresses warning message)
+          sf::st_centroid() %>%
+          st_coordinates()
+      })
+      # not sure about the zoom level 
+      leafletProxy('map2') %>% 
+        setView(lng =  c1()[1], lat = c1()[2], zoom = 8)
+    })
+    
     
     
     #map click ---------------------------------------------------------
@@ -239,6 +268,9 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     })
   
 
+
+    
+
   # generate the forest change plots  -----------------------------------------------
    
   
@@ -248,7 +280,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     ## COUNTRY
     df1 <- list(
       nothing = countryDF[[paste0("ssp",ssp,"_DoNothing")]],
-      fire = countryDF[[paste0("ssp",ssp,"_StopFires")]]
+      fire = countryDF[[paste0("ssp",ssp,"_NoFires")]]
     )
     # select df based on management action
     df2 <-  reactive({df1[grep(pattern = input$Layer, x = names(df1))][[1]]})
@@ -257,7 +289,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     ## COUNTY
     df1_a <- list(
       nothing = countyDF[[paste0("ssp",ssp,"_DoNothing")]],
-      fire = countyDF[[paste0("ssp",ssp,"_StopFires")]]
+      fire = countyDF[[paste0("ssp",ssp,"_NoFires")]]
     )
     # select df based on management action
     df2_a <-  reactive({df1_a[grep(pattern = input$Layer, x = names(df1_a))][[1]]})

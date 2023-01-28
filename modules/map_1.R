@@ -124,7 +124,19 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           layerId = ~ ADMIN1,
           weight = 1.5,
           group = "Counties",
-          options = pathOptions(pane = "Counties")
+          options = pathOptions(pane = "Counties"),
+          # add hover over lables 
+          label= ~ ADMIN1,
+          labelOptions = labelOptions(noHide = F,
+                                      style = list("font-weight" = "bold"),
+                                      textsize = "15px"),
+          # add highlight options to make labels a bit more intuitive 
+          highlightOptions = highlightOptions(
+            color = "yellow",
+            opacity = 1,
+            weight = 3,
+            bringToFront = TRUE
+          )
         ) %>%
           # add percent change legend
           addLegend_decreasing(
