@@ -179,13 +179,15 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
                        #colors = pal0(),
                        colors = pal(),
                        group = "Historic Data",
-                       opacity = 1) %>%
+                       opacity = 1,
+                       project = FALSE) %>%
           # add ssp raster features -----------------------------------------------------
         addRasterImage(r1(),
                        #colors = pal1(),
                        colors = pal(),
                        group = "Projected Data",
-                       opacity = 1) %>%
+                       opacity = 1,
+                       project = FALSE) %>%
           
           # add percent change layer ------------------------------------------------
         addRasterImage(
@@ -194,7 +196,8 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           #colors = pal1(),
           colors = pal2(),
           group = "Percent Change",
-          opacity = 1
+          opacity = 1,
+          project = FALSE
         )
         
       })
@@ -230,6 +233,8 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         click <- input$map1_click
         clat <- click$lat
         clon <- click$lng
+        print(clat)
+        print(clon)
         # filter data
         point <- as(st_point(x = c(clon, clat)), "Spatial")
         # I need a historic and current value

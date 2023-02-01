@@ -55,16 +55,21 @@ county <- climateChangeInputs$county
 allRasters_abs <- prepClim(rasters = clim_abs, ssps = c("hist","126","245","370", "585"))
 allRasters_change <- prepClim(rasters = clim_change, ssps = c("126","245","370", "585"))
 
-### preprocess all palette objects 
-pal_abs <- generatePalettes(rasters = clim_abs, type = "abs")
-pal_change <- generatePalettes(clim_change, type = "change")
-
 
 # Climate Management Inputs -----------------------------------------------
 climateManagementInputs <- readRDS("data/climateManagementInputs.RDS")
 
-pal_management <- genPalettes_forestCover(climateManagementInputs)
+# set palette definitions  --------------------------------------------------
+paletteList <- readRDS("data/palettes.RDS")
 
+pal_abs <- paletteList$pal_abs
+pal_change <- paletteList$pal_change
+pal_management <- paletteList$pal_management
+
+# pal_abs <- generatePalettes(rasters = clim_abs, type = "abs")
+# pal_change <- generatePalettes(clim_change, type = "change")
+# pal_management <- genPalettes_forestCover(climateManagementInputs)
+# 
 
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
