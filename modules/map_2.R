@@ -166,19 +166,22 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       addRasterImage(hist1,
                      colors = pal1$hf$palette,
                      group = "Historic Forest Cover",
-                     opacity = 1) %>%
+                     opacity = 1,
+                     project = FALSE) %>%
         # add baseline raster features -----------------------------------------------------
       addRasterImage(base1,
                      colors = pal1$ef$palette,
                      group = "Baseline Forest Cover",
-                     opacity = 1) %>%
+                     opacity = 1,
+                     project = FALSE) %>%
         # add percent change layer ------------------------------------------------
       addRasterImage(
         r3(),
         layerId = "change",
         colors = pal2(),
         group = "Projected Change",
-        opacity = 1
+        opacity = 1,
+        project = FALSE
       ) %>%
         # add legend for percent change
         addLegend_decreasing(
@@ -243,7 +246,10 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       clat <- click$lat
       clon <- click$lng
       # filter data
-      point <- as(st_point(x = c(clon, clat)), "Spatial")
+      #point <- as(st_point(x = c(clon, clat)), "Spatial")
+      point <- st_sfc(st_point(x = c(clon,clat)),crs = 4326) %>% 
+        st_transform(3857) %>%
+        as("Spatial")
       # Get need baseline and percent change values
       # baseline
       extractVal1 <- raster::extract(base1, point)%>%

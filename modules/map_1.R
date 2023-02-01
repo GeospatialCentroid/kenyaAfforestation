@@ -233,10 +233,12 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         click <- input$map1_click
         clat <- click$lat
         clon <- click$lng
-        print(clat)
-        print(clon)
         # filter data
-        point <- as(st_point(x = c(clon, clat)), "Spatial")
+        #point <- as(st_point(x = c(clon, clat)), "Spatial")
+        #need coordinates in same CRS as rasters
+        point <- st_sfc(st_point(x = c(clon,clat)),crs = 4326) %>% 
+          st_transform(3857) %>%
+          as("Spatial")
         # I need a historic and current value
         # current
         extractVal1 <- raster::extract(r1(), point)%>%
