@@ -16,7 +16,9 @@ renderClimateChangeInputs <- function(county,countyBuff, climateRasters){
     terra::crop(countyBuff) %>%
     terra::mask(countyBuff)%>% 
     # change to raster, terra objects don't save as .rds and need raster for leaflet anyways
-    raster::stack()
+    raster::stack() %>% 
+    # project to leaflet crs to avoid need for reprojecting
+    raster::projectRaster(crs = 3857)
   
   
   clim_change <- climateRasters[["change_rasters"]] %>% 
@@ -24,7 +26,10 @@ renderClimateChangeInputs <- function(county,countyBuff, climateRasters){
     terra::project(county)%>%
     terra::crop(countyBuff) %>% 
     terra::mask(countyBuff)%>%
-    raster::stack()
+    raster::stack() %>% 
+    # project to leaflet crs to avoid need for reprojecting
+    raster::projectRaster(crs = 3857)
+  
   
   # generate export object 
   inputs <- list(abs_rasters = clim_abs,
@@ -50,7 +55,10 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
       terra::crop(countyBuff) %>% 
       terra::mask(countyBuff)%>%
       #this has to be 'brick', otherwise 'raster()' only returns the first layer
-      raster::brick()
+      raster::brick() %>% 
+      # project to leaflet crs to avoid need for reprojecting
+      raster::projectRaster(crs = 3857)
+    
     return(raster)
   }
   
@@ -169,3 +177,27 @@ climateManagementInputs <- renderClimateManagementInputs(
 saveRDS(object = climateManagementInputs,
         file = "data/climateManagementInputs.RDS")
 
+
+# generate palettes for all rasters -----------------------------------------------
+source("functions/generatePalettes.R")
+
+## climate change palettes
+climateChangeInputs <- readRDS("data/climateChangeInputs.RDS")
+
+clim_abs <- climateChangeInputs$abs_rasters
+clim_change <- climateChangeInputs$change_rasters
+
+pal_abs <- generatePalettes(rasters = clim_abs, type = "abs")
+pal_change <- generatePalettes(clim_change, type = "change")
+
+## forest management palettes
+climateManagementInputs <- readRDS("data/climateManagementInputs.RDS")
+
+pal_management <- genPalettes_forestCover(climateManagementInputs)
+
+
+## save as list object
+paletteList <- list(pal_abs, pal_change, pal_management)
+names(paletteList) <- c("pal_abs", "pal_change", "pal_management")
+
+saveRDS(paletteList, file = "data/palettes.RDS")

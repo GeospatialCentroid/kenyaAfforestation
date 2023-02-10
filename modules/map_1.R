@@ -179,13 +179,15 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
                        #colors = pal0(),
                        colors = pal(),
                        group = "Historic Data",
-                       opacity = 1) %>%
+                       opacity = 1,
+                       project = FALSE) %>%
           # add ssp raster features -----------------------------------------------------
         addRasterImage(r1(),
                        #colors = pal1(),
                        colors = pal(),
                        group = "Projected Data",
-                       opacity = 1) %>%
+                       opacity = 1,
+                       project = FALSE) %>%
           
           # add percent change layer ------------------------------------------------
         addRasterImage(
@@ -194,7 +196,8 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           #colors = pal1(),
           colors = pal2(),
           group = "Percent Change",
-          opacity = 1
+          opacity = 1,
+          project = FALSE
         )
         
       })
@@ -231,7 +234,11 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         clat <- click$lat
         clon <- click$lng
         # filter data
-        point <- as(st_point(x = c(clon, clat)), "Spatial")
+        #point <- as(st_point(x = c(clon, clat)), "Spatial")
+        #need coordinates in same CRS as rasters
+        point <- st_sfc(st_point(x = c(clon,clat)),crs = 4326) %>% 
+          st_transform(3857) %>%
+          as("Spatial")
         # I need a historic and current value
         # current
         extractVal1 <- raster::extract(r1(), point)%>%
