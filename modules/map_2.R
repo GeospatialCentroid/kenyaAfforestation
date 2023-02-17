@@ -20,7 +20,8 @@ map2_UI <- function(id, panelName, county_names){
                      inputId=ns("Layer"),
                      label=tags$strong("Pick a management scenario to visualize predicted forest cover change:"),
                      choices = list("No Management Action" = "nothing",  ## this will need to change to match the new dataset convention
-                                    "Stop Fires" = "fire"),
+                                    "Stop Fires" = "fire",
+                                    "No Grazing" = "graze"),
                      selected = "nothing"
                    ),
                    hr(),
@@ -79,7 +80,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   # bind features to single list  
    r1 <- list(
      nothing = managementRasters[[paste0("ssp",ssp,"_DoNothing")]],
-     fire = managementRasters[[paste0("ssp",ssp,"_NoFires")]]
+     fire = managementRasters[[paste0("ssp",ssp,"_NoFires")]],
+     graze = managementRasters[[paste0("ssp",ssp,"_NoGrazing")]]
    )
 
    

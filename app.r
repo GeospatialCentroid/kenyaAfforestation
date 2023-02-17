@@ -24,52 +24,48 @@ lapply(list.files(
 
 # source UI or Server only functions ------------------------------------
 lapply(list.files(
-  path = "functions/",
+  path = "appFunctions/",
   pattern = ".R",
   full.names = TRUE
   ),
   source)
 
 # global variables -----------------------------------------
-## define names for the climate features
+## define names for the climate features----
 panelNames <-
-  c(
-    "Optimistic Climate Future",
+  c("Optimistic Climate Future",
     "Middle of the Road Climate Future",
     "Pessimistic Climate Future",
-    "Extreme Climate Future"
-  )
+    "Extreme Climate Future")
 
 
 # Climate Change Page -----------------------------------------------------
-climateChangeInputs <- readRDS("data/climateChangeInputs.RDS")
-## raster inputs
+## read in inputs ----
+climateChangeInputs <- readRDS("appData/climateChangeInputs.RDS")
+## define specific raster sets ----
 clim_abs <- climateChangeInputs$abs_rasters
 clim_change <- climateChangeInputs$change_rasters
-## county names
+## county names----
 county_names <- climateChangeInputs$countyNames
-## county shp
+## county shp----
 county <- climateChangeInputs$county
 
-### process into groups
+## process raster data into spp groups----
 allRasters_abs <- prepClim(rasters = clim_abs, ssps = c("hist","126","245","370", "585"))
 allRasters_change <- prepClim(rasters = clim_change, ssps = c("126","245","370", "585"))
 
 
 # Climate Management Inputs -----------------------------------------------
-climateManagementInputs <- readRDS("data/climateManagementInputs.RDS")
+## read in climate management data ----
+climateManagementInputs <- readRDS("appData/climateManagementInputs.RDS")
 
 # set palette definitions  --------------------------------------------------
-paletteList <- readRDS("data/palettes.RDS")
-
+## read in palette object----
+paletteList <- readRDS("appData/palettes.RDS")
+## define specific palette object based on visualization set ----
 pal_abs <- paletteList$pal_abs
 pal_change <- paletteList$pal_change
 pal_management <- paletteList$pal_management
-
-# pal_abs <- generatePalettes(rasters = clim_abs, type = "abs")
-# pal_change <- generatePalettes(clim_change, type = "change")
-# pal_management <- genPalettes_forestCover(climateManagementInputs)
-# 
 
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
@@ -191,14 +187,16 @@ ui <- navbarPage(
 
 
 server <- function(input, output, session) {
-  
-  # page transfer for buttons 
+  # set button functionality ------------------------------------------------
   pageButtonServer("optimistic", parentSession = session,pageName = "Optimistic" )
   pageButtonServer("middle", parentSession = session,pageName = "Middle of the Road" )
   pageButtonServer("pessimistic", parentSession = session,pageName = "Pessimistic" )
   pageButtonServer("extreme", parentSession = session,pageName = "Extreme" )
+
+
   
-  # ssp126 data 
+
+  # ssp126 data -------------------------------------------------------------
   map_server(id = "ssp126", histRasters = allRasters_abs$hist, 
              sspRasters =  allRasters_abs$`126`,
              changeRasters = allRasters_change$`126`,
@@ -217,8 +215,7 @@ server <- function(input, output, session) {
               pal1 = pal_management,
               ssp = "126",
               countyFeat = county)
-  
-  # ssp245 data
+  # ssp245 data -------------------------------------------------------------
   map_server(id = "ssp245",
              histRasters = allRasters_abs$hist,
              sspRasters =  allRasters_abs$`245`,
@@ -236,7 +233,7 @@ server <- function(input, output, session) {
               pal1 = pal_management,
               ssp = "245",
               countyFeat = county)  
-  # ssp370 data
+  # ssp data -------------------------------------------------------------
   map_server(id = "ssp370",
              histRasters = allRasters_abs$hist,
              sspRasters =  allRasters_abs$`370`,

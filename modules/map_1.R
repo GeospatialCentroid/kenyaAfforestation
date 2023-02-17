@@ -99,8 +99,8 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
     #   no = colorNumeric(colorRampPalette(colors = c("white", "#003300"),space = "Lab")(abs(maxval())), dom())
     # )})
       
-      
-      output$map1 <- leaflet::renderLeaflet({
+    
+    output$map1 <- leaflet::renderLeaflet({
         leaflet(options = leafletOptions(minZoom = 4)) %>%
           #set zoom levels
           setView(lng = 37.826119933082545
@@ -172,7 +172,6 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
       
       # add rasters to proxy map
       observe({
-        
         leafletProxy("map1") %>%
           # add historic raster -----------------------------------------------------
         addRasterImage(r0(),
