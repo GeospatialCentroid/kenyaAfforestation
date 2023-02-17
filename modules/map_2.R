@@ -103,7 +103,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
                  , lat = 0.3347526538983459
                  , zoom = 6 )%>%
         # tile providers ----------------------------------------------------------
-      addProviderTiles("Stamen.Toner", group = "Light") %>%
+      # addProviderTiles("Stamen.Toner", group = "Light") %>%
         addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
         #leaflet.extras::addResetMapButton() %>%
         # add z levels ------------------------------------------------------------
@@ -136,7 +136,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       ) %>%
       # add control groups ------------------------------------------------------
       addLayersControl(
-        baseGroups = c("OpenStreetMap", "Light"),
+        # baseGroups = c("OpenStreetMap", "Light"),
         overlayGroups = c(
           "Historic Forest Cover",
           "Baseline Forest Cover",

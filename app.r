@@ -13,6 +13,8 @@ library(raster)
 library(rgdal)
 library(leaflet.extras)
 library(plotly)
+### raster option within leaflet... old so we might loose other functionality 
+#remotes::install_github("rstudio/leaflet", ref="joe/feature/raster-options")
 
 # source modules --------------------------------------------------------
 lapply(list.files(
@@ -170,15 +172,19 @@ ui <- navbarPage(
   ),
   
   ## Additional Nav bar objects ----------------------------------------------
-  
-  ### this is backburner for the time being... might be something to work on after the inperson event. 
-  # tabPanel(title = "Downloads",
-  #          h2("Under construction")),
-  tabPanel(title = "Model Validation",
-           h2("Under construction")),
-  tabPanel(title = "Simulation Details",
-           h2("Under construction"))
-  
+  tabPanel(title = "Modeling Process",
+          h2("Project Summary"),
+          h2("How the modeled products were validated"),
+          h2("Code and Other External References")
+          ),
+  tabPanel(title = "About",
+          h2("Project History"),
+          h2("Cotributors"),
+          h3("Rehka"),
+  h3("Pat Keys"),
+  h3("Geospatial Centroid"),
+  h2("Project Funders")
+  )
 )
 
 
