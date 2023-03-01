@@ -271,7 +271,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       
       output$pixelVal2 <- renderText(paste("Baseline Forest Cover:",
                                       "<b>", as.character(extractVal1), "</b>","%", "<br>",
-                                      "Projected Change:",
+                                      "Projected Change in Forested Area:",
                                       "<b>", as.character(extractVal2),"</b>","%"))
     })
   
