@@ -20,7 +20,8 @@ map2_UI <- function(id, panelName, county_names){
                      inputId=ns("Layer"),
                      label=tags$strong("Pick a management scenario to visualize predicted forest cover change:"),
                      choices = list("No Management Action" = "nothing",  ## this will need to change to match the new dataset convention
-                                    "Stop Fires" = "fire"),
+                                    "Stop Fires" = "fire",
+                                    "No Grazing" = "graze"),
                      selected = "nothing"
                    ),
                    hr(),
@@ -79,7 +80,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   # bind features to single list  
    r1 <- list(
      nothing = managementRasters[[paste0("ssp",ssp,"_DoNothing")]],
-     fire = managementRasters[[paste0("ssp",ssp,"_NoFires")]]
+     fire = managementRasters[[paste0("ssp",ssp,"_NoFires")]],
+     graze = managementRasters[[paste0("ssp",ssp,"_NoGrazing")]]
    )
 
    
@@ -101,7 +103,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
                  , lat = 0.3347526538983459
                  , zoom = 6 )%>%
         # tile providers ----------------------------------------------------------
-      addProviderTiles("Stamen.Toner", group = "Light") %>%
+      # addProviderTiles("Stamen.Toner", group = "Light") %>%
         addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
         #leaflet.extras::addResetMapButton() %>%
         # add z levels ------------------------------------------------------------
@@ -134,7 +136,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       ) %>%
       # add control groups ------------------------------------------------------
       addLayersControl(
-        baseGroups = c("OpenStreetMap", "Light"),
+        # baseGroups = c("OpenStreetMap", "Light"),
         overlayGroups = c(
           "Historic Forest Cover",
           "Baseline Forest Cover",
@@ -269,7 +271,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       
       output$pixelVal2 <- renderText(paste("Baseline Forest Cover:",
                                       "<b>", as.character(extractVal1), "</b>","%", "<br>",
-                                      "Projected Change:",
+                                      "Projected Change in Forested Area:",
                                       "<b>", as.character(extractVal2),"</b>","%"))
     })
   

@@ -99,21 +99,22 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
     #   no = colorNumeric(colorRampPalette(colors = c("white", "#003300"),space = "Lab")(abs(maxval())), dom())
     # )})
       
-      
-      output$map1 <- leaflet::renderLeaflet({
+    
+    output$map1 <- leaflet::renderLeaflet({
         leaflet(options = leafletOptions(minZoom = 4)) %>%
           #set zoom levels
           setView(lng = 37.826119933082545
                   , lat = 0.3347526538983459
                   , zoom = 6) %>%
           # add z levels ------------------------------------------------------------
-        addMapPane("Historic Data", zIndex = 406) %>%
-          addMapPane("Projected Data", zIndex = 407) %>%
-          addMapPane("Percent Change", zIndex = 408) %>%
-          addMapPane("Counties", zIndex = 409) %>%
-          # tile providers ----------------------------------------------------------
-        addProviderTiles("Stamen.Toner", group = "Light") %>%
-          addProviderTiles("OpenStreetMap", group = "OpenStreetMap") %>%
+        addMapPane("BaseMap", zIndex = 410) %>%
+        addMapPane("HistoricData", zIndex = 420) %>%
+        addMapPane("ProjectedData", zIndex = 430) %>%
+        addMapPane("PercentChange", zIndex = 440) %>%
+        addMapPane("Counties", zIndex = 450) %>%
+        # tile providers ----------------------------------------------------------
+        # addProviderTiles("Stamen.Toner", group = "Light", options = pathOptions(pane = "BaseMap")) %>%
+        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
           #leaflet.extras::addResetMapButton() %>%
           # add county features -----------------------------------------------------
         addPolygons(
@@ -152,7 +153,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           ) %>% 
         # add control groups ------------------------------------------------------
         addLayersControl(
-          baseGroups = c("OpenStreetMap", "Light"),
+          # baseGroups = c("OpenStreetMap", "Light"),
           overlayGroups = c(
             "Historic Data",
             "Projected Data",
@@ -172,7 +173,6 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
       
       # add rasters to proxy map
       observe({
-        
         leafletProxy("map1") %>%
           # add historic raster -----------------------------------------------------
         addRasterImage(r0(),
@@ -180,7 +180,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
                        colors = pal(),
                        group = "Historic Data",
                        opacity = 1,
-                       project = FALSE) %>%
+                       project = FALSE)%>%
           # add ssp raster features -----------------------------------------------------
         addRasterImage(r1(),
                        #colors = pal1(),

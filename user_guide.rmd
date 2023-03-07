@@ -1,0 +1,24 @@
+---
+title: "tutorial"
+output: html_document
+date: "2023-02-17"
+---
+
+# Kenya Afforestition -- Preprocessing and Shiny Application 
+
+**Goal** : Descripe the preprocessing steps and general functionality of the shiny application 
+
+
+## Code Base 
+
+This project is render out of the kenyaAfforestation.Rproj file. As a results all data paths are relative to the location of the .Rproj file. 
+
+### Preprocessing Steps 
+
+Currently all preprossing efforts (defining functions, declaring inputs, and calling functions) are performed within a single script. sourcing this script renders processed dataset that form the inputs for the shiny application. 
+- *Note*: Functions from the `functions/` folder are being called from within the `0_generateInputs.R` script. These are sourced as hard links to the specific files.
+#! we might consider restructing this if we are no longer calling these functions within the shiny app. Basically isolate any data/code that is required by the app as those would be the only features needed to be deployed to the server. 
+
+- 0_generateInputs.R : Process datasets that will be used in the shiny app. This includes projecting, generating palettes, saving outputs and a few other odds and ends. 
+
+  - Consists of 
