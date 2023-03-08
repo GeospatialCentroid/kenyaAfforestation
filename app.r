@@ -97,6 +97,48 @@ ui <- navbarPage(
                                                        onClick = "window.open('https://www.carbonbrief.org/explainer-how-shared-socioeconomic-pathways-explore-future-climate-change/')")
            )
   ),
+  tabPanel(title = "About", class = "about-tab",
+           p("This website was designed to let you visually explore the future of
+          climate change and how it may impact Kenya’s forests. The purpose is to
+          provide a useful source of information (using maps, graphs, and tables)
+          about the potential impacts of climate change, and possible outcomes 
+          that could arise for different types of forests, across Kenya." 
+           ),
+          p("On this page, you can find information regarding the origin of the
+            project, the team of people that were involved, publications, and other
+            relevant information." ),
+          br(),
+          h2("Project History"),
+          p("This project was led by Colorado State University in collaboration with ",
+            tags$a(href = "https://www.sei.org/centres/africa/", "SEI-Africa", target = "_blank"),
+            " and the ",
+            tags$a(href = "https://www.kefri.org/home.html", "Kenya Forestry Research Institute", target = "_blank"),
+            " (KEFRI). The project was primarily funded by the ",
+            tags$a(href = "https://www.nasa.gov/", "National Aeronautics and Space Administration", target = "_blank"),
+            " (NASA) ",
+            tags$a(href = "https://cce.nasa.gov/biodiversity/index.html", "Biological Diversity and Ecological Conservation program", target = "_blank"),
+            " (Project# 80NSSC19K0182)."
+          ),
+          h2("Who We Are"),
+          p("This website is the result of a collaboration among the following individuals and institutions."),
+          strong("SEI-Africa"), 
+          p("Dr. Anderson Kehbila"),
+          strong("KEFRI"),
+          p("Dr. Vincent Oeba"),
+          strong("Colorado State University"),
+          p("Professor Patrick Keys", br(),"Dr. Rekha Warrier", br(),
+            "Professor Randall Boone", br(),"Professor Kathleen Galvin"),
+          strong("Geospatial Centroid"),
+          p("Dan Carver", br(), "Dr. Caitlin Mothes"),
+          h2("Publications (In-progress)"),
+          p("A variety of published work stemmed from this project, included reports, guidance documents, and academic journal articles"),
+          tags$ol(
+            tags$li("Report on forest cover change scenarios"), 
+            tags$li("Model documentation for SPIRALL L-Range"), 
+            tags$li("Ecology & Society article"),
+            tags$li("Earth Interactions")
+          )
+  ),
 
   # combine scenarios into navbar menu
   navbarMenu(
@@ -173,53 +215,14 @@ ui <- navbarPage(
   ),
   
   ## Additional Nav bar objects ----------------------------------------------
-  tabPanel(title = "Modeling Process",
+  tabPanel(title = "Model Information",
           h2("Project Summary"),
-          h2("How the modeled products were validated"),
-          h2("Code and Other External References")
-          ),
-  tabPanel(title = "About",
-          p("This website was designed to let you visually explore the future of
-          climate change and how it may impact Kenya’s forests. The purpose is to
-          provide a useful source of information (using maps, graphs, and tables)
-          about the potential impacts of climate change, and possible outcomes 
-          that could arise for different types of forests, across Kenya." 
-          ),
-          p("On this page, you can find information regarding the origin of the
-            project, the team of people that were involved, publications, and other
-            relevant information." ),
-          br(),
-          h2("Project History"),
-          p("This project was led by Colorado State University in collaboration with ",
-            tags$a(href = "https://www.sei.org/centres/africa/", "SEI-Africa", target = "_blank"),
-            " and the ",
-            tags$a(href = "https://www.kefri.org/home.html", "Kenya Forestry Research Institute", target = "_blank"),
-            " (KEFRI). The project was primarily funded by the ",
-            tags$a(href = "https://www.nasa.gov/", "National Aeronautics and Space Administration", target = "_blank"),
-            " (NASA) ",
-            tags$a(href = "https://cce.nasa.gov/biodiversity/index.html", "Biological Diversity and Ecological Conservation program", target = "_blank"),
-            " (Project# 80NSSC19K0182)."
-            ),
-          h2("Who We Are"),
-          p("This website is the result of a collaboration among the following individuals and institutions."),
-          strong("SEI-Africa"), 
-          p("Dr. Anderson Kehbila"),
-          strong("KEFRI"),
-          p("Dr. Vincent Oeba"),
-          strong("Colorado State University"),
-          p("Professor Patrick Keys", br(),"Dr. Rekha Warrier", br(),
-            "Professor Randall Boone", br(),"Professor Kathleen Galvin"),
-          strong("Geospatial Centroid"),
-          p("Dan Carver", br(), "Dr. Caitlin Mothes"),
-          h2("Publications (In-progress)"),
-          p("A variety of published work stemmed from this project, included reports, guidance documents, and academic journal articles"),
-          tags$ol(
-            tags$li("Report on forest cover change scenarios"), 
-            tags$li("Model documentation for SPIRALL L-Range"), 
-            tags$li("Ecology & Society article"),
-            tags$li("Earth Interactions")
+          tabsetPanel(
+            tabPanel("Model Validation"),
+            tabPanel("Simulation Details")
           )
-        )
+  )
+
 )
 
 

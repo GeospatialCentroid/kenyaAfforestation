@@ -1,12 +1,23 @@
 /* Kenya afforestation style sheet */
 
 
+////////////////////// app-wide styles //////////////////////////////////
+
 /* align tabsets to the right */
 ul.nav.navbar-nav {
   justify-content: right;
 }
 
-//////////////////////////////// header //////////////////////////////////////
+
+
+/* Add padding to About page */
+div.about-tab {
+  padding: 3em;
+}
+
+/////////////////////// Homepage styling //////////////////////////////////
+
+/////////////////// header (decided to remove) ////////////////////////////
 /* .header-title {
   color: beige;
   padding-bottom: 20px;
