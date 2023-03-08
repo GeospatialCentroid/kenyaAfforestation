@@ -131,7 +131,7 @@ ui <- navbarPage(
           strong("Geospatial Centroid"),
           p("Dan Carver", br(), "Dr. Caitlin Mothes"),
           h2("Publications (In-progress)"),
-          p("A variety of published work stemmed from this project, included reports, guidance documents, and academic journal articles"),
+          p("A variety of published work stemmed from this project, including reports, guidance documents, and academic journal articles"),
           tags$ol(
             tags$li("Report on forest cover change scenarios"), 
             tags$li("Model documentation for SPIRALL L-Range"), 
@@ -214,11 +214,48 @@ ui <- navbarPage(
           )
   ),
   
-  ## Additional Nav bar objects ----------------------------------------------
+  ## Model Information ----------------------------------------------
   tabPanel(title = "Model Information",
           h2("Project Summary"),
           tabsetPanel(
-            tabPanel("Model Validation"),
+            tabPanel("Model Validation", class = "validation-tab",
+                     br(),
+                     br(),
+                     tabsetPanel(type = "pills",
+                                 tabPanel("Net Primary Productivity",
+                                          sidebarLayout(
+                                            sidebarPanel(width = 5,
+                                                         h5("Methods"),
+                                                         tags$ol(
+                                                           tags$li("L-Range simulations were conducted using 
+                                                                   historical climate data for the years 1995-2014."), 
+                                                           tags$li("Fire was represented using ESA CCI historical 
+                                                                   fire data summarized to represent mean annual frequency of fire."), 
+                                                           tags$li("Estimates of Annual Net Primary Productivity (NPP) for the years 
+                                                                   2000-2014 from L-Range were compared against estimates of observed 
+                                                                   Annual NPP from MODIS for the same period."),
+                                                           tags$li("Estimates are shown only for areas dominated 
+                                                                   by natural vegetation (trees, shrubs, grasses).")
+                                                         ),
+                                                         hr(),
+                                                         tags$div(
+                                                           materialSwitch(inputId = "npp_viz", label = strong("Mean Difference"), inline = TRUE),
+                                                           tags$span(strong("Reference"))
+                                                         ),                                                      
+                                                         strong("Toggle between layers viewed on the map:"),
+                                                         tags$ol(
+                                                           tags$li(tags$strong("Mean Difference"), "= The mean difference in annual net primary productivity
+                                                                between L-Range estimates (simulated) and MODIS (observed) for the 2000-2014 period. 
+                                                                The units are KgC/sq. (Kilogram carbon per square meter)"), 
+                                                           tags$li(tags$strong("Reference"), " = the mean annual NPP for the 2000 -2014 period 
+                                                                based on MODIS (i.e. the observed dataset against which change was calculated).")
+                                                         )),
+                                            mainPanel(width = 7,
+                                                      leafletOutput("npp_map", width="100%",height="500px"),
+                                                      
+                                            ))),
+                                 tabPanel("Above and Below Ground Live Carbon"),
+                                 tabPanel("Leaf Area Index"))),
             tabPanel("Simulation Details")
           )
   )
