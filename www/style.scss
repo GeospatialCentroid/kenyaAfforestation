@@ -15,6 +15,13 @@ div.about-tab {
   padding: 3em;
 }
 
+
+/* Customize variable tabsets for model validation */
+ul#model-eval {
+    justify-content: center;
+    padding: 1em;
+}
+
 /////////////////////// Homepage styling //////////////////////////////////
 
 /////////////////// header (decided to remove) ////////////////////////////
@@ -63,7 +70,7 @@ div.about-tab {
 }
 
 /* adapt to mobile */
-@media only screen and (max-width: 714px) {
+@media only screen and (max-width: 900px) {
   .sub-header {
     display: grid;
     grid-template-columns: 1fr !important;
@@ -242,6 +249,31 @@ img.smiley {
   padding-top: 5%;
 }
 
+
+//////////////////////////// infographic /////////////////////////////////////
+
+
+/* edit title */
+.infographic-title {
+  text-align: center;
+  /*border-radius: 4px;
+  background-color: beige;*/
+  letter-spacing: 1.5px;
+  /*text-transform: uppercase;*/
+  padding: 4px 7px 4px 8px;
+  margin: 30px;
+  color: darkslategrey;
+}
+
+
+/* edit image */
+img.info-image {
+  width: 75%;
+  box-shadow: 10px 10px 5px #ccc;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
 
 /////////////////////////////////////// scenario info /////////////////////////
 

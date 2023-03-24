@@ -69,6 +69,10 @@ pal_abs <- paletteList$pal_abs
 pal_change <- paletteList$pal_change
 pal_management <- paletteList$pal_management
 
+
+# Validation Inputs -----------------------------------------------------------
+npp_val <- readRDS("appData/validationInputs.RDS")
+
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
     # required as reference for the button selection process. 
@@ -97,6 +101,7 @@ ui <- navbarPage(
                                                        onClick = "window.open('https://www.carbonbrief.org/explainer-how-shared-socioeconomic-pathways-explore-future-climate-change/')")
            )
   ),
+  ## About Page -------------------------------------------------------------------
   tabPanel(title = "About", class = "about-tab",
            p("This website was designed to let you visually explore the future of
           climate change and how it may impact Kenya’s forests. The purpose is to
@@ -107,8 +112,8 @@ ui <- navbarPage(
           p("On this page, you can find information regarding the origin of the
             project, the team of people that were involved, publications, and other
             relevant information." ),
-          br(),
-          h2("Project History"),
+          hr(),
+          h2("Project Background"),
           p("This project was led by Colorado State University in collaboration with ",
             tags$a(href = "https://www.sei.org/centres/africa/", "SEI-Africa", target = "_blank"),
             " and the ",
@@ -119,6 +124,7 @@ ui <- navbarPage(
             tags$a(href = "https://cce.nasa.gov/biodiversity/index.html", "Biological Diversity and Ecological Conservation program", target = "_blank"),
             " (Project# 80NSSC19K0182)."
           ),
+          hr(),
           h2("Who We Are"),
           p("This website is the result of a collaboration among the following individuals and institutions."),
           strong("SEI-Africa"), 
@@ -130,8 +136,9 @@ ui <- navbarPage(
             "Professor Randall Boone", br(),"Professor Kathleen Galvin"),
           strong("Geospatial Centroid"),
           p("Dan Carver", br(), "Dr. Caitlin Mothes"),
+          hr(),
           h2("Publications (In-progress)"),
-          p("A variety of published work stemmed from this project, included reports, guidance documents, and academic journal articles"),
+          p("A variety of published work stemmed from this project, including reports, guidance documents, and academic journal articles"),
           tags$ol(
             tags$li("Report on forest cover change scenarios"), 
             tags$li("Model documentation for SPIRALL L-Range"), 
@@ -214,12 +221,70 @@ ui <- navbarPage(
           )
   ),
   
-  ## Additional Nav bar objects ----------------------------------------------
+  ## Model Information ----------------------------------------------
   tabPanel(title = "Model Information",
-          h2("Project Summary"),
+          h2("Model Summary"),
+          p("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut non felis 
+            non nunc porta volutpat vulputate nec ligula. Donec dictum at tortor nec 
+            imperdiet. Maecenas varius, sapien sit amet tincidunt hendrerit, nunc purus 
+            elementum nisl, ut aliquet ex risus vitae sem. Praesent condimentum lacinia 
+            elit eu egestas. Praesent ligula sem, porttitor ut lectus id, euismod 
+            tristique mi. Sed cursus dignissim dolor, sit amet lobortis libero feugiat eu."),
+          br(),
+          hr(),
           tabsetPanel(
-            tabPanel("Model Validation"),
-            tabPanel("Simulation Details")
+            tabPanel("Model Validation", class = "validation-tab",
+                     br(),
+                     br(),
+                     tabsetPanel(type = "pills", id = "model-eval",
+                                 tabPanel("Net Primary Productivity",
+                                          sidebarLayout(
+                                            sidebarPanel(width = 5,
+                                                         h5("Methods"),
+                                                         tags$ul(
+                                                           tags$li("L-Range simulations were conducted using 
+                                                                   historical climate data for the years 1995-2014."), 
+                                                           tags$li("Fire was represented using ESA CCI historical 
+                                                                   fire data summarized to represent mean annual frequency of fire."), 
+                                                           tags$li("Estimates of Annual Net Primary Productivity (NPP) for the years 
+                                                                   2000-2014 from L-Range were compared against estimates of observed 
+                                                                   Annual NPP from MODIS for the same period."),
+                                                           tags$li("Estimates are shown only for areas dominated 
+                                                                   by natural vegetation (trees, shrubs, grasses).")
+                                                         ),
+                                                         hr(),
+                                                         h5("Map layer descriptions:"),
+                                                         tags$ul(
+                                                           tags$li(tags$strong("Mean Difference"), "= The mean difference in annual net primary productivity
+                                                                between L-Range estimates (simulated) and MODIS (observed) for the 2000-2014 period. 
+                                                                The units are KgC/sq. (Kilogram carbon per square meter)"), 
+                                                           tags$li(tags$strong("Reference"), " = the mean annual NPP for the 2000 -2014 period 
+                                                                based on MODIS (i.e. the observed dataset against which change was calculated).")
+                                                         )),
+                                            mainPanel(width = 7,
+                                                      leafletOutput("npp_map", width="100%",height="500px"),
+                                                      
+                                            ))),
+                                 tabPanel("Above and Below Ground Live Carbon"),
+                                 tabPanel("Leaf Area Index"))),
+            tabPanel("Simulation Details", class = "simulations-tab",
+                     br(),
+                     p("A layer representing possible expanded forest cover in 2030 
+                       (representing successful afforestation to achieve 10 % cover) 
+                       was created by adding tree cover to agricultural and savanna 
+                       areas in the proximity of existing evergreen and deciduous forests. 
+                       Starting with this expanded forest cover scenario in 2030, 
+                       changes in cover were simulated till the end of the century under 
+                       each of the four climate scenarios (SSP1, SSP2, SSP3, SSP5) while 
+                       incorporating the effects of three possible management actions 
+                       (Do nothing: Current conditions of fire and grazing persist, 
+                       Stop fires: Forest fires are fully controlled, Stop grazing: 
+                       Livestock grazing is fully controlled).  A total of 12 scenarios 
+                       were explored, each representing the combined effects of a unique 
+                       climate future and a single management action. For each scenario, 
+                       retaining forest cover in 2030 as a baseline, simulated changes in 
+                       tree cover within evergreen and deciduous forest areas were calculated 
+                       for the years 2050, 2070 and 2100."))
           )
   )
 
@@ -277,7 +342,7 @@ server <- function(input, output, session) {
               pal1 = pal_management,
               ssp = "245",
               countyFeat = county)  
-  # ssp data -------------------------------------------------------------
+  # ssp370 data -------------------------------------------------------------
   map_server(id = "ssp370",
              histRasters = allRasters_abs$hist,
              sspRasters =  allRasters_abs$`370`,
@@ -298,7 +363,7 @@ server <- function(input, output, session) {
               ssp = "370",
               countyFeat = county)  
   
-  # ssp585 data
+  # ssp585 data ------------------------------------------------------------
   map_server(id = "ssp585",
              histRasters = allRasters_abs$hist,
              sspRasters =  allRasters_abs$`585`,
@@ -317,8 +382,80 @@ server <- function(input, output, session) {
               countyDF = climateManagementInputs$areaCounty,
               pal1 = pal_management,
               ssp = "585",
-              countyFeat = county)  
+              countyFeat = county) 
   
+  # validation maps ------------------------------------------------------
+  
+  ## npp maps ------------------------------------------------------------
+  output$npp_map <- renderLeaflet({
+    
+    leaflet(options = leafletOptions(minZoom = 4)) %>%
+      #set zoom levels
+      setView(lng = 37.826119933082545,
+              lat = 0.3347526538983459,
+              zoom = 6) %>%
+      # tile providers 
+    addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
+      # add county features 
+    addPolygons(
+      data = county,
+      fillColor = "",
+      fillOpacity = 0,
+      color = "black",
+      layerId = ~ ADMIN1,
+      weight = 1.5,
+      group = "Counties",
+      # add hover over lables
+      label= ~ ADMIN1,
+      labelOptions = labelOptions(noHide = F,
+                                  style = list("font-weight" = "bold"),
+                                  textsize = "15px"),
+      # add highlight options to make labels a bit more intuitive
+      highlightOptions = highlightOptions(
+        color = "yellow",
+        opacity = 1,
+        weight = 3,
+        bringToFront = TRUE
+      )
+    ) %>%
+      # add Reference layer and legend
+      addRasterImage(npp_val$rasters$npp_ref,
+                     colors = npp_val$npp_ref_pal,
+                     group = "Reference") %>% 
+      addLegend_decreasing(
+        "topright",
+        pal = npp_val$npp_ref_pal,
+        values = npp_val$npp_ref_values,
+        title = "Reference",
+        group = "Reference",
+        decreasing = TRUE
+      ) %>% 
+      # add difference layer and legend
+      addRasterImage(npp_val$rasters$npp_dif,
+                     colors = npp_val$npp_dif_pal,
+                     group = "Mean Difference") %>%
+      addLegend_decreasing(
+        "topright",
+        pal = npp_val$npp_dif_pal,
+        values = npp_val$npp_dif_values,
+        title = "Mean Difference",
+        group = "Mean Difference",
+        decreasing = TRUE
+      ) %>%
+
+      # add control groups 
+    addLayersControl(
+      overlayGroups = c(
+        "Mean Difference",
+        "Reference",
+        "Counties"
+      ),
+      position = "topleft",
+      options = layersControlOptions(collapsed = FALSE)
+    ) %>% 
+      hideGroup("Reference")
+    
+  })
 }
 
 shinyApp(ui, server)
