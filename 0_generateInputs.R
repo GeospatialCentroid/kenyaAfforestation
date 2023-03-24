@@ -60,28 +60,14 @@ names(paletteList) <- c("pal_abs", "pal_change", "pal_management")
 
 
 # process model validation rasters ---------------------------------------
+npp_val <- nppVals(path = "dataToPreprocess/validationLayers/NPP_valid.RDS",
+                   county = county,
+                   countyBuff = countyBuff)
 
-npp_val <- readRDS("dataToPreprocess/validationLayers/NPP_valid.RDS") %>% 
-  raster::stack() %>% 
-  projClipCrop(county, countyBuff)
-
-names(npp_val) <- c("npp_dif", "npp_ref")
-
-## set up palette info for maps
-npp_dif_pal <- colorNumeric(palette = "RdBu", values(npp_val$npp_dif),
-                               na.color = "transparent")
-  
-npp_dif_values <- values(npp_val$npp_dif)
-
-npp_ref_pal <- colorNumeric(palette = "Greens", values(npp_val$npp_ref),
-                            na.color = "transparent")
-
-npp_ref_values <- values(npp_val$npp_ref)
-
-
-npp_val <- list(npp_val, npp_dif_pal, npp_dif_values, npp_ref_pal, npp_ref_values)
-
-names(npp_val) <- c("rasters", "npp_dif_pal", "npp_dif_values", "npp_ref_pal", "npp_ref_values")
+carbon_val <- carbonVals(path1 = "dataToPreprocess/validationLayers/aboveC_valid.RDS",
+                         path2 = "dataToPreprocess/validationLayers/belowC_valid.RDS",
+                         county = county,
+                         countyBuff = countyBuff )
 
 
 
@@ -93,8 +79,15 @@ saveRDS(object = climateChangeInputs,
 saveRDS(object = climateManagementInputs,
         file = "appData/climateManagementInputs.RDS")
 ## palette objects 
-saveRDS(paletteList, file = "appData/palettes.RDS")
+saveRDS(object = paletteList,
+        file = "appData/palettes.RDS")
 
-## validation inputs
-saveRDS(npp_val, "appData/validationInputs.RDS")
+## validation inputs npp
+saveRDS(object = npp_val,
+        file = "appData/validationInputs_npp.RDS")
+
+## validation inputs carbon
+saveRDS(object = carbon_val,
+        file = "appData/validationInputs_carbon.RDS")
+
 
