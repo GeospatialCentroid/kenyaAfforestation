@@ -36,17 +36,17 @@ validation_UI <- function(id){
                                                           hr(),
                                                           h5("Map layer descriptions:"),
                                                           tags$ul(
-                                                            tags$li(tags$strong("Mean Difference"), "= The mean difference in annual net primary productivity
-                                                                between L-Range estimates (simulated) and MODIS (observed) for the 2000-2014 period. 
-                                                                The units are KgC/sq. (Kilogram carbon per square meter)"), 
-                                                            tags$li(tags$strong("Reference"), " = the mean annual NPP for the 2000 -2014 period 
-                                                                based on MODIS (i.e. the observed dataset against which change was calculated).")
+                                                            tags$li(tags$strong("Mean Difference"), HTML(paste0("= The mean difference in ", "<b>", " annual NPP ",
+                                                                "</b>", "between L-Range estimates (simulated) and MODIS (observed) for the 2000-2014 period. 
+                                                                The units are KgC/sq. (Kilogram carbon per square meter)"))), 
+                                                            tags$li(tags$strong("Reference"), HTML(paste0(" = the mean", "<b>", " annual NPP ", "</b>", "for the 2000 -2014 period 
+                                                                based on MODIS (i.e. the observed dataset against which change was calculated).")))
                                                           )),
                                              mainPanel(width = 7,
                                                        leafletOutput(ns("npp_map"), width="100%",height="500px"),
                                                        
                                              ))),
-                                  tabPanel("Above and Below Ground Live Carbon", 
+                                  tabPanel("Above Ground Live Carbon", 
                                            sidebarLayout(
                                              sidebarPanel(width = 5,
                                                           h5("Methods"),
@@ -54,13 +54,39 @@ validation_UI <- function(id){
                                                           ),
                                                           hr(),
                                                           h5("Map layer descriptions:"),
+                                                             tags$ul(
+                                                               tags$li(tags$strong("Mean Difference"), HTML(paste0("= The mean difference in ", "<b>", " above ground live carbon ",
+                                                                                                                   "</b>", "for the year 2010 between L-Range estimates and a validation dataset (Spawn et al., 2020). 
+                                                                The units are Mg/ha. (Megagrams per hectare)"))), 
+                                                               tags$li(tags$strong("Reference"), HTML(paste0(" = the mean", "<b>", " above ground live carbon ", "</b>", "dataset based on Spawn et al 2020. 
+                                                                                                             (i.e., the observed dataset against which change was calculated)")))
+                                                             ),
                                                           ),
                                              mainPanel(width = 7,
-                                                       leafletOutput(ns("carbon_map"), width="100%",height="500px")
+                                                       leafletOutput(ns("above_map"), width="100%",height="500px")
                                                        ),
                                               )
                                            ),
-                                  tabPanel("Leaf Area Index"))),
+                                  tabPanel("Below Ground Live Carbon", 
+                                           sidebarLayout(
+                                             sidebarPanel(width = 5,
+                                                          h5("Methods"),
+                                                          tags$ul(
+                                                          ),
+                                                          hr(),
+                                                          h5("Map layer descriptions:"),
+                                                             tags$ul(
+                                                               tags$li(tags$strong("Mean Difference"), HTML(paste0("= The mean difference in ", "<b>", " below ground live carbon ",
+                                                                                                                   "</b>", "for the year 2010 between L-Range estimates and a validation dataset (Spawn et al., 2020). 
+                                                                The units are Mg/ha. (Megagrams per hectare)"))), 
+                                                               tags$li(tags$strong("Reference"), HTML(paste0(" = the mean", "<b>", " below ground live carbon ", "</b>", "dataset based on Spawn et al 2020. 
+                                                                                                             (i.e., the observed dataset against which change was calculated)")))
+                                                             ),
+                                             ),
+                                             mainPanel(width = 7,
+                                                       leafletOutput(ns("below_map"), width="100%",height="500px")
+                                             ),
+                                           )))),
              tabPanel("Simulation Details", class = "simulations-tab",
                       br(),
                       p("A layer representing possible expanded forest cover in 2030 
@@ -84,20 +110,19 @@ validation_UI <- function(id){
 }
 
 
-# define server  ---------------------------------------------------------- 
-validation_server <- function(id, npp_val, carbon_val, county){
-  moduleServer(id,function(input,output,session){
+# define server  ----------------------------------------------------------
+validation_server <- function(id, npp_val, carbon_val, county) {
+  moduleServer(id, function(input, output, session) {
     ## npp maps ------------------------------------------------------------
     output$npp_map <- renderLeaflet({
-      
       leaflet(options = leafletOptions(minZoom = 4)) %>%
         #set zoom levels
         setView(lng = 37.826119933082545,
                 lat = 0.3347526538983459,
                 zoom = 6) %>%
-        # tile providers 
-        addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
-        # add county features 
+        # tile providers
+        addProviderTiles("OpenStreetMap", group = "OpenStreetMap") %>%
+        # add county features
         addPolygons(
           data = county,
           fillColor = "",
@@ -107,10 +132,12 @@ validation_server <- function(id, npp_val, carbon_val, county){
           weight = 1.5,
           group = "Counties",
           # add hover over lables
-          label= ~ ADMIN1,
-          labelOptions = labelOptions(noHide = F,
-                                      style = list("font-weight" = "bold"),
-                                      textsize = "15px"),
+          label = ~ ADMIN1,
+          labelOptions = labelOptions(
+            noHide = F,
+            style = list("font-weight" = "bold"),
+            textsize = "15px"
+          ),
           # add highlight options to make labels a bit more intuitive
           highlightOptions = highlightOptions(
             color = "yellow",
@@ -122,7 +149,7 @@ validation_server <- function(id, npp_val, carbon_val, county){
         # add Reference layer and legend
         addRasterImage(npp_val$rasters$npp_ref,
                        colors = npp_val$npp_ref_pal,
-                       group = "Reference") %>% 
+                       group = "Reference") %>%
         addLegend_decreasing(
           "topright",
           pal = npp_val$npp_ref_pal,
@@ -130,7 +157,7 @@ validation_server <- function(id, npp_val, carbon_val, county){
           title = "Reference",
           group = "Reference",
           decreasing = TRUE
-        ) %>% 
+        ) %>%
         # add difference layer and legend
         addRasterImage(npp_val$rasters$npp_dif,
                        colors = npp_val$npp_dif_pal,
@@ -144,118 +171,171 @@ validation_server <- function(id, npp_val, carbon_val, county){
           decreasing = TRUE
         ) %>%
         
-        # add control groups 
+        # add control groups
+        addLayersControl(
+          overlayGroups = c("Mean Difference",
+                            "Reference",
+                            "Counties"),
+          position = "topleft",
+          options = layersControlOptions(collapsed = FALSE)
+        ) %>%
+        hideGroup("Reference")
+      
+    })
+    ## above ground carbon maps ------------------------------------------------------------
+    above <- carbon_val$above
+    
+    
+    output$above_map <- renderLeaflet({
+      leaflet(options = leafletOptions(minZoom = 4)) %>%
+        #set zoom levels
+        setView(lng = 37.826119933082545,
+                lat = 0.3347526538983459,
+                zoom = 6) %>%
+        # tile providers
+        addProviderTiles("OpenStreetMap", group = "OpenStreetMap") %>%
+        # add county features
+        addPolygons(
+          data = county,
+          fillColor = "",
+          fillOpacity = 0,
+          color = "black",
+          layerId = ~ ADMIN1,
+          weight = 1.5,
+          group = "Counties",
+          # add hover over lables
+          label = ~ ADMIN1,
+          labelOptions = labelOptions(
+            noHide = F,
+            style = list("font-weight" = "bold"),
+            textsize = "15px"
+          ),
+          # add highlight options to make labels a bit more intuitive
+          highlightOptions = highlightOptions(
+            color = "yellow",
+            opacity = 1,
+            weight = 3,
+            bringToFront = TRUE
+          )
+        ) %>%
+        ## above ground
+        # add Reference layer and legend
+        addRasterImage(
+          above$cAbove_rasters$cAbove_ref,
+          colors = above$cAbove_ref_pal,
+          group = "Above Ground Reference"
+        ) %>%
+        addLegend_decreasing(
+          "topright",
+          pal = above$cAbove_ref_pal,
+          values = above$cAbove_ref_values,
+          title = "Above Ground Reference",
+          group = "Above Ground Reference",
+          decreasing = TRUE
+        ) %>%
+        # add difference layer and legend
+        addRasterImage(
+          above$cAbove_rasters$cAbove_dif,
+          colors = above$cAbove_dif_pal,
+          group = "Above Ground Mean Difference"
+        ) %>%
+        addLegend_decreasing(
+          "topright",
+          pal = above$cAbove_dif_pal,
+          values = above$cAbove_dif_values,
+          title = "Above Ground Mean Difference",
+          group = "Above Ground Mean Difference",
+          decreasing = TRUE
+        ) %>%
+        # add control groups
         addLayersControl(
           overlayGroups = c(
-            "Mean Difference",
-            "Reference",
+            "Above Ground Mean Difference",
+            "Above Ground Reference",
             "Counties"
           ),
           position = "topleft",
           options = layersControlOptions(collapsed = FALSE)
-        ) %>% 
-        hideGroup("Reference")
-      
+        ) %>%
+        hideGroup(c("Above Ground Reference"))
     })
-  ## carbon maps ------------------------------------------------------------
-    above <- carbon_val$above
+    
+    ## below ground carbon maps ----------------------------------------------------------------------
     below <- carbon_val$below
     
-  output$carbon_map <- renderLeaflet({
-    
-    leaflet(options = leafletOptions(minZoom = 4)) %>%
-      #set zoom levels
-      setView(lng = 37.826119933082545,
-              lat = 0.3347526538983459,
-              zoom = 6) %>%
-      # tile providers 
-      addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
-      # add county features 
-      addPolygons(
-        data = county,
-        fillColor = "",
-        fillOpacity = 0,
-        color = "black",
-        layerId = ~ ADMIN1,
-        weight = 1.5,
-        group = "Counties",
-        # add hover over lables
-        label= ~ ADMIN1,
-        labelOptions = labelOptions(noHide = F,
-                                    style = list("font-weight" = "bold"),
-                                    textsize = "15px"),
-        # add highlight options to make labels a bit more intuitive
-        highlightOptions = highlightOptions(
-          color = "yellow",
-          opacity = 1,
-          weight = 3,
-          bringToFront = TRUE
-        )
-      ) %>%
-      ## above ground 
-      # add Reference layer and legend
-      addRasterImage(above$cAbove_rasters$cAbove_ref,
-                     colors = above$cAbove_ref_pal,
-                     group = "Above Ground Reference") %>% 
-      addLegend_decreasing(
-        "topright",
-        pal = above$cAbove_ref_pal,
-        values = above$cAbove_ref_values,
-        title = "Above Ground Reference",
-        group = "Above Ground Reference",
-        decreasing = TRUE
-      ) %>% 
-      # add difference layer and legend
-      addRasterImage(above$cAbove_rasters$cAbove_dif,
-                     colors = above$cAbove_dif_pal,
-                     group = "Above Ground Mean Difference") %>%
-      addLegend_decreasing(
-        "topright",
-        pal = above$cAbove_dif_pal,
-        values =above$cAbove_dif_values,
-        title = "Above Ground Mean Difference",
-        group = "Above Ground Mean Difference",
-        decreasing = TRUE
-      ) %>%
-      ## Below ground
-      # add Reference layer and legend
-      addRasterImage(below$cBelow_rasters$cBelow_ref,
-                     colors = below$cBelow_ref_pal,
-                     group = "Below Ground Reference") %>% 
-      addLegend_decreasing(
-        "topright",
-        pal = below$cBelow_ref_pal,
-        values = below$cBelow_ref_values,
-        title = "Below Ground Reference",
-        group = "Below Ground Reference",
-        decreasing = TRUE
-      ) %>% 
-      # add difference layer and legend
-      addRasterImage(below$cBelow_rasters$cBelow_dif,
-                     colors = below$cBelow_dif_pal,
-                     group = "Below Ground Mean Difference") %>%
-      addLegend_decreasing(
-        "topright",
-        pal = above$cAbove_dif_pal,
-        values =above$cAbove_dif_values,
-        title = "Below Ground Mean Difference",
-        group = "Below Ground Mean Difference",
-        decreasing = TRUE
-      ) %>%
-      # add control groups 
-      addLayersControl(
-        overlayGroups = c(
-          "Above Ground Mean Difference",
-          "Above Ground Reference",
-          "Below Ground Mean Difference",
-          "Below Ground Reference",
-          "Counties"
-        ),
-        position = "topleft",
-        options = layersControlOptions(collapsed = FALSE)
-      ) %>% 
-      hideGroup(c("Above Ground Reference","Below Ground Reference"))
+    output$below_map <- renderLeaflet({
+      leaflet(options = leafletOptions(minZoom = 4)) %>%
+        #set zoom levels
+        setView(lng = 37.826119933082545,
+                lat = 0.3347526538983459,
+                zoom = 6) %>%
+        # tile providers
+        addProviderTiles("OpenStreetMap", group = "OpenStreetMap") %>%
+        # add county features
+        addPolygons(
+          data = county,
+          fillColor = "",
+          fillOpacity = 0,
+          color = "black",
+          layerId = ~ ADMIN1,
+          weight = 1.5,
+          group = "Counties",
+          # add hover over lables
+          label = ~ ADMIN1,
+          labelOptions = labelOptions(
+            noHide = F,
+            style = list("font-weight" = "bold"),
+            textsize = "15px"
+          ),
+          # add highlight options to make labels a bit more intuitive
+          highlightOptions = highlightOptions(
+            color = "yellow",
+            opacity = 1,
+            weight = 3,
+            bringToFront = TRUE
+          )
+        ) %>%
+        ## Below ground
+        # add Reference layer and legend
+        addRasterImage(
+          below$cBelow_rasters$cBelow_ref,
+          colors = below$cBelow_ref_pal,
+          group = "Below Ground Reference"
+        ) %>%
+        addLegend_decreasing(
+          "topright",
+          pal = below$cBelow_ref_pal,
+          values = below$cBelow_ref_values,
+          title = "Below Ground Reference",
+          group = "Below Ground Reference",
+          decreasing = TRUE
+        ) %>%
+        # add difference layer and legend
+        addRasterImage(
+          below$cBelow_rasters$cBelow_dif,
+          colors = below$cBelow_dif_pal,
+          group = "Below Ground Mean Difference"
+        ) %>%
+        addLegend_decreasing(
+          "topright",
+          pal = above$cAbove_dif_pal,
+          values = above$cAbove_dif_values,
+          title = "Below Ground Mean Difference",
+          group = "Below Ground Mean Difference",
+          decreasing = TRUE
+        ) %>%
+        # add control groups
+        addLayersControl(
+          overlayGroups = c(
+            "Below Ground Mean Difference",
+            "Below Ground Reference",
+            "Counties"
+          ),
+          position = "topleft",
+          options = layersControlOptions(collapsed = FALSE)
+        ) %>%
+        hideGroup(c("Below Ground Reference"))
     })
-  }
-  )
+  })
+  
 }
