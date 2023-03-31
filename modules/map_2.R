@@ -34,8 +34,8 @@ map2_UI <- function(id, panelName, county_names){
                    actionButton(inputId = ns("Zoom"), label = "Zoom to County"),
                    hr(),
                    #add button for download report 
-                   downloadButton(outputId = ns("report"), "Generate Report for Selected County"),
-                   hr(),
+                   #downloadButton(outputId = ns("report"), "Generate Report for Selected County"),
+                   #hr(),
                    # visualize user click
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
                    h6(htmlOutput(ns("pixelVal2"))),
@@ -352,27 +352,27 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     
 
   # render report  ----------------------------------------------------------
-    output$report <- downloadHandler(
-      filename = "report.html",
-      
-      content = function(file) {
-        # this input object needs to be define in the UI 
-        # include a list of reactive object that cal called by the rmd
-        params <- list(n = input$n)
-        
-        id <- showNotification(
-          "Rendering report...", 
-          duration = NULL, 
-          closeButton = FALSE
-        )
-        on.exit(removeNotification(id), add = TRUE)
-        rmarkdown::render("reportTemplate.Rmd", 
-                          output_file = file,
-                          params = params,
-                          envir = new.env(parent = globalenv())
-        )
-      }
-    ) 
+    # output$report <- downloadHandler(
+    #   filename = "report.html",
+    #   
+    #   content = function(file) {
+    #     # this input object needs to be define in the UI 
+    #     # include a list of reactive object that cal called by the rmd
+    #     params <- list(n = input$n)
+    #     
+    #     id <- showNotification(
+    #       "Rendering report...", 
+    #       duration = NULL, 
+    #       closeButton = FALSE
+    #     )
+    #     on.exit(removeNotification(id), add = TRUE)
+    #     rmarkdown::render("reportTemplate.Rmd", 
+    #                       output_file = file,
+    #                       params = params,
+    #                       envir = new.env(parent = globalenv())
+    #     )
+    #   }
+    # ) 
     }# end of moduleserver
   )
 }
