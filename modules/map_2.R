@@ -34,8 +34,8 @@ map2_UI <- function(id, panelName, county_names){
                    actionButton(inputId = ns("Zoom"), label = "Zoom to County"),
                    hr(),
                    #add button for download report 
-                   #downloadButton(outputId = ns("report"), "Generate Report for Selected County"),
-                   #hr(),
+                   downloadButton(outputId = ns("report"), "Generate Report for Selected County"),
+                   hr(),
                    # visualize user click
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
                    h6(htmlOutput(ns("pixelVal2"))),
@@ -273,7 +273,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         }
       })
       
-      output$pixelVal2 <- renderText(paste("Baseline Forest Cover:",
+      output$pixelVal2 <- renderText(paste0("Baseline Forest Cover:",
                                       "<b>", as.character(extractVal1), "</b>","%", "<br>",
                                       "Projected Change in Forested Area:",
                                       "<b>", as.character(extractVal2),"</b>","%"))
@@ -349,30 +349,59 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     })
     # output$cnty3 <- renderText("")
     output$countyText <- renderText(paste(input$County23, "County"))
+      
+    renderQMD <- reactive({
+      quarto::quarto_render("reports/reportTemplate.qmd", 
+                          execute_params = list(
+                            username = input$County23,
+                            County = input$County23, 
+                            Year = input$Timeline ,
+                            Management = input$layer,
+                            Scenario =  "temp",
+                            #Map =  leaflet() %>% addTiles(),
+                            plot1 = p1
+                            #plot2 = p2()
+                          ))
+    })
+    
+    
+  # render qmd report  ------------------------------------------------------
+    output$report <- downloadHandler(
+      filename = paste0("KA_",input$County23,"_",Sys.Date(),".html"),
+      content = function(file) {
+        renderQMD()
+        
+        file.copy("reports/reportTemplate.html", file)
+        
+      }
+    )
+    
+    
+    
     
 
   # render report  ----------------------------------------------------------
     # output$report <- downloadHandler(
     #   filename = "report.html",
-    #   
+    # 
     #   content = function(file) {
-    #     # this input object needs to be define in the UI 
+    #     # this input object needs to be define in the UI
     #     # include a list of reactive object that cal called by the rmd
     #     params <- list(n = input$n)
-    #     
+    # 
     #     id <- showNotification(
-    #       "Rendering report...", 
-    #       duration = NULL, 
+    #       "Rendering report...",
+    #       duration = NULL,
     #       closeButton = FALSE
     #     )
     #     on.exit(removeNotification(id), add = TRUE)
-    #     rmarkdown::render("reportTemplate.Rmd", 
+    #     rmarkdown::render("reportTemplate.Rmd",
     #                       output_file = file,
     #                       params = params,
     #                       envir = new.env(parent = globalenv())
     #     )
     #   }
-    # ) 
+    # )
     }# end of moduleserver
   )
 }
