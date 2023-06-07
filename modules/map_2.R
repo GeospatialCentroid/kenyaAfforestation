@@ -350,59 +350,59 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     # output$cnty3 <- renderText("")
     output$countyText <- renderText(paste(input$County23, "County"))
       
-    renderQMD <- reactive({
-      quarto::quarto_render("reports/reportTemplate.qmd", 
-                          execute_params = list(
-                            username = input$County23,
-                            County = input$County23, 
-                            Year = input$Timeline ,
-                            Management = input$layer,
-                            Scenario =  "temp",
-                            #Map =  leaflet() %>% addTiles(),
-                            plot1 = p1
-                            #plot2 = p2()
-                          ))
-    })
+    # renderQMD <- reactive({
+    #   quarto::quarto_render("reports/reportTemplate.qmd", 
+    #                       execute_params = list(
+    #                         username = input$County23,
+    #                         County = input$County23, 
+    #                         Year = input$Timeline ,
+    #                         Management = input$layer,
+    #                         Scenario =  "temp",
+    #                         #Map =  leaflet() %>% addTiles(),
+    #                         plot1 = p1
+    #                         #plot2 = p2()
+    #                       ))
+    # })
     
     
   # render qmd report  ------------------------------------------------------
+    # output$report <- downloadHandler(
+    #   filename = paste0("KA_",input$County23,"_",Sys.Date(),".html"),
+    #   content = function(file) {
+    #     renderQMD()
+    # 
+    #     file.copy("reports/reportTemplate.html", file)
+    # 
+    #   }
+    # )
+    
+  # render rmd report ------------------------------------------------------
     output$report <- downloadHandler(
-      filename = paste0("KA_",input$County23,"_",Sys.Date(),".html"),
+      filename = function() {
+        paste0(input$County23, "_Report_", Sys.Date(), ".html")
+      },
       content = function(file) {
-        renderQMD()
-        
-        file.copy("reports/reportTemplate.html", file)
-        
+        # render file in temp directory so .knit files don't go in app directory
+        tempReport <- file.path(tempdir(), "testReport.Rmd")
+        file.copy("reports/testReport.Rmd", tempReport, overwrite = TRUE)
+        rmarkdown::render(
+          tempReport,
+          output_format = "html_document",
+          output_file = file,
+          params = list(
+            county_name = input$County23,
+            table = df3_a(),
+            country_plot = p1(),
+            county_plot = p2()
+          ),
+          envir = new.env(parent = globalenv()),
+          clean = F,
+          encoding = "utf-8"
+        )
       }
     )
     
-    
-    
-    
-
-  # render report  ----------------------------------------------------------
-    # output$report <- downloadHandler(
-    #   filename = "report.html",
-    # 
-    #   content = function(file) {
-    #     # this input object needs to be define in the UI
-    #     # include a list of reactive object that cal called by the rmd
-    #     params <- list(n = input$n)
-    # 
-    #     id <- showNotification(
-    #       "Rendering report...",
-    #       duration = NULL,
-    #       closeButton = FALSE
-    #     )
-    #     on.exit(removeNotification(id), add = TRUE)
-    #     rmarkdown::render("reportTemplate.Rmd",
-    #                       output_file = file,
-    #                       params = params,
-    #                       envir = new.env(parent = globalenv())
-    #     )
-    #   }
-    # )
-    }# end of moduleserver
+    } # end of moduleserver
   )
 }
 

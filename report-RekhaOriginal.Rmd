@@ -1,0 +1,130 @@
+
+---
+title: "Kenya Afforestation Decision Support Tool"
+output: html_document
+params:
+  n: NA;
+  summary: NA
+---
+```{css, echo=FALSE}
+div.main-container {
+  max-width: 1200px !important;
+}
+
+#div {
+  background-color: rgba(260, 260, 260, 0)   /* 85% opaque white */;
+   margin: 15px;
+   border: 0px solid grey;
+   padding: 5px;
+  }
+  
+body{ /* Normal  */
+      font-size: 14px;
+  }
+
+h1.title {
+   font-size: 38px;
+   text-align: center
+}
+
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: Black;
+  
+}
+
+h2 { /* Header 2 */
+  font-size: 24px;
+  color: Black;
+}
+
+h4.author {
+ font-size: 18px;
+ font-family: "Times New Roman";
+ text-align: center
+}
+
+h4.date {
+ font-size 16px;
+ font-family: "Times New Roman";
+ text-align: center
+}
+
+```
+*******************************************************************************
+```{r, echo = FALSE, eval = TRUE, warning = FALSE, include = FALSE, message = FALSE}
+library("gtsummary")
+# The `params` object is available in the document.
+
+tot_forest<-round(sum(params$n$decid[], na.rm = TRUE) + sum(params$n$ever[], na.rm = TRUE),2)
+
+```
+
+# Reporting Summaries for `r params$n$county_name` county
+
+Information on each county such as area, population, and other generic information can be added here if needed. This information would not flow from the app itself but can be stored as individual county specific scripts that get loaded as needed.
+
+## Forest Cover
+
+`r params$n$county_name` has a total forest cover of `r tot_forest` km^2^. The figure below shows the distribution of deciduous and evergreen forests in the county based on the 1 km Consensus Landcover dataset. The dataset represents landcover in the year 2005. 
+
+```{r, echo = FALSE, out.width = "55%", fig.align = 'center', fig.cap = "Deciduous and evergreen forest cover in km^2^"}
+ par(mfrow = c(1,2))
+ 
+ plot(params$n$decid, main = "Deciduous cover")
+ plot(params$n$county_shape$geometry, add = TRUE)
+
+ plot(params$n$ever, main = "Evergreen cover")
+ plot(params$n$county_shape$geometry, add = TRUE)
+```
+
+In the plot above, deciduous and evergreen forest cover (km ^2^) within each 100 km^2^ is shown. The maps only show an approximate distribution of forest cover in the county, since patches of other forest types such as needle-leaf and mixed forests which are not part of L-Range simulations are not shown. Consequently, the total forest cover calculated for the county may be an underestimate. The total deciduous cover in the county is `r round(sum(params$n$decid[], na.rm = TRUE),2)` km^2^ and the total evergreen forest cover is `r round(sum(params$n$ever[], na.rm = TRUE),2)` km^2^. 
+
+
+## Forest cover change under climate change and management scenarios
+
+Climate change is impacting forest cover globally both directly through rising temperatures, and indirectly by increasing the frequency and intensity of forest fires and droughts. These factors may operate in concert, where forests in some regions experience higher temperatures,droughts,and more frequent fires concurrently. Future climate changes are modeled by considering several story lines that illustrate the direction of economic growth and social changes within national and trans-national contexts. These story lines are called Shapered Socioeconomic Pathways (SSPs). While the intensity of future climate changes will be a function of global green house gas emissions, it is useful to understand how management actions can mitigate the impacts of climate change on forests, under different climate change scenarios.
+
+How do forests in `r params$n$county_name` county change in the `r params$n$time`  under a `r params$n$climate` scenario of climate change with and without management efforts to mitigate climate and anthropogenic impacts?
+
+```{r, echo = FALSE, out.width = "55%", fig.align = 'center'}
+barplot(params$n$forest_change, horiz = TRUE, main = "Forest cover change (sq.km) under climate change and management")
+  legend("topright", c("A - Do nothing", "B - Stop fires" , "C - Stop grazing", "D - Stop drought impacts"),
+           bty = "n" )
+```
+
+WORK IN PROGRESS: DYNAMIC PLOT INTERPRETATIONS
+
+## Human population change
+
+Human populations will continue to increase into the future. The story lines (SSPs) that dictate the intensity with which the climate will change in the future also provide opportunities to model how and where human populations are likely to change. Changes in urban and rural populations within the context of these story lines can provide insights into what sort of anthropogenic impacts may come to bear on forests in the future. Rural and urban population change in `r params$n$county_name` county change in the `r params$n$time`  under a `r params$n$climate` scenario of climate change is shown below.
+
+```{r, echo = FALSE, out.width = "55%", fig.align = 'center'}
+par(mfrow = c(1,2))
+  plot(params$n$pop[[1]], main = "Rural population change")
+  plot(params$n$county_shape$geometry,add = TRUE)
+  
+  plot(params$n$pop[[2]], main = "Urban population change")
+  plot(params$n$county_shape$geometry,add = TRUE)
+```
+
+INTERPRETATIONS FORTHCOMING
+
+## Changes in allied ecosystem services
+
+Forests provide several ecosystem services key among which are the mitigation of climate change though the sequestration of carbon in standing biomass (trees) as well as in the soil. While forests are key to mitigating climate change, they are themselves vulnerable to climate change impacts. Future climate changes could undermine efforts underway to sequester carbon through the expansion of forest cover. Forests are also vital sources for atmospheric moisture thereby contributing to both local and regional precipitation. 
+
+What are the impacts on allied ecosystem services as forest cover changes in the absence of any mitigation efforts in `r params$n$county_name` county in the `r params$n$time`  under a `r params$n$climate` scenario of climate change?
+
+```{r, echo = FALSE, out.width = "55%", fig.align = 'center'}
+par(mfrow = c(1,2))
+    plot(params$n$eco[[1]], main = "Change in soil total carbon (gm/ sq.m")
+    plot(params$n$county_shape$geometry,add = TRUE)
+    
+    plot(params$n$eco[[2]], main = "Change in annual evapotranspiration (cm)")
+    plot(params$n$county_shape$geometry,add = TRUE)
+```
+
+THESE PLOTS WILL BE CHANGED AND INTERPRETATION ADDED
+
+
