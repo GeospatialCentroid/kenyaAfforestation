@@ -390,7 +390,9 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
           output_format = "html_document",
           output_file = file,
           params = list(
+            county_shape = county,
             county_name = input$County23,
+            time = input$Timeline,
             table = df3_a(),
             country_plot = p1(),
             county_plot = p2()
