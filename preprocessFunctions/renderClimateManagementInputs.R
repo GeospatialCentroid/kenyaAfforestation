@@ -50,7 +50,11 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
   
   
   # restructure the county data ---------------------------------------------
-  areaCounty <- lapply(X = areaCounty, FUN = gatherCounty)
+  #areaCounty <- lapply(X = areaCounty, FUN = gatherCounty) This doesn't work for updated data anymore
+  areaCounty <- lapply(X = areaCounty, FUN = function(x) {
+    names(x) <- c("County", "Areas", "Year", "value")
+    return(x)
+  })
   
   # reprojects rasters 
   rasters <- lapply(X = rasters, FUN = projClipCrop, county = county, countyBuff = countyBuff)

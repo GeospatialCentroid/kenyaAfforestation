@@ -3,7 +3,7 @@
 # carverd@colostate.edu
 # 20230104 
 ###
-pacman::p_load(tidyr, dplyr, raster, terra, sf)
+pacman::p_load(tidyr, dplyr, raster, terra, sf, leaflet)
 
 # source preprocessing functions ------------------------------------
 lapply(list.files(

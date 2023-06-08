@@ -46,12 +46,12 @@ map2_UI <- function(id, panelName, county_names){
         fluidRow( ### even through this is still within the 10 unit wide main panel, width operates out of 12.
           align = "center",
           column(width = 6, height = "100%",
-                 h5("Kenya"),
+                 h5(strong("Kenya")),
                  plotlyOutput(ns("percentChangeCountry"))
                  #p("This plot summarizes the total change in tree cover throughout the country.")
           ),
           column(width = 6, 
-                 h5(textOutput(ns("countyText"))),
+                 h5(strong(textOutput(ns("countyText")))),
                  plotlyOutput(ns("percentChangeCounty"))
                  #p("This plot summarizes the total change in tree cover throughout the county")
             
@@ -69,6 +69,9 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
                         # ssp, will need to add once all data is present. 
                         ){
   moduleServer(id,function(input,output,session){
+   
+  # suppress warnings (lots of non-important plotly warnings) 
+  options(warn = -1)
 
   # define raster features  -------------------------------------------------
    hist1 <- histRaster
@@ -315,26 +318,32 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     forest_pal <- setNames(forest_pal, c("All", "Evergreen", "Deciduous", "New"))
     
     # set axis range based on county max and min
-    range <- reactive({list(min(df2_a()$Change, na.rm = TRUE), max(df2_a()$Change, na.rm = TRUE))})
+   # range <- reactive({list(min(df2_a()$Change, na.rm = TRUE), max(df2_a()$Change, na.rm = TRUE))})
+    range <- reactive({list(min(df2_a()$value, na.rm = TRUE), max(df2_a()$value, na.rm = TRUE))})
     
-
     ## plotly for Country --------------------------------------------------------
 
-    p1 <-  reactive({plot_ly(data = df2(), y = ~Change, x = ~Year, type = "bar",
+    p1 <-  reactive({plot_ly(data = df2(), y = ~value, x = ~Year, type = "box",
                    color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
-        layout(yaxis = list(title = "<b>% Change</b>", range = range()),
-               xaxis = list(title = "", tickfont = list(size = 16), side = "top"))
+        layout(yaxis = list(title = "<b>% Change</b>"
+                            #range = range()
+                            ),
+               xaxis = list(title = "", tickfont = list(size = 16), side = "top"),
+               boxmode = "group")
       })
-      
+
 
     ## plotly data for County ----------------------------------------------
     p2 <- reactive({
-        plot_ly(data = df3_a(), y = ~Change, x = ~Year, type = "bar",
+        plot_ly(data = df3_a(), y = ~value, x = ~Year, type = "box",
                 color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
-          layout(yaxis = list(title = "<b>% Change</b>", range = range()),
-                 xaxis = list(title = "", tickfont = list(size = 16), side = "top"))
+          layout(yaxis = list(title = "<b>% Change</b>" 
+                              #range = range()
+                              ),
+                 xaxis = list(title = "", tickfont = list(size = 16), side = "top"),
+                 boxmode = "group")
       })
-      
+
     
     
     #output$varchange1 <- renderLeaflet({map()})
