@@ -3,7 +3,7 @@
 # carverd@colostate.edu
 # 20230104 
 ###
-pacman::p_load(tidyr, dplyr, raster,terra)
+pacman::p_load(tidyr, dplyr, raster, terra, sf)
 
 # source preprocessing functions ------------------------------------
 lapply(list.files(
@@ -17,7 +17,7 @@ source)
 
 ## county spatial feature
 county <- sf::st_read("dataToPreprocess/referenceSpatialData/KE_Admin1_pro.shp", stringsAsFactors = F)
-county <- st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+county <- sf::st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 # buffer of the county features used for cropping -- may need to adjust buffer dist
 countyBuff <- sf::st_buffer(x = county, dist = 0.8)
 
