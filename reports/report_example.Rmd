@@ -6,38 +6,40 @@ params:
   county_name: NA
   time: NA
   table: NA
-  country_plot: NA
-  county_plot: NA
+  projection: NA
+  decid: NA
+  ever: NA
+
 ---
 
 ```{r setup, include=FALSE, echo = FALSE, message= FALSE, eval=TRUE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, eval = FALSE, message = FALSE, warning = FALSE)
 
 # ##Load packages and datasets
 # pack<-list("ggplot2", "tidyverse", "raster", "rgdal", "sf")
 # lapply(pack, "require", character.only=TRUE)
 
 ##Load base forest cover datasets
-projection <- readRDS("reports/projection.rds")
-
-decid<- terra::rast("reports/decid_final.asc")
-terra::crs(decid) <- as.character(projection)
-decid <- terra::project(decid, county_select)
-
-ever<-rast("reports/egreen_final.asc")
-terra::crs(ever) <- as.character(projection)
-ever <- terra::project(ever, county_select)
+projection <- params$projection
 
 ##Isolate county 
 county <- params$county_shape
 county_select<-county[county$ADMIN1 == "Baringo",]
+
+decid<- params$decid
+terra::crs(decid) <- as.character(projection)
+decid <- terra::project(decid, county_select)
+
+ever<- params$ever
+terra::crs(ever) <- as.character(projection)
+ever <- terra::project(ever, county_select)
 
 ```
 
 
 
 ### Reporting Summaries for `r params$county_name` County for `r params$time`
-```{r forest_summaries, message= FALSE, warning = FALSE, echo=FALSE, eval = FALSE}
+```{r forest_summaries, eval = TRUE}
 
 decid_county<-sum((terra::extract(decid, county_select))[[2]])
 ever_county<-sum((terra::extract(ever, county_select))[[2]])
@@ -49,7 +51,7 @@ tot_forest<-decid_county+ever_county
 
 `r params$county_name` County has a total forest cover of `r tot_forest` km^2^. The figure below shows the distribution of deciduous and evergreen forests in the county based on the 1 km Consensus Landcover dataset. The dataset represents landcover in the year 2005. 
 
-```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "80%", fig.align = 'center', fig.cap = "Deciduous and evergreen forest cover"}
+```{r, eval = TRUE, out.width = "80%", fig.align = 'center', fig.cap = "Deciduous and evergreen forest cover"}
  
 # decid_crop<-as.data.frame(crop(decid, county_select), xy=TRUE)
 # ever_crop<-as.data.frame(crop(ever, county_select), xy=TRUE)
@@ -72,6 +74,9 @@ tot_forest<-decid_county+ever_county
 tm_shape(decid, bbox = county_select) + tm_raster() + tm_shape(county) +
   tm_borders()
 
+tm_shape(ever, bbox = county_select) + tm_raster() + tm_shape(county) +
+  tm_borders()
+
 ```
 
 The maps only show an approximate distribution of forest cover in the county, since patches of other forest types such as needle-leaf and mixed forests which are not part of L-Range simulations are not shown. Consequently, the total forest cover calculated for the county may be an underestimate. 
@@ -82,7 +87,7 @@ Climate change is impacting forest cover globally both directly through rising t
 
 How do forests in `r params$county_name` County change by the year `r params$time` under 4 scenarios of climate change with and without management efforts.
 
-```{r forest_change, message = FALSE, warning =FALSE, echo = FALSE, eval = FALSE}
+```{r forest_change}
 
 # map across unique scenarios/management
 reps <- climateManagementInputs$areaCounty
@@ -109,7 +114,7 @@ ggplot(data=clim_manage, aes(x = climate, y = change, fill = management))+
 
 Human populations will continue to increase into the future. The story lines (SSPs) that dictate the rate of future emissions and climate change also provide details on how and where human populations are likely to change. Changes in urban and rural populations within the context of these story lines can provide insights into the intensity of anthropogenic impacts (deforestation, charcoal production) that forests are likely to experience. The plots below show projected changes in rural and urban population `r params$county_name` County in the year `r params$time`.
 
-```{r pop_change, message = FALSE, warning = FALSE, echo=FALSE}
+```{r pop_change}
 ##Load population rasters associated with SSPs. Here just loading change in the year 2050
 
 pop<-readRDS("pop_change_50.rds")
@@ -135,7 +140,7 @@ Forests provide several ecosystem services key among which is the mitigation of 
 
 How do overall aboveground biomass and soil organic carbon change as forest cover changes in the absence of any mitigation efforts in `r params$county_name` county in `r params$time`?
 
-```{r eco_services, echo = FALSE, out.width = "55%", fig.align = 'center', fig.cap= "% change in aboveground live biomas and soil organic carbon"}
+```{r eco_services, out.width = "55%", fig.align = 'center', fig.cap= "% change in aboveground live biomas and soil organic carbon"}
 ### Above ground live biomass
 
 alb_126<-readRDS("alb_ssp126_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))

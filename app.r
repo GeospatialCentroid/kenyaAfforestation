@@ -14,6 +14,8 @@ library(rgdal)
 library(leaflet.extras)
 library(plotly)
 library(rmarkdown)
+library(tmap)
+library(dplyr)
 ### raster option within leaflet... old so we might loose other functionality 
 #remotes::install_github("rstudio/leaflet", ref="joe/feature/raster-options")
 
@@ -41,6 +43,10 @@ panelNames <-
     "Pessimistic Climate Future",
     "Extreme Climate Future")
 
+## variables for report generation
+projection <- readRDS("reports/projection.rds")
+decid<- terra::rast("reports/decid_final.asc")
+ever<- terra::rast("reports/egreen_final.asc")
 
 # Climate Change Page -----------------------------------------------------
 ## read in inputs ----

@@ -383,8 +383,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       },
       content = function(file) {
         # render file in temp directory so .knit files don't go in app directory
-        tempReport <- file.path(tempdir(), "testReport.Rmd")
-        file.copy("reports/testReport.Rmd", tempReport, overwrite = TRUE)
+        tempReport <- file.path(tempdir(), "report_example.Rmd")
+        file.copy("reports/report_example.Rmd", tempReport, overwrite = TRUE)
         rmarkdown::render(
           tempReport,
           output_format = "html_document",
@@ -394,8 +394,9 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
             county_name = input$County23,
             time = input$Timeline,
             table = df3_a(),
-            country_plot = p1(),
-            county_plot = p2()
+            projection = projection,
+            decid = decid,
+            ever = ever
           ),
           envir = new.env(parent = globalenv()),
           clean = F,
