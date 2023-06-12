@@ -15,7 +15,7 @@ library(leaflet.extras)
 library(plotly)
 library(rmarkdown)
 library(tmap)
-library(dplyr)
+library(tidyverse)
 ### raster option within leaflet... old so we might loose other functionality 
 #remotes::install_github("rstudio/leaflet", ref="joe/feature/raster-options")
 
@@ -262,7 +262,10 @@ server <- function(input, output, session) {
               countyDF = climateManagementInputs$areaCounty,
               pal1 = pal_management,
               ssp = "126",
-              countyFeat = county)
+              countyFeat = county,
+              decid_report = decid,
+              ever_report = ever,
+              proj_report = projection)
   # ssp245 data -------------------------------------------------------------
   map_server(id = "ssp245",
              histRasters = allRasters_abs$hist,

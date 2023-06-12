@@ -6,52 +6,59 @@ params:
   county_name: NA
   time: NA
   table: NA
+  clim_inputs: NA
   projection: NA
   decid: NA
   ever: NA
 
 ---
 
-```{r setup, include=FALSE, echo = FALSE, message= FALSE, eval=TRUE}
+```{r setup}
 knitr::opts_chunk$set(echo = FALSE, eval = FALSE, message = FALSE, warning = FALSE)
 
-# ##Load packages and datasets
-# pack<-list("ggplot2", "tidyverse", "raster", "rgdal", "sf")
-# lapply(pack, "require", character.only=TRUE)
+#pacman::p_load(tidyr, sf, terra)
+
+```
+
+
+```{r data, eval = TRUE}
+#knitr::opts_chunk$set(echo = FALSE, eval = FALSE, message = FALSE, warning = FALSE)
 
 ##Load base forest cover datasets
-projection <- params$projection
+#proj <- params$projection
 
 ##Isolate county 
-county <- params$county_shape
-county_select<-county[county$ADMIN1 == "Baringo",]
+county_shape <- params$county_shape
+county_select<-county_shape[county_shape$ADMIN1 == "Baringo",]
 
-decid<- params$decid
-terra::crs(decid) <- as.character(projection)
-decid <- terra::project(decid, county_select)
+decid_report <- params$decid
+terra::crs(decid_report) <- as.character(params$projection)
+decid_prj <- terra::project(decid_report, county_select) %>% 
+  terra::crop(county_select)
 
-ever<- params$ever
-terra::crs(ever) <- as.character(projection)
-ever <- terra::project(ever, county_select)
+ever_report <- params$ever
+terra::crs(ever_report) <- as.character(params$projection)
+ever_prj <- terra::project(ever_report, county_select) %>% 
+  terra::crop(county_select)
 
 ```
 
 
 
-### Reporting Summaries for `r params$county_name` County for `r params$time`
+### Reporting Summaries for `r params$county_name` County for `r paste0("20", params$time)`
 ```{r forest_summaries, eval = TRUE}
 
-decid_county<-sum((terra::extract(decid, county_select))[[2]])
-ever_county<-sum((terra::extract(ever, county_select))[[2]])
+decid_county<-sum((terra::extract(decid_prj, county_select))[[2]])
+ever_county<-sum((terra::extract(ever_prj, county_select))[[2]])
 
-tot_forest<-decid_county+ever_county
+tot_forest<-round(decid_county+ever_county, 0)
 ```
 
 
 
 `r params$county_name` County has a total forest cover of `r tot_forest` km^2^. The figure below shows the distribution of deciduous and evergreen forests in the county based on the 1 km Consensus Landcover dataset. The dataset represents landcover in the year 2005. 
 
-```{r, eval = TRUE, out.width = "80%", fig.align = 'center', fig.cap = "Deciduous and evergreen forest cover"}
+```{r, eval = TRUE, fig.show= "hold", out.width = "50%", fig.align = 'center', fig.cap = "Deciduous and evergreen forest cover"}
  
 # decid_crop<-as.data.frame(crop(decid, county_select), xy=TRUE)
 # ever_crop<-as.data.frame(crop(ever, county_select), xy=TRUE)
@@ -71,11 +78,17 @@ tot_forest<-decid_county+ever_county
 # grid.arrange(p1, p2, nrow=1)
 
 # use tmap instead
-tm_shape(decid, bbox = county_select) + tm_raster() + tm_shape(county) +
-  tm_borders()
+tm_shape(decid_prj, bbox = county_select) + 
+  tm_raster(palette = "Greens", style = "cont", title = "% Change") + 
+  tm_shape(county_shape) +
+  tm_borders()+
+  tm_layout(legend.outside = TRUE, frame = FALSE, title = "Decidious Forest", title.position = c("left", "top"))
 
-tm_shape(ever, bbox = county_select) + tm_raster() + tm_shape(county) +
-  tm_borders()
+tm_shape(ever_prj, bbox = county_select)+ 
+  tm_raster(palette = "Greens", style = "cont", title = "% Change") + 
+  tm_shape(county_shape) +
+  tm_borders()+
+  tm_layout(legend.outside = TRUE, frame = FALSE, title = "Evergreen Forest", title.position = c("left", "top"))
 
 ```
 
@@ -90,7 +103,8 @@ How do forests in `r params$county_name` County change by the year `r params$tim
 ```{r forest_change}
 
 # map across unique scenarios/management
-reps <- climateManagementInputs$areaCounty
+test <- params$clim_inputs
+reps <- test$areaCounty
 reps <- reps[grep("Nothing|Fires", names(reps))]
 
 clim_manage <- map_df(reps, 

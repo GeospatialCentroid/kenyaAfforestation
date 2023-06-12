@@ -65,7 +65,8 @@ map2_UI <- function(id, panelName, county_names){
 
 # define server  ---------------------------------------------------------- 
 map2_server <- function(id, histRaster, futureRaster, managementRasters, 
-                        countryDF,countyDF, pal1, countyFeat, ssp
+                        countryDF,countyDF, pal1, countyFeat, ssp,
+                        decid_report, ever_report, proj_report
                         # ssp, will need to add once all data is present. 
                         ){
   moduleServer(id,function(input,output,session){
@@ -390,13 +391,14 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
           output_format = "html_document",
           output_file = file,
           params = list(
-            county_shape = county,
+            county_shape = countyFeat,
             county_name = input$County23,
             time = input$Timeline,
+            clim_inputs = climateManagementInputs,
             table = df3_a(),
-            projection = projection,
-            decid = decid,
-            ever = ever
+            projection = proj_report,
+            decid = decid_report,
+            ever = ever_report
           ),
           envir = new.env(parent = globalenv()),
           clean = F,
