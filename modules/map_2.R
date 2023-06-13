@@ -66,7 +66,8 @@ map2_UI <- function(id, panelName, county_names){
 # define server  ---------------------------------------------------------- 
 map2_server <- function(id, histRaster, futureRaster, managementRasters, 
                         countryDF,countyDF, pal1, countyFeat, ssp,
-                        decid_report, ever_report, proj_report
+                        decid_report, ever_report, proj_report,
+                        population, ecosystem_data
                         # ssp, will need to add once all data is present. 
                         ){
   moduleServer(id,function(input,output,session){
@@ -74,6 +75,9 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   # define raster features  -------------------------------------------------
    hist1 <- histRaster
    base1 <- futureRaster
+   
+   # rename original countyDF for report generation (keep all scenarios)
+   countyDF_all <- countyDF
   
 
   # filter datasets to specific spp -----------------------------------------
@@ -380,7 +384,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   # render rmd report ------------------------------------------------------
     output$report <- downloadHandler(
       filename = function() {
-        paste0(input$County23, "_Report_", Sys.Date(), ".html")
+        paste0(input$County23, "_Report_", Sys.Date(), ".pdf")
       },
       content = function(file) {
         # render file in temp directory so .knit files don't go in app directory
@@ -388,17 +392,19 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         file.copy("reports/report_example.Rmd", tempReport, overwrite = TRUE)
         rmarkdown::render(
           tempReport,
-          output_format = "html_document",
+          output_format = "pdf_document",
           output_file = file,
           params = list(
             county_shape = countyFeat,
             county_name = input$County23,
             time = input$Timeline,
-            clim_inputs = climateManagementInputs,
+            county_vals = countyDF_all,
             table = df3_a(),
             projection = proj_report,
             decid = decid_report,
-            ever = ever_report
+            ever = ever_report,
+            population = population,
+            ecosystem_data = ecosystem_data
           ),
           envir = new.env(parent = globalenv()),
           clean = F,
