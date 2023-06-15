@@ -130,12 +130,11 @@ How might forests in `r params$county_name` County change by the year `r paste0(
 ```{r forest_change}
 
 # map across unique scenarios/management
-#reps <- params$county_vals
-#reps <- reps[grep("Nothing|Fires", names(reps))]
+reps <- params$county_vals
 
-clim_manage <- map_df(county_vals, 
+clim_manage <- map_df(reps, 
  ~ .x %>% 
-    filter(County == "Baringo", Year == 2050, Areas == "All") %>% 
+    filter(County == params$county_name, Year == paste0("20", params$time), Areas == "All") %>% 
    group_by(Areas) %>% summarize(change = mean(value))
 ) %>% 
   mutate(scenario = names(reps)) %>% 
@@ -211,35 +210,14 @@ How do overall aboveground biomass and soil organic carbon change as forest cove
 
 ```{r eco_services, eval=TRUE}
 ### Above ground live biomass
-# 
-# alb_126<-readRDS("reports/alb_ssp126_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
-# alb_245<-readRDS("reports/alb_ssp245_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
-# alb_370<-readRDS("reports/alb_ssp370_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
-# alb_585<-readRDS("reports/alb_ssp585_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
-# 
-# 
-# ### Fast soil carbon
-# 
-# fsc1_126<-readRDS("reports/fsc1_ssp126_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
-# fsc1_245<-readRDS("reports/fsc1_ssp245_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
-# fsc1_370<-readRDS("reports/fsc1_ssp370_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
-# fsc1_585<-readRDS("reports/fsc1_ssp585_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
-# 
-# 
-# ###Plot alb and fsc1 side by side
-# 
-# carbonseq<-data.frame(ClimateScenario = rep(c("SSP1-2.6", "SSP2-4.5", "SSP3-7.0",               "SSP5-8.5"),each=2),Variable = rep(rep(c("Biomass", "Soil organic carbon"), 2),4),Change = c(alb_126$change, fsc1_126$change, alb_245$change, fsc1_245$change, alb_370$change, fsc1_370$change, alb_585$change, fsc1_585$change))
-# 
-# ggplot(data=carbonseq, aes(x = ClimateScenario, y = Change, fill = Variable))+
-#    geom_bar(stat = "identity", position = "dodge") + xlab("Climate Scenario")+
-#    ylab("% Change")
 
 ## Caitlins edit --------------------------------------------------------------
-# convert files to single list after reading in raw .rds
+# convert files to single list after reading in each raw .rds
 # ecosystem_data <- list(alb_126, alb_245, alb_370, alb_585, fsc1_126, fsc1_245, fsc1_370, fsc1_585)
 # names(ecosystem_data) <- c("alb_126", "alb_245", "alb_370", "alb_585", "fsc1_126", "fsc1_245", "fsc1_370", "fsc1_585")
 # # save this file to load in app.R
 # save(ecosystem_data, file = "reports/ecosystem_data.RData")
+
 ecosystem_data <- params$ecosystem_data
 
 carbonseq <- map_df(ecosystem_data,  ~ .x$county_change_df %>% 

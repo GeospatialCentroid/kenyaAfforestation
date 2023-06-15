@@ -35,6 +35,7 @@ map2_UI <- function(id, panelName, county_names){
                    hr(),
                    #add button for download report 
                    downloadButton(outputId = ns("report"), "Generate Report for Selected County"),
+                   br(),
                    em("Report generation may take a few seconds"),
                    hr(),
                    # visualize user click

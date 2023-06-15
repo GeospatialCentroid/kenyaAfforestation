@@ -187,7 +187,8 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
               title = title(),
               opacity = 1,
               layerId = "firstLegend",
-              decreasing = TRUE
+              decreasing = TRUE,
+              bins = 6
             )
             
         }
