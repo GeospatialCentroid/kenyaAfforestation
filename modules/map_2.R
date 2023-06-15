@@ -35,6 +35,7 @@ map2_UI <- function(id, panelName, county_names){
                    hr(),
                    #add button for download report 
                    downloadButton(outputId = ns("report"), "Generate Report for Selected County"),
+                   em("Report generation may take a few seconds"),
                    hr(),
                    # visualize user click
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
@@ -272,14 +273,6 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       extractVal2 <- raster::extract(r3(), point)%>%
         round(digits = 2)
       
-      # condition for setting the label based on input value 
-      # label1 <- reactive({
-      #   if(input$Layer == "pr"){
-      #     "mm"
-      #   }else{
-      #     paste("C", intToUtf8(176))
-      #   }
-      # })
       
       output$pixelVal2 <- renderText(paste0("Baseline Forest Cover:",
                                       "<b>", as.character(extractVal1), "</b>","%", "<br>",
