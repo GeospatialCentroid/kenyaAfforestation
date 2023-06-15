@@ -306,7 +306,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     df1_a <- list(
       nothing = countyDF[[paste0("ssp",ssp,"_DoNothing")]],
       less_fire = countyDF[[paste0("ssp",ssp,"_NoFires")]],
-      more_fire = countryDF[[paste0("ssp",ssp,"_DoubleFires")]]
+      more_fire = countyDF[[paste0("ssp",ssp,"_DoubleFires")]]
     )
     # select df based on management action
     df2_a <-  reactive({df1_a[grep(pattern = input$Layer, x = names(df1_a))][[1]]})
