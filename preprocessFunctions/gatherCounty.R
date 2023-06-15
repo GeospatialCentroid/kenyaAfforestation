@@ -10,4 +10,3 @@ gatherCounty <- function(data){
   names(data) <- c("County", "Areas","Year", "Change")
   return(data)
 }
-
