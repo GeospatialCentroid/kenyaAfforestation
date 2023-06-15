@@ -16,7 +16,7 @@ params:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, eval = FALSE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
 
@@ -118,34 +118,54 @@ tmap_arrange(p1, p2)
 
 The maps only show an approximate distribution of forest cover in the county, since patches of other forest types such as needle-leaf and mixed forests which are not part of L-Range simulations are not shown. Consequently, the total forest cover calculated for the county may be an underestimate. 
 
+\newpage
+
+
 ## Forest cover change under future climate and management scenarios
 
 Climate change is impacting forest cover globally both directly through rising temperatures, and indirectly by increasing the frequency and intensity of forest fires and droughts. These factors may operate in concert, where forests in some regions experience higher temperatures,droughts,and more frequent fires concurrently. Future climate changes are modeled by considering several story lines that illustrate the direction of economic growth and social changes within national and trans-national contexts. These story lines are called Shared Socioeconomic Pathways (SSPs). While the intensity of future climate changes will be a function of global green house gas emissions, it is useful to understand how management actions can mitigate the impacts of climate change on forests under different climate change scenarios.
 
-How do forests in `r params$county_name` County change by the year `r paste0("20", params$time)` under 4 scenarios of climate change with and without management efforts.
+How might forests in `r params$county_name` County change by the year `r paste0("20", params$time)` under 4 scenarios of climate change with and without management efforts:
 
 ```{r forest_change}
 
 # map across unique scenarios/management
-reps <- params$county_vals
-reps <- reps[grep("Nothing|Fires", names(reps))]
+#reps <- params$county_vals
+#reps <- reps[grep("Nothing|Fires", names(reps))]
 
-clim_manage <- map_df(reps, 
+clim_manage <- map_df(county_vals, 
  ~ .x %>% 
     filter(County == "Baringo", Year == 2050, Areas == "All") %>% 
    group_by(Areas) %>% summarize(change = mean(value))
 ) %>% 
   mutate(scenario = names(reps)) %>% 
-  separate(scenario, "_", into = c("climate", "management"))
+  separate(scenario, "_", into = c("scenario", "management")) %>% 
+  mutate(scenario = case_when(scenario == "ssp126" ~ "SSP1-2.6",
+                              scenario == "ssp245" ~ "SSP2-4.5",
+                              scenario == "ssp370" ~ "SSP3-7.0",
+                              scenario == "ssp585" ~ "SSP5-8.5"),
+         management = case_when(management == "DoNothing" ~ "Historic",
+                                management == "NoFires" ~ "Decrease",
+                                management == "DoubleFires" ~ "Increase"),
+         management = factor(management, levels = c("Historic", "Decrease", "Increase")))
 
 
-ggplot(data=clim_manage, aes(x = climate, y = change, fill = management))+
-   geom_bar(stat = "identity", position = "dodge") + xlab("Climate Scenario")+
-   ylab("% Change")
+ggplot(data=clim_manage, aes(x = scenario, y = change, fill = management))+
+   geom_bar(stat = "identity", position = "dodge") + 
+  labs(x = "Climate Scenario", y = "% Change in Forest Cover")+
+  theme_classic()+
+  scale_fill_manual(values = c("#feb24c", "#ffeda0", "#f03b20"), name = "Fire Severity")+
+  theme(legend.position = "bottom",
+        axis.title = element_text(face = "bold"))
+  
+
 
 
 
 ```
+
+\newpage
+
 
 ## Human population change
 
@@ -179,6 +199,8 @@ ggplot(data=pop_summary, aes(x=scenario, y= change, fill = area))+
 ```
 
 The plot above shows that in an SSP2 and SSP3 world, there is significant increase in rural populations in `r params$county_name` County. Within the context of these storylines, these increases may be interpreted to mean that anthropocentric pressures on forests will likely be higher. Simulated gains in forest cover in these two scenarios may therefore be optimistic and should account for potential increases in extractive activities.
+
+\newpage
 
 
 ## Changes in allied ecosystem services
