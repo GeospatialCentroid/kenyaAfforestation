@@ -20,8 +20,8 @@ map2_UI <- function(id, panelName, county_names){
                      inputId=ns("Layer"),
                      label=tags$strong("Pick a management scenario to visualize predicted forest cover change:"),
                      choices = list("No Management Action" = "nothing",  ## this will need to change to match the new dataset convention
-                                    "Stop Fires" = "fire",
-                                    "No Grazing" = "graze"),
+                                    "Decrease Fire Severity" = "less_fire",
+                                    "Increase Fire Severity" = "more_fire"),
                      selected = "nothing"
                    ),
                    hr(),
@@ -87,8 +87,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   # bind features to single list  
    r1 <- list(
      nothing = managementRasters[[paste0("ssp",ssp,"_DoNothing")]],
-     fire = managementRasters[[paste0("ssp",ssp,"_NoFires")]],
-     graze = managementRasters[[paste0("ssp",ssp,"_NoGrazing")]]
+     less_fire = managementRasters[[paste0("ssp",ssp,"_NoFires")]],
+     more_fire = managementRasters[[paste0("ssp",ssp,"_DoubleFires")]]
    )
 
    
@@ -268,13 +268,13 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         round(digits = 2)
       
       # condition for setting the label based on input value 
-      label1 <- reactive({
-        if(input$Layer == "pr"){
-          "mm"
-        }else{
-          paste("C", intToUtf8(176))
-        }
-      })
+      # label1 <- reactive({
+      #   if(input$Layer == "pr"){
+      #     "mm"
+      #   }else{
+      #     paste("C", intToUtf8(176))
+      #   }
+      # })
       
       output$pixelVal2 <- renderText(paste("Baseline Forest Cover:",
                                       "<b>", as.character(extractVal1), "</b>","%", "<br>",
@@ -295,7 +295,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     ## COUNTRY
     df1 <- list(
       nothing = countryDF[[paste0("ssp",ssp,"_DoNothing")]],
-      fire = countryDF[[paste0("ssp",ssp,"_NoFires")]]
+      less_fire = countryDF[[paste0("ssp",ssp,"_NoFires")]],
+      more_fire = countryDF[[paste0("ssp",ssp,"_DoubleFires")]]
     )
     # select df based on management action
     df2 <-  reactive({df1[grep(pattern = input$Layer, x = names(df1))][[1]]})
@@ -304,7 +305,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     ## COUNTY
     df1_a <- list(
       nothing = countyDF[[paste0("ssp",ssp,"_DoNothing")]],
-      fire = countyDF[[paste0("ssp",ssp,"_NoFires")]]
+      less_fire = countyDF[[paste0("ssp",ssp,"_NoFires")]],
+      more_fire = countryDF[[paste0("ssp",ssp,"_DoubleFires")]]
     )
     # select df based on management action
     df2_a <-  reactive({df1_a[grep(pattern = input$Layer, x = names(df1_a))][[1]]})
