@@ -14,6 +14,8 @@ library(rgdal)
 library(leaflet.extras)
 library(plotly)
 library(rmarkdown)
+library(tmap)
+library(tidyverse)
 ### raster option within leaflet... old so we might loose other functionality 
 #remotes::install_github("rstudio/leaflet", ref="joe/feature/raster-options")
 
@@ -41,6 +43,12 @@ panelNames <-
     "Pessimistic Climate Future",
     "Extreme Climate Future")
 
+## variables for report generation
+projection <- readRDS("reports/projection.rds")
+decid<- terra::rast("reports/decid_final.asc")
+ever<- terra::rast("reports/egreen_final.asc")
+population <- readRDS("reports/pop_change_50.rds")
+load("reports/ecosystem_data.RData")
 
 # Climate Change Page -----------------------------------------------------
 ## read in inputs ----
@@ -256,7 +264,12 @@ server <- function(input, output, session) {
               countyDF = climateManagementInputs$areaCounty,
               pal1 = pal_management,
               ssp = "126",
-              countyFeat = county)
+              countyFeat = county,
+              decid_report = decid,
+              ever_report = ever,
+              proj_report = projection,
+              population = population,
+              ecosystem_data = ecosystem_data)
   # ssp245 data -------------------------------------------------------------
   map_server(id = "ssp245",
              histRasters = allRasters_abs$hist,
@@ -274,7 +287,12 @@ server <- function(input, output, session) {
               countyDF = climateManagementInputs$areaCounty,
               pal1 = pal_management,
               ssp = "245",
-              countyFeat = county)  
+              countyFeat = county,
+              decid_report = decid,
+              ever_report = ever,
+              proj_report = projection,
+              population = population,
+              ecosystem_data = ecosystem_data)  
   # ssp370 data -------------------------------------------------------------
   map_server(id = "ssp370",
              histRasters = allRasters_abs$hist,
@@ -292,7 +310,12 @@ server <- function(input, output, session) {
               countyDF = climateManagementInputs$areaCounty,
               pal1 = pal_management,
               ssp = "370",
-              countyFeat = county)  
+              countyFeat = county,
+              decid_report = decid,
+              ever_report = ever,
+              proj_report = projection,
+              population = population,
+              ecosystem_data = ecosystem_data)  
   
   # ssp585 data ------------------------------------------------------------
   map_server(id = "ssp585",
@@ -311,7 +334,12 @@ server <- function(input, output, session) {
               countyDF = climateManagementInputs$areaCounty,
               pal1 = pal_management,
               ssp = "585",
-              countyFeat = county)
+              countyFeat = county,
+              decid_report = decid,
+              ever_report = ever,
+              proj_report = projection,
+              population = population,
+              ecosystem_data = ecosystem_data)
   
   # validation maps ------------------------------------------------------
   validation_server(id = "val", 

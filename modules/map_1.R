@@ -11,7 +11,7 @@ map_UI <- function(id, panelName){
                    # select future time frame 
                    radioButtons(
                      inputId=ns("Timeline"),
-                     label= tags$strong("Pick a future timeperiod:"),
+                     label= tags$strong("Pick a future time period:"),
                      choices = list("2021-2040" = "30",  # these will need to change to match the new input dataset naming convention
                                     "2041-2060" = "50",
                                     "2061-2080" = "70",
@@ -28,13 +28,6 @@ map_UI <- function(id, panelName){
                      selected = "tmin"
                      ),
                    em("You can view Percent Change by turning the layer on via the map controls"),
-                   # choose between actual value and percent change
-                   ## can't get switch to function correctly
-                   # materialSwitch(
-                   #   inputId = ns("percentLayer"),
-                   #   label = "View Percent Change",
-                   #   status = "danger"
-                   # ),
                    hr(),
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
                    h5(htmlOutput(ns("cnty")))
@@ -54,22 +47,15 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
                        #histPal, sspPal, 
                        pals1, pals2){
   moduleServer(id,function(input,output,session){
+    
     # filter for the historic data
     index0 <- reactive({grep(pattern = input$Layer, x = names(histRasters))})
     r0 <-reactive({histRasters[[index0()]]})
-    # historic palette
-    # index0p <-reactive({grep(pattern = input$Layer, x = names(histPal))})
-    # pal0 <-reactive({histPal[[index0p()]]})
-    # not the most efficent process but it works. Tricky to get all the reactive
-    # call posistions lined up so use this as a model for changes 
     n1 <- reactive({paste0(input$Layer,"_",ssp,"_",input$Timeline)})
     index1 <- reactive({grep(pattern = n1(), x = names(sspRasters))})
     r1 <- reactive({sspRasters[[index1()]]})
+    
     # ssp palette
-    # index1p <-reactive({grep(pattern = n1(), x = names(sspPal))})
-    # pal1 <-reactive({sspPal[[index1p()]]})
-    
-    
     pal <- reactive(pals1[[input$Layer]]$palette)
     vals <- reactive(pals1[[input$Layer]]$values)
     title <- reactive(pals1[[input$Layer]]$title)
@@ -81,23 +67,6 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
     pal2 <- reactive(pals2[[input$Layer]]$palette)
     vals2 <- reactive(pals2[[input$Layer]]$values)
     title2 <- reactive(pals2[[input$Layer]]$title) 
-    
-    # generate legend values --------------------------------------------------
-    ### might be easier to declare of of these before hand and index them similar 
-    ### to how the rasters are being brought together. 
-
-    # minval <-  reactive({r1()@data@min})
-    # maxval <-  reactive({r1()@data@max})
-    # dom<- reactive({c(minval(), maxval())})
-    # val<- reactive({seq(minval(),maxval())})
-    # colorPal <-  reactive({c(colorRampPalette(colors = c("#330000", "white"),space = "Lab")(abs(minval())),
-    #                 colorRampPalette(colors = c("white", "#003300"),space = "Lab")(abs(maxval())))})
-    # # Color platte think is odd,
-    # pal <- reactive({ifelse(
-    #   test = minval() < 0 & maxval() > 0,
-    #   yes = colorNumeric(colorPal(), dom()),
-    #   no = colorNumeric(colorRampPalette(colors = c("white", "#003300"),space = "Lab")(abs(maxval())), dom())
-    # )})
       
     
     output$map1 <- leaflet::renderLeaflet({
@@ -198,14 +167,14 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           group = "Percent Change",
           opacity = 1,
           project = FALSE
-        )
+        ) 
         
       })
           
          
       # add shared temperature legend  ------------------------------------------------------------
-      observeEvent(input$map1_groups,{
-        
+      #observeEvent(input$map1_groups,{
+      observe({
         leafletProxy("map1") %>%
           removeControl(layerId = "firstLegend")
         

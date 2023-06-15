@@ -34,8 +34,9 @@ map2_UI <- function(id, panelName, county_names){
                    actionButton(inputId = ns("Zoom"), label = "Zoom to County"),
                    hr(),
                    #add button for download report 
-                   #downloadButton(outputId = ns("report"), "Generate Report for Selected County"),
-                   #hr(),
+                   downloadButton(outputId = ns("report"), "Generate Report for Selected County"),
+                   em("Report generation may take a few seconds"),
+                   hr(),
                    # visualize user click
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
                    h6(htmlOutput(ns("pixelVal2"))),
@@ -65,7 +66,9 @@ map2_UI <- function(id, panelName, county_names){
 
 # define server  ---------------------------------------------------------- 
 map2_server <- function(id, histRaster, futureRaster, managementRasters, 
-                        countryDF,countyDF, pal1, countyFeat, ssp
+                        countryDF,countyDF, pal1, countyFeat, ssp,
+                        decid_report, ever_report, proj_report,
+                        population, ecosystem_data
                         # ssp, will need to add once all data is present. 
                         ){
   moduleServer(id,function(input,output,session){
@@ -76,6 +79,9 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   # define raster features  -------------------------------------------------
    hist1 <- histRaster
    base1 <- futureRaster
+   
+   # rename original countyDF for report generation (keep all scenarios)
+   countyDF_all <- countyDF
   
 
   # filter datasets to specific spp -----------------------------------------
@@ -267,16 +273,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       extractVal2 <- raster::extract(r3(), point)%>%
         round(digits = 2)
       
-      # condition for setting the label based on input value 
-      # label1 <- reactive({
-      #   if(input$Layer == "pr"){
-      #     "mm"
-      #   }else{
-      #     paste("C", intToUtf8(176))
-      #   }
-      # })
       
-      output$pixelVal2 <- renderText(paste("Baseline Forest Cover:",
+      output$pixelVal2 <- renderText(paste0("Baseline Forest Cover:",
                                       "<b>", as.character(extractVal1), "</b>","%", "<br>",
                                       "Projected Change in Forested Area:",
                                       "<b>", as.character(extractVal2),"</b>","%"))
@@ -360,31 +358,66 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     })
     # output$cnty3 <- renderText("")
     output$countyText <- renderText(paste(input$County23, "County"))
+      
+    # renderQMD <- reactive({
+    #   quarto::quarto_render("reports/reportTemplate.qmd", 
+    #                       execute_params = list(
+    #                         username = input$County23,
+    #                         County = input$County23, 
+    #                         Year = input$Timeline ,
+    #                         Management = input$layer,
+    #                         Scenario =  "temp",
+    #                         #Map =  leaflet() %>% addTiles(),
+    #                         plot1 = p1
+    #                         #plot2 = p2()
+    #                       ))
+    # })
     
-
-  # render report  ----------------------------------------------------------
+    
+  # render qmd report  ------------------------------------------------------
     # output$report <- downloadHandler(
-    #   filename = "report.html",
-    #   
+    #   filename = paste0("KA_",input$County23,"_",Sys.Date(),".html"),
     #   content = function(file) {
-    #     # this input object needs to be define in the UI 
-    #     # include a list of reactive object that cal called by the rmd
-    #     params <- list(n = input$n)
-    #     
-    #     id <- showNotification(
-    #       "Rendering report...", 
-    #       duration = NULL, 
-    #       closeButton = FALSE
-    #     )
-    #     on.exit(removeNotification(id), add = TRUE)
-    #     rmarkdown::render("reportTemplate.Rmd", 
-    #                       output_file = file,
-    #                       params = params,
-    #                       envir = new.env(parent = globalenv())
-    #     )
+    #     renderQMD()
+    # 
+    #     file.copy("reports/reportTemplate.html", file)
+    # 
     #   }
-    # ) 
-    }# end of moduleserver
+    # )
+    
+  # render rmd report ------------------------------------------------------
+    output$report <- downloadHandler(
+      filename = function() {
+        paste0(input$County23, "_Report_", Sys.Date(), ".pdf")
+      },
+      content = function(file) {
+        # render file in temp directory so .knit files don't go in app directory
+        tempReport <- file.path(tempdir(), "report_example.Rmd")
+        file.copy("reports/report_example.Rmd", tempReport, overwrite = TRUE)
+        rmarkdown::render(
+          tempReport,
+          output_format = "pdf_document",
+          output_file = file,
+          params = list(
+            county_shape = countyFeat,
+            county_name = input$County23,
+            time = input$Timeline,
+            county_vals = countyDF_all,
+            table = df3_a(),
+            projection = proj_report,
+            decid = decid_report,
+            ever = ever_report,
+            population = population,
+            ecosystem_data = ecosystem_data
+          ),
+          envir = new.env(parent = globalenv()),
+          clean = F,
+          encoding = "utf-8"
+        )
+      }
+    )
+    
+    } # end of moduleserver
   )
 }
 

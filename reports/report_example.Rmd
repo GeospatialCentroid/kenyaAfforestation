@@ -1,0 +1,278 @@
+---
+title: "Kenya Afforestation Decision Support Tool"
+output: pdf_document
+params:
+  county_shape: NA
+  county_name: NA
+  time: NA
+  table: NA
+  county_vals: NA
+  projection: NA
+  decid: NA
+  ever: NA
+  population: NA
+  ecosystem_data: NA
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+
+```{r data, eval = TRUE}
+##Load base forest cover datasets
+#proj <- params$projection
+
+##Isolate county 
+county_shape <- params$county_shape
+county_select<-county_shape[county_shape$ADMIN1 == params$county_name,]
+
+decid_report <- params$decid
+terra::crs(decid_report) <- as.character(params$projection)
+decid_prj <- terra::project(decid_report, county_select) #%>% 
+  # terra::crop(county_select, snap = "out") %>% 
+  # terra::mask(county_select)
+
+ever_report <- params$ever
+terra::crs(ever_report) <- as.character(params$projection)
+ever_prj <- terra::project(ever_report, county_select) #%>% 
+  # terra::crop(county_select, snap = "out") %>% 
+  # terra::mask(county_select)
+
+```
+
+
+
+# Reporting Summaries for `r params$county_name` County for the year `r paste0("20", params$time)`
+
+<br>
+
+```{r forest_summaries, eval = TRUE}
+
+decid_county<-sum((terra::extract(decid_prj, county_select))[[2]])
+ever_county<-sum((terra::extract(ever_prj, county_select))[[2]])
+
+tot_forest<-round(decid_county+ever_county, 0)
+```
+
+
+
+`r params$county_name` County has a total forest cover of **`r tot_forest` km^2^**. The figure below shows the distribution of deciduous and evergreen forests in the county based on the 1 km Consensus Landcover dataset. The dataset represents landcover in the year 2005. 
+
+```{r, eval = TRUE, out.width="100%", fig.height=4, fig.show='hold', fig.align='center'}
+ 
+# decid_crop<-as.data.frame(crop(decid, county_select), xy=TRUE)
+# ever_crop<-as.data.frame(crop(ever, county_select), xy=TRUE)
+# 
+# p1<-ggplot()+
+#     geom_raster(data=decid_crop, aes(x=x, y=y, fill=decid_final))+
+#     scale_fill_viridis_b("% cover", option = "E" )+ggtitle("Deciduous forest")+
+#     geom_polygon(data = county_select, aes(x=long, y=lat), col="black", fill=NA)+theme_classic()
+
+# p2<-ggplot()+
+#     geom_raster(data=ever_crop, aes(x=x, y=y, fill=egreen_final))+
+#     scale_fill_viridis_b("% cover", option = "E" )+ggtitle("Evergreen forest")+
+#     geom_polygon(data = county_select, aes(x=long, y=lat), col="black", fill=NA)+theme_classic()
+# 
+# library(gridExtra)
+# 
+# grid.arrange(p1, p2, nrow=1)
+
+# use tmap instead
+p1 <- tm_shape(decid_prj, bbox = county_select) +
+  tm_raster(palette = "Greens",
+            style = "cont",
+            title = "% Cover") +
+  tm_shape(county_shape) +
+  tm_borders() +
+  tm_layout(
+    legend.outside = TRUE,
+    frame = FALSE,
+    main.title = "Decidious Forest",
+    main.title.position = "left",
+    main.title.size = 1,
+    main.title.fontface = "bold",
+    outer.margins = c(0, 0, 0, 0)
+  )
+
+p2 <- tm_shape(ever_prj, bbox = county_select) +
+  tm_raster(palette = "Greens",
+            style = "cont",
+            title = "% Cover") +
+  tm_shape(county_shape) +
+  tm_borders() +
+  tm_layout(
+    legend.outside = TRUE,
+    frame = FALSE,
+    main.title = "Evergreen Forest",
+    main.title.position = "left",
+    main.title.size = 1,
+    main.title.fontface = "bold",
+    outer.margins = c(0, 0, 0, 0)
+  )
+
+tmap_arrange(p1, p2)
+
+```
+
+The maps only show an approximate distribution of forest cover in the county, since patches of other forest types such as needle-leaf and mixed forests which are not part of L-Range simulations are not shown. Consequently, the total forest cover calculated for the county may be an underestimate. 
+
+\newpage
+
+
+## Forest cover change under future climate and management scenarios
+
+Climate change is impacting forest cover globally both directly through rising temperatures, and indirectly by increasing the frequency and intensity of forest fires and droughts. These factors may operate in concert, where forests in some regions experience higher temperatures,droughts,and more frequent fires concurrently. Future climate changes are modeled by considering several story lines that illustrate the direction of economic growth and social changes within national and trans-national contexts. These story lines are called Shared Socioeconomic Pathways (SSPs). While the intensity of future climate changes will be a function of global green house gas emissions, it is useful to understand how management actions can mitigate the impacts of climate change on forests under different climate change scenarios.
+
+How might forests in `r params$county_name` County change by the year `r paste0("20", params$time)` under 4 scenarios of climate change with and without management efforts:
+
+```{r forest_change}
+
+# map across unique scenarios/management
+#reps <- params$county_vals
+#reps <- reps[grep("Nothing|Fires", names(reps))]
+
+clim_manage <- map_df(county_vals, 
+ ~ .x %>% 
+    filter(County == "Baringo", Year == 2050, Areas == "All") %>% 
+   group_by(Areas) %>% summarize(change = mean(value))
+) %>% 
+  mutate(scenario = names(reps)) %>% 
+  separate(scenario, "_", into = c("scenario", "management")) %>% 
+  mutate(scenario = case_when(scenario == "ssp126" ~ "SSP1-2.6",
+                              scenario == "ssp245" ~ "SSP2-4.5",
+                              scenario == "ssp370" ~ "SSP3-7.0",
+                              scenario == "ssp585" ~ "SSP5-8.5"),
+         management = case_when(management == "DoNothing" ~ "Historic",
+                                management == "NoFires" ~ "Decrease",
+                                management == "DoubleFires" ~ "Increase"),
+         management = factor(management, levels = c("Historic", "Decrease", "Increase")))
+
+
+ggplot(data=clim_manage, aes(x = scenario, y = change, fill = management))+
+   geom_bar(stat = "identity", position = "dodge") + 
+  labs(x = "Climate Scenario", y = "% Change in Forest Cover")+
+  theme_classic()+
+  scale_fill_manual(values = c("#feb24c", "#ffeda0", "#f03b20"), name = "Fire Severity")+
+  theme(legend.position = "bottom",
+        axis.title = element_text(face = "bold"))
+  
+
+
+
+
+```
+
+\newpage
+
+
+## Human population change
+
+Human populations will continue to increase into the future. The story lines (SSPs) that dictate the rate of future emissions and climate change also provide details on how and where human populations are likely to change. Changes in urban and rural populations within the context of these story lines can provide insights into the intensity of anthropogenic impacts (deforestation, charcoal production) that forests are likely to experience. The plots below show projected changes in rural and urban population for `r params$county_name` County in the year `r paste0("20", params$time)`.
+
+```{r pop_change, eval = TRUE}
+##Load population rasters associated with SSPs. Here just loading change in the year 2050
+
+#pop<-readRDS("reports/pop_change_50.rds")
+pop_summary<-raster::crop(params$population, county_select) %>% 
+  as.data.frame(xy=TRUE)%>%pivot_longer(!c(x,y)) %>% 
+  group_by(name)%>%summarize(change=sum(value, na.rm=TRUE)) %>% 
+  separate(name, into = c("scenario", "year", "area")) %>% 
+  mutate(scenario = case_when(scenario == "ssp1" ~ "SSP1-2.6",
+                              scenario == "ssp2" ~ "SSP2-4.5",
+                              scenario == "ssp3" ~ "SSP3-7.0",
+                              scenario == "ssp5" ~ "SSP5-8.5"),
+         area = if_else(area == "r", "Rural", "Urban"))
+
+ggplot(data=pop_summary, aes(x=scenario, y= change, fill = area))+
+  geom_bar(stat = "identity", position = "dodge")+
+  theme_classic()+
+  labs(x = "Scenario", y ="Total Population Change")+
+  scale_fill_manual(values = c("#73996e", "#59043d"))+
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        axis.title = element_text(face = "bold"))
+  
+  
+
+```
+
+The plot above shows that in an SSP2 and SSP3 world, there is significant increase in rural populations in `r params$county_name` County. Within the context of these storylines, these increases may be interpreted to mean that anthropocentric pressures on forests will likely be higher. Simulated gains in forest cover in these two scenarios may therefore be optimistic and should account for potential increases in extractive activities.
+
+\newpage
+
+
+## Changes in allied ecosystem services
+
+Forests provide several ecosystem services key among which is the mitigation of climate change though the sequestration of carbon in standing biomass (trees) as well as in the soil. 
+
+How do overall aboveground biomass and soil organic carbon change as forest cover changes in the absence of any mitigation efforts in `r params$county_name` county in `r paste0("20", params$time)`?
+
+```{r eco_services, eval=TRUE}
+### Above ground live biomass
+# 
+# alb_126<-readRDS("reports/alb_ssp126_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
+# alb_245<-readRDS("reports/alb_ssp245_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
+# alb_370<-readRDS("reports/alb_ssp370_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
+# alb_585<-readRDS("reports/alb_ssp585_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
+# 
+# 
+# ### Fast soil carbon
+# 
+# fsc1_126<-readRDS("reports/fsc1_ssp126_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
+# fsc1_245<-readRDS("reports/fsc1_ssp245_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
+# fsc1_370<-readRDS("reports/fsc1_ssp370_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
+# fsc1_585<-readRDS("reports/fsc1_ssp585_GCM_dn.rds")$county_change_df%>%filter(County == "Baringo", name == 2050, areas == "All" )%>%group_by(areas)%>%summarize(change= mean(value))
+# 
+# 
+# ###Plot alb and fsc1 side by side
+# 
+# carbonseq<-data.frame(ClimateScenario = rep(c("SSP1-2.6", "SSP2-4.5", "SSP3-7.0",               "SSP5-8.5"),each=2),Variable = rep(rep(c("Biomass", "Soil organic carbon"), 2),4),Change = c(alb_126$change, fsc1_126$change, alb_245$change, fsc1_245$change, alb_370$change, fsc1_370$change, alb_585$change, fsc1_585$change))
+# 
+# ggplot(data=carbonseq, aes(x = ClimateScenario, y = Change, fill = Variable))+
+#    geom_bar(stat = "identity", position = "dodge") + xlab("Climate Scenario")+
+#    ylab("% Change")
+
+## Caitlins edit --------------------------------------------------------------
+# convert files to single list after reading in raw .rds
+# ecosystem_data <- list(alb_126, alb_245, alb_370, alb_585, fsc1_126, fsc1_245, fsc1_370, fsc1_585)
+# names(ecosystem_data) <- c("alb_126", "alb_245", "alb_370", "alb_585", "fsc1_126", "fsc1_245", "fsc1_370", "fsc1_585")
+# # save this file to load in app.R
+# save(ecosystem_data, file = "reports/ecosystem_data.RData")
+ecosystem_data <- params$ecosystem_data
+
+carbonseq <- map_df(ecosystem_data,  ~ .x$county_change_df %>% 
+    filter(County == params$county_name, name == paste0("20", params$time), areas == "All") %>% 
+   group_by(areas) %>% summarize(change = mean(value))
+) %>% 
+  mutate(scenario = names(ecosystem_data)) %>% 
+  separate(scenario, "_", into = c("variable", "scenario")) %>% 
+  mutate(variable = if_else(variable == "alb", "Biomass", "Soil Organic Carbon"),
+         scenario = case_when(scenario == "126" ~ "SSP1-2.6",
+                              scenario == "245" ~ "SSP2-4.5",
+                              scenario == "370" ~ "SSP3-7.0",
+                              scenario == "585" ~ "SSP5-8.5"))
+
+
+ggplot(data=carbonseq, aes(x = scenario, y = change, fill = variable))+
+   geom_bar(stat = "identity", position = "dodge") + 
+  labs(x = "Climate Scenario", y = "% Change")+
+  theme_classic()+
+  scale_fill_manual(values = c("#35978f", "#543005"))+
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        axis.title = element_text(face = "bold"))
+
+
+```
+
+<br>
+
+
+### Other variables that can be summarized
+
+* Herb and shrub cover
+* Soil inorganic carbon
+* Evapotranspiration
+
