@@ -12,14 +12,14 @@ genPalettes_forestCover <- function(data){
   
   
   doNothing <- changeRasters[grepl(pattern = "DoNothing", x = names(changeRasters))]
-  noFires <-changeRasters[grepl(pattern = "NoFires", x = names(changeRasters))]
-  noGraze <-changeRasters[grepl(pattern = "NoGrazing", x = names(changeRasters))]
+  less_fire <-changeRasters[grepl(pattern = "NoFires", x = names(changeRasters))]
+  more_fire <-changeRasters[grepl(pattern = "DoubleFires", x = names(changeRasters))]
 
   histForest <- data$existingForest
   expForest <- data$expandedForest
   
   pals <- vector("list", length = 5)
-  names(pals) <- c("nothing","fire","graze", "hf", "ef")
+  names(pals) <- c("nothing","less_fire","more_fire", "hf", "ef")
   
   #historic forest cover palette
   pals[["hf"]]$palette <- colorNumeric(c("#edf8fb","#b2e2e2","#66c2a4","#2ca25f","#006d2c"), values(histForest),
@@ -54,30 +54,30 @@ genPalettes_forestCover <- function(data){
   pals[["nothing"]]$values <- as.numeric(values(nothingStack))
   
   #forest cover change - stop fires 
-  fireStack <- raster::stack(noFires)
+  fireStack <- raster::stack(less_fire)
   
   colorForest <-  c(colorRampPalette(colors = c("#a6611a", "#d46c02",  "white"),space = "Lab")(abs(min(values(fireStack), na.rm = TRUE))),
                     colorRampPalette(colors = c("white", "#32CD32", "#003300"),space = "Lab")(max(values(fireStack), na.rm = TRUE)))
   
-  pals[["fire"]]$palette <- colorNumeric(palette = colorForest, as.numeric(values(fireStack)),
+  pals[["less_fire"]]$palette <- colorNumeric(palette = colorForest, as.numeric(values(fireStack)),
                                          na.color = "transparent")
   
-  pals[["fire"]]$title <- "Change in % Forest Area </br> No Fires"
+  pals[["less_fire"]]$title <- "Change in % Forest Area </br> Decrease Fire"
   
-  pals[["fire"]]$values <- as.numeric(values(fireStack))
+  pals[["less_fire"]]$values <- as.numeric(values(fireStack))
   
   #forest cover change - no grazing
-  grazeStack <- raster::stack(noGraze)
+  doubleFireStack <- raster::stack(more_fire)
   
-  colorForest <-  c(colorRampPalette(colors = c("#a6611a", "#d46c02",  "white"),space = "Lab")(abs(min(values(grazeStack), na.rm = TRUE))),
-                    colorRampPalette(colors = c("white", "#32CD32", "#003300"),space = "Lab")(max(values(grazeStack), na.rm = TRUE)))
+  colorForest <-  c(colorRampPalette(colors = c("#a6611a", "#d46c02",  "white"),space = "Lab")(abs(min(values(doubleFireStack), na.rm = TRUE))),
+                    colorRampPalette(colors = c("white", "#32CD32", "#003300"),space = "Lab")(max(values(doubleFireStack), na.rm = TRUE)))
   
-  pals[["graze"]]$palette <- colorNumeric(palette = colorForest, as.numeric(values(grazeStack)),
+  pals[["more_fire"]]$palette <- colorNumeric(palette = colorForest, as.numeric(values(doubleFireStack)),
                                          na.color = "transparent")
   
-  pals[["graze"]]$title <- "Change in % Forest Area </br> No grazing"
+  pals[["more_fire"]]$title <- "Change in % Forest Area </br> Increase fire"
   
-  pals[["graze"]]$values <- as.numeric(values(grazeStack))
+  pals[["more_fire"]]$values <- as.numeric(values(doubleFireStack))
   
   
   return(pals)

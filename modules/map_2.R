@@ -20,8 +20,8 @@ map2_UI <- function(id, panelName, county_names){
                      inputId=ns("Layer"),
                      label=tags$strong("Pick a management scenario to visualize predicted forest cover change:"),
                      choices = list("No Management Action" = "nothing",  ## this will need to change to match the new dataset convention
-                                    "Stop Fires" = "fire",
-                                    "No Grazing" = "graze"),
+                                    "Decrease Fire Severity" = "less_fire",
+                                    "Increase Fire Severity" = "more_fire"),
                      selected = "nothing"
                    ),
                    hr(),
@@ -46,12 +46,12 @@ map2_UI <- function(id, panelName, county_names){
         fluidRow( ### even through this is still within the 10 unit wide main panel, width operates out of 12.
           align = "center",
           column(width = 6, height = "100%",
-                 h5("Kenya"),
+                 h5(strong("Kenya")),
                  plotlyOutput(ns("percentChangeCountry"))
                  #p("This plot summarizes the total change in tree cover throughout the country.")
           ),
           column(width = 6, 
-                 h5(textOutput(ns("countyText"))),
+                 h5(strong(textOutput(ns("countyText")))),
                  plotlyOutput(ns("percentChangeCounty"))
                  #p("This plot summarizes the total change in tree cover throughout the county")
             
@@ -69,6 +69,9 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
                         # ssp, will need to add once all data is present. 
                         ){
   moduleServer(id,function(input,output,session){
+   
+  # suppress warnings (lots of non-important plotly warnings) 
+  options(warn = -1)
 
   # define raster features  -------------------------------------------------
    hist1 <- histRaster
@@ -84,8 +87,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
   # bind features to single list  
    r1 <- list(
      nothing = managementRasters[[paste0("ssp",ssp,"_DoNothing")]],
-     fire = managementRasters[[paste0("ssp",ssp,"_NoFires")]],
-     graze = managementRasters[[paste0("ssp",ssp,"_NoGrazing")]]
+     less_fire = managementRasters[[paste0("ssp",ssp,"_NoFires")]],
+     more_fire = managementRasters[[paste0("ssp",ssp,"_DoubleFires")]]
    )
 
    
@@ -265,13 +268,13 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         round(digits = 2)
       
       # condition for setting the label based on input value 
-      label1 <- reactive({
-        if(input$Layer == "pr"){
-          "mm"
-        }else{
-          paste("C", intToUtf8(176))
-        }
-      })
+      # label1 <- reactive({
+      #   if(input$Layer == "pr"){
+      #     "mm"
+      #   }else{
+      #     paste("C", intToUtf8(176))
+      #   }
+      # })
       
       output$pixelVal2 <- renderText(paste("Baseline Forest Cover:",
                                       "<b>", as.character(extractVal1), "</b>","%", "<br>",
@@ -292,7 +295,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     ## COUNTRY
     df1 <- list(
       nothing = countryDF[[paste0("ssp",ssp,"_DoNothing")]],
-      fire = countryDF[[paste0("ssp",ssp,"_NoFires")]]
+      less_fire = countryDF[[paste0("ssp",ssp,"_NoFires")]],
+      more_fire = countryDF[[paste0("ssp",ssp,"_DoubleFires")]]
     )
     # select df based on management action
     df2 <-  reactive({df1[grep(pattern = input$Layer, x = names(df1))][[1]]})
@@ -301,7 +305,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     ## COUNTY
     df1_a <- list(
       nothing = countyDF[[paste0("ssp",ssp,"_DoNothing")]],
-      fire = countyDF[[paste0("ssp",ssp,"_NoFires")]]
+      less_fire = countyDF[[paste0("ssp",ssp,"_NoFires")]],
+      more_fire = countyDF[[paste0("ssp",ssp,"_DoubleFires")]]
     )
     # select df based on management action
     df2_a <-  reactive({df1_a[grep(pattern = input$Layer, x = names(df1_a))][[1]]})
@@ -315,26 +320,32 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     forest_pal <- setNames(forest_pal, c("All", "Evergreen", "Deciduous", "New"))
     
     # set axis range based on county max and min
-    range <- reactive({list(min(df2_a()$Change, na.rm = TRUE), max(df2_a()$Change, na.rm = TRUE))})
+   # range <- reactive({list(min(df2_a()$Change, na.rm = TRUE), max(df2_a()$Change, na.rm = TRUE))})
+    range <- reactive({list(min(df2_a()$value, na.rm = TRUE), max(df2_a()$value, na.rm = TRUE))})
     
-
     ## plotly for Country --------------------------------------------------------
 
-    p1 <-  reactive({plot_ly(data = df2(), y = ~Change, x = ~Year, type = "bar",
+    p1 <-  reactive({plot_ly(data = df2(), y = ~value, x = ~Year, type = "box",
                    color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
-        layout(yaxis = list(title = "<b>% Change</b>", range = range()),
-               xaxis = list(title = "", tickfont = list(size = 16), side = "top"))
+        layout(yaxis = list(title = "<b>% Change</b>"
+                            #range = range()
+                            ),
+               xaxis = list(title = "", tickfont = list(size = 16), side = "top"),
+               boxmode = "group")
       })
-      
+
 
     ## plotly data for County ----------------------------------------------
     p2 <- reactive({
-        plot_ly(data = df3_a(), y = ~Change, x = ~Year, type = "bar",
+        plot_ly(data = df3_a(), y = ~value, x = ~Year, type = "box",
                 color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
-          layout(yaxis = list(title = "<b>% Change</b>", range = range()),
-                 xaxis = list(title = "", tickfont = list(size = 16), side = "top"))
+          layout(yaxis = list(title = "<b>% Change</b>" 
+                              #range = range()
+                              ),
+                 xaxis = list(title = "", tickfont = list(size = 16), side = "top"),
+                 boxmode = "group")
       })
-      
+
     
     
     #output$varchange1 <- renderLeaflet({map()})
