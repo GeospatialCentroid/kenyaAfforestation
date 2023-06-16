@@ -18,10 +18,10 @@ map2_UI <- function(id, panelName, county_names){
                    # select mapped variable 
                    selectInput(
                      inputId=ns("Layer"),
-                     label=tags$strong("Pick a management scenario to visualize predicted forest cover change:"),
-                     choices = list("No Management Action" = "nothing",  ## this will need to change to match the new dataset convention
-                                    "Decrease Fire Severity" = "less_fire",
-                                    "Increase Fire Severity" = "more_fire"),
+                     label=tags$strong("Pick a disturbance scenario to visualize predicted forest cover change:"),
+                     choices = list("Historic Fire Severity" = "nothing",  ## this will need to change to match the new dataset convention
+                                    "Decreased Fire Severity" = "less_fire",
+                                    "Increased Fire Severity" = "more_fire"),
                      selected = "nothing"
                    ),
                    hr(),
@@ -41,7 +41,8 @@ map2_UI <- function(id, panelName, county_names){
                    # visualize user click
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
                    h6(htmlOutput(ns("pixelVal2"))),
-                   em("You can view historic and baseline (2030) forest cover layers via the map controls"),
+                   em("You can view historic (before afforestation) and 2030 baseline forest cover layers via the map controls")
+                   
       ),
       mainPanel(width = 9,
         leafletOutput(ns("map2")),
@@ -58,6 +59,15 @@ map2_UI <- function(id, panelName, county_names){
                  #p("This plot summarizes the total change in tree cover throughout the county")
             
           )
+        ),
+        fluidRow(
+          align = "center",
+          em("Boxplots summarize change in tree cover relative to the 2030 baseline from repeating simulation scenarios using 13 climate change models,"),
+          hr(),
+          h5("Category Descriptions:"),
+          tags$p(tags$strong("All"), "= Tree cover change across all areas with trees."), 
+          tags$p(tags$strong("New"), "= Tree cover change across all areas with newly planted trees (to achieve 2030 baseline)."),
+          tags$p(tags$strong("Evergreen/Deciduous"), "= Tree cover change in areas with > 30% evergreen or decidious trees.")
         )
       )
     )
@@ -327,7 +337,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
 
     p1 <-  reactive({plot_ly(data = df2(), y = ~value, x = ~Year, type = "box",
                    color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
-        layout(yaxis = list(title = "<b>% Change</b>"
+        layout(yaxis = list(title = "<b>Relative Change in Tree Cover (%)</b>"
                             #range = range()
                             ),
                xaxis = list(title = "", tickfont = list(size = 16), side = "top"),
@@ -339,7 +349,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     p2 <- reactive({
         plot_ly(data = df3_a(), y = ~value, x = ~Year, type = "box",
                 color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
-          layout(yaxis = list(title = "<b>% Change</b>" 
+          layout(yaxis = list(title = "<b>Relative Change in Tree Cover (%)</b>" 
                               #range = range()
                               ),
                  xaxis = list(title = "", tickfont = list(size = 16), side = "top"),
