@@ -216,6 +216,9 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         #historic
         extractVal0 <- raster::extract(r0(), point)%>%
           round(digits = 2)
+        #change
+        extractVal2 <- raster::extract(r2(), point) %>% 
+          round(digits = 2)
         
         # condition for setting the label based on input value 
         label1 <- reactive({
@@ -229,7 +232,8 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         output$cnty <- renderText(paste("Historic value:",
                                          "<b>", as.character(extractVal0), "</b>",label1(), "<br>",
                                   "Projected value:",
-                                  "<b>", as.character(extractVal1),"</b>",label1()))
+                                  "<b>", as.character(extractVal1),"</b>",label1(), "<br>",
+                                  "Percent change:", "<b>", as.character(extractVal2), "</b>", "%"))
       })
       
       

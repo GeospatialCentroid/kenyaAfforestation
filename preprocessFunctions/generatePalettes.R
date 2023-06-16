@@ -52,7 +52,7 @@ generatePalettes <- function(rasters, type){
     pals[["pr"]]$palette <-  colorNumeric(palette = colorPr, values(pr_rast),
                                           na.color = "transparent")
     
-    pals[["pr"]]$title <- "Percent Change in </br> Precipitation (mm)"
+    pals[["pr"]]$title <- "Percent Change in Annual </br> Precipitation (mm)"
     
     pals[["pr"]]$values <- values(pr_rast)
     
@@ -60,26 +60,26 @@ generatePalettes <- function(rasters, type){
     
     #tmin palette
     
-    colorTmin <-  c(colorRampPalette(colors = c("#330000", "white"),space = "Lab")(abs(min(values(tmin_rast), na.rm = TRUE))),
-                    colorRampPalette(colors = c("white", "#003300"),space = "Lab")(max(values(tmin_rast), na.rm = TRUE)))
+    colorTmin <-  c(colorRampPalette(colors = c("#01665e", "white"),space = "Lab")(abs(min(values(tmin_rast), na.rm = TRUE))),
+                    colorRampPalette(colors = c("white", "#8c510a"),space = "Lab")(max(values(tmin_rast), na.rm = TRUE)))
     
     pals[["tmin"]]$palette <-  colorNumeric(palette = colorTmin, values(tmin_rast),
                                             na.color = "transparent")
     
-    pals[["tmin"]]$title <- paste("Percent change in </br> Minimum Temperature C", intToUtf8(176))
+    pals[["tmin"]]$title <- paste("Percent change in Annual </br> Minimum Temperature C", intToUtf8(176))
     
     pals[["tmin"]]$values <- values(tmin_rast)
     
     #tmax palette
     
-    colorTmax <-  c(colorRampPalette(colors = c("#330000", "white"),space = "Lab")(abs(min(values(tmax_rast), na.rm = TRUE))),
-                    colorRampPalette(colors = c("white", "#003300"),space = "Lab")(max(values(tmax_rast), na.rm = TRUE)))
+    colorTmax <-  c(colorRampPalette(colors = c("#01665e", "white"),space = "Lab")(abs(min(values(tmax_rast), na.rm = TRUE))),
+                    colorRampPalette(colors = c("white", "#8c510a"),space = "Lab")(max(values(tmax_rast), na.rm = TRUE)))
     
     
     pals[["tmax"]]$palette <-  colorNumeric(palette = colorTmax, values(tmax_rast),
                                             na.color = "transparent")
     
-    pals[["tmax"]]$title <- paste("Percent Change in </br> Maximum Temperature C", intToUtf8(176))
+    pals[["tmax"]]$title <- paste("Percent Change in Annual </br> Maximum Temperature C", intToUtf8(176))
     
     pals[["tmax"]]$values <- values(tmax_rast)
     
