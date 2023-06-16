@@ -231,7 +231,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
             #   labels = c("Low Change", "", "", "", "High Change"),
             opacity = 0.8,
             layerId = "sharedLegend",
-            decreasing = TRUE
+            decreasing = TRUE,
+            bins = 5
           )
 
       }
