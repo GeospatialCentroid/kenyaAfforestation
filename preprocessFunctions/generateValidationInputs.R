@@ -25,10 +25,14 @@ nppVals <- function(path, county, countyBuff){
   
   # generate Palette features 
   ## set up palette info for maps
-  npp_dif_pal <- colorNumeric(palette = "RdBu", values(npp_val$npp_dif),
+  colorNPP_dif <-  c(colorRampPalette(colors = c("#ca0020", "#f4a582", "white"),space = "Lab")(abs(min(values(npp_val$npp_dif), na.rm = TRUE))),
+                  colorRampPalette(colors = c("white", "#92c5de","#0571b0" ),space = "Lab")(max(values(npp_val$npp_dif), na.rm = TRUE)))
+  
+  npp_dif_pal <- colorNumeric(palette = colorNPP_dif, values(npp_val$npp_dif),
                               na.color = "transparent")
   
   npp_dif_values <- values(npp_val$npp_dif)
+  
   
   npp_ref_pal <- colorNumeric(palette = "Greens", values(npp_val$npp_ref),
                               na.color = "transparent")
@@ -63,7 +67,10 @@ carbonVals <- function(path1, path2, county, countyBuff ){
   
   # generate Palette features 
   ## set up palette info for maps
-  cAbove_dif_pal <- colorNumeric(palette = "RdBu", values(cAbove_val$cAbove_dif),
+  color_cabove_dif <-  c(colorRampPalette(colors = c("#ca0020", "#f4a582", "white"),space = "Lab")(abs(min(values(cAbove_val$cAbove_dif), na.rm = TRUE))),
+                     colorRampPalette(colors = c("white", "#92c5de","#0571b0" ),space = "Lab")(max(values(cAbove_val$cAbove_dif), na.rm = TRUE)))
+  
+  cAbove_dif_pal <- colorNumeric(palette = color_cabove_dif, values(cAbove_val$cAbove_dif),
                               na.color = "transparent")
   
   cAbove_dif_values <- values(cAbove_val$cAbove_dif)
@@ -86,7 +93,11 @@ carbonVals <- function(path1, path2, county, countyBuff ){
   
   # generate Palette features 
   ## set up palette info for maps
-  cBelow_dif_pal <- colorNumeric(palette = "RdBu", values(cBelow_val$cBelow_dif),
+  color_cbelow_dif <-  c(colorRampPalette(colors = c("#ca0020", "#f4a582", "white"),space = "Lab")(abs(min(values(cBelow_val$cBelow_dif), na.rm = TRUE))),
+                         colorRampPalette(colors = c("white", "#92c5de","#0571b0" ),space = "Lab")(max(values(cBelow_val$cBelow_dif), na.rm = TRUE)))
+  
+  
+  cBelow_dif_pal <- colorNumeric(palette = color_cbelow_dif, values(cBelow_val$cBelow_dif),
                                  na.color = "transparent")
   
   cBelow_dif_values <- values(cBelow_val$cBelow_dif)

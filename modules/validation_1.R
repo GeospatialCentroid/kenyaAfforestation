@@ -3,14 +3,25 @@
 
 validation_UI <- function(id){
   ns <- NS(id)
-  tabPanel(title = "Model Information",
-           h2("Model Summary"),
-           p("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut non felis 
-            non nunc porta volutpat vulputate nec ligula. Donec dictum at tortor nec 
-            imperdiet. Maecenas varius, sapien sit amet tincidunt hendrerit, nunc purus 
-            elementum nisl, ut aliquet ex risus vitae sem. Praesent condimentum lacinia 
-            elit eu egestas. Praesent ligula sem, porttitor ut lectus id, euismod 
-            tristique mi. Sed cursus dignissim dolor, sit amet lobortis libero feugiat eu."),
+  tabPanel(title = "Simulation Details",
+           h2("Simulation Details"),
+           br(),
+           p("A layer representing possible expanded forest cover in 2030 
+                       (representing successful afforestation to achieve 10 % cover) 
+                       was created by adding tree cover to agricultural and savanna 
+                       areas in the proximity of existing evergreen and deciduous forests. 
+                       Starting with this expanded forest cover scenario in 2030, 
+                       changes in cover were simulated till the end of the century under 
+                       each of the four climate scenarios (SSP1, SSP2, SSP3, SSP5) while 
+                       incorporating the effects of three possible management actions 
+                       (Do nothing: Current conditions of fire and grazing persist, 
+                       Stop fires: Forest fires are fully controlled, Stop grazing: 
+                       Livestock grazing is fully controlled).  A total of 12 scenarios 
+                       were explored, each representing the combined effects of a unique 
+                       climate future and a single management action. For each scenario, 
+                       retaining forest cover in 2030 as a baseline, simulated changes in 
+                       tree cover within evergreen and deciduous forest areas were calculated 
+                       for the years 2050, 2070 and 2100."),
            br(),
            hr(),
            tabsetPanel(
@@ -87,32 +98,29 @@ validation_UI <- function(id){
                                                        leafletOutput(ns("below_map"), width="100%",height="500px")
                                              ),
                                            )))),
-             tabPanel("Simulation Details", class = "simulations-tab",
+             tabPanel("Model FAQ", class = "simulations-tab",
+                      h2("FAQ"),
                       br(),
-                      p("A layer representing possible expanded forest cover in 2030 
-                       (representing successful afforestation to achieve 10 % cover) 
-                       was created by adding tree cover to agricultural and savanna 
-                       areas in the proximity of existing evergreen and deciduous forests. 
-                       Starting with this expanded forest cover scenario in 2030, 
-                       changes in cover were simulated till the end of the century under 
-                       each of the four climate scenarios (SSP1, SSP2, SSP3, SSP5) while 
-                       incorporating the effects of three possible management actions 
-                       (Do nothing: Current conditions of fire and grazing persist, 
-                       Stop fires: Forest fires are fully controlled, Stop grazing: 
-                       Livestock grazing is fully controlled).  A total of 12 scenarios 
-                       were explored, each representing the combined effects of a unique 
-                       climate future and a single management action. For each scenario, 
-                       retaining forest cover in 2030 as a baseline, simulated changes in 
-                       tree cover within evergreen and deciduous forest areas were calculated 
-                       for the years 2050, 2070 and 2100."))
+                      p(tags$strong("Question 1: "), "This is a place to add some questions."),
+                      p("This is a pace to add some answers."),
+                      #add button for download report 
+                      br(),
+                      tags$strong("For further technical details download the full report"),
+                      downloadButton(outputId = ns("report2"),
+                                     label = "Download Technical Report"),
+                      br(),
+                      em("Report download may take a few seconds"),
+                      hr(),
+                      
            )
+          )
   )
 }
 
 
 # define server  ----------------------------------------------------------
-validation_server <- function(id, npp_val, carbon_val, county) {
-  moduleServer(id, function(input, output, session) {
+validation_server <- function(id, npp_val, carbon_val, county){
+  moduleServer(id,function(input,output,session){
     ## npp maps ------------------------------------------------------------
     output$npp_map <- renderLeaflet({
       leaflet(options = leafletOptions(minZoom = 4)) %>%
@@ -336,6 +344,32 @@ validation_server <- function(id, npp_val, carbon_val, county) {
         ) %>%
         hideGroup(c("Below Ground Reference"))
     })
+
+  # Technical Report Download -----------------------------------------------
+  #add button for download report 
+  output$report2 <- downloadHandler(
+    filename = function(){
+      paste0("ka_dst_technical_report", Sys.Date(),".pdf")
+    },
+    content = function(file){
+      message("Report is being generated")
+
+      report <- paste0("ka_dst_technical_report", Sys.Date(),".pdf")
+      if(file.exists(report)){
+        shinyalert(title = "Success",
+                   text = "The report will download to
+                     the download location used by your broswer.",
+                   type = "success")
+      }else{
+        shinyalert(title = "Missing Data",
+                   text = c(
+                     "Files are missing and the report can not be download at this time."
+                   ),
+                   type = "error"
+        )
+      }
+    }
+
+  )
   })
-  
 }

@@ -60,12 +60,14 @@ names(paletteList) <- c("pal_abs", "pal_change", "pal_management")
 
 
 # process model validation rasters ---------------------------------------
-npp_val <- nppVals(path = "dataToPreprocess/validationLayers/NPP_valid.RDS",
+### leaving the extra path in here because the difference in the outputs is looking quite different.
+### could be correct but want Rehka to approve between remove past layers 
+npp_val <- nppVals(path = "dataToPreprocess/validationLayers/Re App Updates/NPP_valid.RDS", # Re App Updates/
                    county = county,
                    countyBuff = countyBuff)
 
-carbon_val <- carbonVals(path1 = "dataToPreprocess/validationLayers/aboveC_valid.RDS",
-                         path2 = "dataToPreprocess/validationLayers/belowC_valid.RDS",
+carbon_val <- carbonVals(path1 = "dataToPreprocess/validationLayers/Re App Updates/aboveC_valid.RDS",
+                         path2 = "dataToPreprocess/validationLayers/Re App Updates/belowC_valid.RDS",
                          county = county,
                          countyBuff = countyBuff )
 
