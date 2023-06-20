@@ -121,6 +121,14 @@ ui <- navbarPage(
           p("On this page, you can find information regarding the origin of the
             project, the team of people that were involved, publications, and other
             relevant information." ),
+          br(),
+          fluidRow(
+            # column(1, 
+            #        div(img(src="email-icon.png", alt="Email icon", width="30px"),style="text-align:left")),
+            column(12,
+                   div(em("For any questions or feedback please reach out to Professor Patrick Keys at patrick.keys@colostate.edu"),
+                       style="text-align:left;color:grey"))
+          ),
           hr(),
           h2("Project Background"),
           p("This project was led by Colorado State University in collaboration with ",
@@ -133,27 +141,60 @@ ui <- navbarPage(
             tags$a(href = "https://cce.nasa.gov/biodiversity/index.html", "Biological Diversity and Ecological Conservation program", target = "_blank"),
             " (Project# 80NSSC19K0182)."
           ),
+          fluidRow(
+            column(4,
+                   div(img(src="NASA_logo.svg", alt="NASA Logo", align="center", width="60%"), style="text-align:center")),
+            column(4,
+                   div(img(src="kefri_logo.png", alt="KEFRI Logo", align="center", width="50%"), style="text-align:center")),
+            column(4,
+                   div(img(src="sei_logo.png", alt="SEI Logo", align="center", width="40%"), style="text-align:center"))
+          ),
           hr(),
           h2("Who We Are"),
-          p("This website is the result of a collaboration among the following individuals and institutions."),
-          strong("SEI-Africa"), 
-          p("Dr. Anderson Kehbila"),
-          strong("KEFRI"),
-          p("Dr. Vincent Oeba"),
-          strong("Colorado State University"),
-          p("Professor Patrick Keys", br(),"Dr. Rekha Warrier", br(),
-            "Professor Randall Boone", br(),"Professor Kathleen Galvin"),
-          strong("Geospatial Centroid"),
-          p("Dan Carver", br(), "Dr. Caitlin Mothes"),
-          hr(),
-          h2("Publications (In-progress)"),
-          p("A variety of published work stemmed from this project, including reports, guidance documents, and academic journal articles"),
-          tags$ol(
-            tags$li("Report on forest cover change scenarios"), 
-            tags$li("Model documentation for SPIRALL L-Range"), 
-            tags$li("Ecology & Society article"),
-            tags$li("Earth Interactions")
+          p("This website is the result of a collaboration among the following individuals and institutions:"),
+          fluidRow(
+            column(3,
+                   strong("SEI-Africa"),
+                   p(tags$a(href = "https://www.sei.org/people/anderson-kehbila/", "Dr. Anderson Kehbila", target = "_blank"))
+                   ),
+            column(3,
+                   strong("KEFRI"),
+                   p("Dr. Vincent Oeba")
+                   ),
+            column(
+              3,
+              strong("Colorado State University"),
+              p(
+                tags$a(href = "https://www.atmos.colostate.edu/people/faculty/keys/", "Professor Patrick Keys", target = "_blank"),
+                br(),
+                tags$a(href = "http://sites.warnercnr.colostate.edu/jdsal/people/rekha/", "Dr. Rekha Warrier", target = "_blank"),
+                br(),
+                tags$a(href = "https://www.nrel.colostate.edu/investigator/randall-boone-homepage/", "Professor Randall Boone", target = "_blank"),
+                br(),
+                tags$a(
+                  href = "https://www.libarts.colostate.edu/people/kgalvin/",
+                  "Professor Kathleen Galvin",
+                  target = "_blank"
+                )
+              )
+            ),
+            column(3,
+                   strong(tags$a(href = "https://gis.colostate.edu/", "Geospatial Centroid", target = "_blank")),
+                   p(tags$a(href = "https://caitlinmothes.com/", "Dr. Caitlin Mothes", target = "_blank"),
+                     br(),
+                     "Dan Carver")
+            )
+            
           )
+          # hr(),
+          # h2("Publications (In-progress)"),
+          # p("A variety of published work stemmed from this project, including reports, guidance documents, and academic journal articles"),
+          # tags$ol(
+          #   tags$li("Report on forest cover change scenarios"), 
+          #   tags$li("Model documentation for SPIRALL L-Range"), 
+          #   tags$li("Ecology & Society article"),
+          #   tags$li("Earth Interactions")
+          # )
   ),
 
   # combine scenarios into navbar menu
