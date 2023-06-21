@@ -16,6 +16,7 @@ library(plotly)
 library(rmarkdown)
 library(tmap)
 library(tidyverse)
+library(shinyalert)
 ### raster option within leaflet... old so we might loose other functionality 
 #remotes::install_github("rstudio/leaflet", ref="joe/feature/raster-options")
 
