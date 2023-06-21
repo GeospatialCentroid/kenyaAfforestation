@@ -214,7 +214,7 @@ ui <- fluidPage(
                map_UI(id = "ssp126", panelName = panelNames[1])
              ),
              tabPanel(
-               "Climate and management effects on forests",
+               "Climate and disturbance effects on forests",
                map2_UI(
                  id = "ssp126_2",
                  panelName = panelNames[1],
@@ -231,7 +231,7 @@ ui <- fluidPage(
                map_UI(id = "ssp245", panelName = panelNames[2])
              ),
              tabPanel(
-               "Climate and management effects on forests",
+               "Climate and disturbance effects on forests",
                map2_UI(
                  id = "ssp245_2",
                  panelName = panelNames[2],
@@ -248,7 +248,7 @@ ui <- fluidPage(
                map_UI(id = "ssp370", panelName = panelNames[3])
              ),
              tabPanel(
-               "Climate and management effects on forests",
+               "Climate and disturbance effects on forests",
                map2_UI(
                  id = "ssp370_2",
                  panelName = panelNames[3],
@@ -265,7 +265,7 @@ ui <- fluidPage(
                  map_UI(id = "ssp585", panelName = panelNames[4])
              ),
              tabPanel(
-               "Climate and management effects on forests",
+               "Climate and disturbance effects on forests",
                map2_UI(
                  id = "ssp585_2",
                  panelName = panelNames[4],
