@@ -6,22 +6,25 @@ validation_UI <- function(id){
   tabPanel(title = "Simulation Details",
            h2("Simulation Details"),
            br(),
-           p("A layer representing possible expanded forest cover in 2030 
-                       (representing successful afforestation to achieve 10 % cover) 
-                       was created by adding tree cover to agricultural and savanna 
-                       areas in the proximity of existing evergreen and deciduous forests. 
-                       Starting with this expanded forest cover scenario in 2030, 
-                       changes in cover were simulated till the end of the century under 
-                       each of the four climate scenarios (SSP1, SSP2, SSP3, SSP5) while 
-                       incorporating the effects of three possible management actions 
-                       (Do nothing: Current conditions of fire and grazing persist, 
-                       Stop fires: Forest fires are fully controlled, Stop grazing: 
-                       Livestock grazing is fully controlled).  A total of 12 scenarios 
-                       were explored, each representing the combined effects of a unique 
-                       climate future and a single management action. For each scenario, 
-                       retaining forest cover in 2030 as a baseline, simulated changes in 
-                       tree cover within evergreen and deciduous forest areas were calculated 
-                       for the years 2050, 2070 and 2100."),
+           p("A layer representing possible expanded tree cover in 2030 
+             (representing successful afforestation to achieve 10 % cover) was 
+             created by adding tree cover to agricultural and savanna areas in 
+             the proximity of existing evergreen and deciduous cover areas. 
+             With this expanded tree cover scenario in 2030 as a baseline, changes 
+             in cover were simulated till the end of the century using climate 
+             projections from four climate scenarios (SSP1, SSP2, SSP3, SSP5) while 
+             incorporating the effects of three levels of fire-related disturbances 
+             (Historic severity: Past frequencies and severity of fires prevail, 
+             Reduced severity: Forest fires are fully controlled, 
+             Increased severity: Fire frequency and burn area are double of 
+             historic rates). A total of 12 scenarios were explored, each 
+             representing the combined effects of climate change and fires. 
+             For each scenario, retaining tree cover in 2030 as a baseline, 
+             simulated changes in tree cover were calculated for the years 2050, 
+             2070 and 2100. Changes in overall tree cover, changes in cover within 
+             newly planted areas (i.e., areas where tree cover was added to achieve 
+             the 2030 baseline cover) and changes within areas with at least 30% 
+             evergreen or deciduous cover are represented."),
            br(),
            hr(),
            tabsetPanel(
@@ -99,18 +102,81 @@ validation_UI <- function(id){
                                              ),
                                            )))),
              tabPanel("Model FAQ", class = "simulations-tab",
-                      h2("FAQ"),
+                      h5("Frequently Asked Questions (FAQs) about L-Range:"),
                       br(),
-                      p(tags$strong("Question 1: "), "This is a place to add some questions."),
-                      p("This is a pace to add some answers."),
+                      strong("1) What is L-Range?"),
+                      br(),
+                      em(
+                        "L-Range is the model that was used to generate the
+                         results for the “Kenya Afforestation Decision Support Tool,
+                         KA-DST”. L-Range is a spatially explicit ecosystem process
+                         model that simulates plant production, plant populations,
+                         competition among plant types, and the flow of nutrients
+                         through an ecosystem. It has been adapted from a global
+                         rangeland model (G-Range), which has its origins in two
+                         other well-established models (i.e., CENTURY and SAVANNA).
+                         L-Range has been adapted to represent trees in Kenya beyond
+                         rangeland ecosystems."
+                      ),
+                      br(),
+                      br(),
+                      strong("2) In this project how is L-Range used?"),
+                      br(),
+                      em("In this work, L-Range is used to simulate tree-cover 
+                         changes in response to past and future climate (e.g., 
+                         maximum and minimum temperature, precipitation), as well 
+                         as under disturbances such as fires (but also can include 
+                         grazing pressure)."),
+                      br(),
+                      br(),
+                      strong("3) What is L-Range's purpose?"),
+                      br(),
+                      tags$ul(
+                        tags$li(tags$em("L-Range is good for getting a sense of 
+                                        the longevity of afforestation efforts 
+                                        that are currently underway")),
+                        tags$li(tags$em("L-Range is good for getting a sense of large-scale 
+                                        ecosystem changes that are underway and 
+                                        could occur during the century, and what 
+                                        those changes could mean for achieving 
+                                        carbon- and biodiversity-related policy 
+                                        goals in the coming decades")),
+                        tags$li(tags$em("L-Range results can be used in their broadest 
+                                        sense to provide a spatially explicit adaptive 
+                                        management tool for seeing where near-term 
+                                        afforestation policy will have longer term persistence."))
+                        
+                      ),
+                      br(),
+                      strong("4) What are some limitations of the L-Range simulations?"),
+                      br(),
+                      tags$ul(
+                        tags$li(tags$em("L-Range does not account for future land-use changes, such as deforestation for agriculture")),
+                        tags$li(tags$em("L-Range cannot accommodate reactive afforestation measures")),
+                        tags$li(tags$em("There may be some aspects of tropical forest dynamics that are unrepresented")),
+                        tags$li(tags$em("L-Range categorizes trees as Evergreen and Deciduous, so species information is absent")),
+                        tags$li(tags$em("In the current model, the temporal and spatial scale may not be suitable for small-scale immediate decision-making")),
+                        tags$li(tags$em("There is no elevation information included in L-Range, so for example, montane ecosystem dynamics might not be well-accommodated"))
+                        
+                      ),
+                      br(),
+                      strong("5) How do L-Range results compare to other scientific results for tree-cover in Kenya?"),
+                      br(),
+                      em("L-Range results broadly reflect theoretical expectations for 
+                         how woody cover will respond to climate change, specifically 
+                         changes in temperature, precipitation, and carbon dioxide 
+                         fertilization. Likewise, L-Range results are consistent with 
+                         other scientific work exploring continental and regional 
+                         projections of tree cover changes under climate change. "),
                       #add button for download report 
                       br(),
-                      tags$strong("For further technical details download the full report"),
-                      downloadButton(outputId = ns("report2"),
-                                     label = "Download Technical Report"),
-                      br(),
-                      em("Report download may take a few seconds"),
-                      hr(),
+                      br()
+                      # tags$strong("For further technical details download the full report"),
+                      # downloadButton(outputId = ns("report2"),
+                      #                label = "Download Technical Report"),
+                      # br(),
+                      # em("Report download may take a few seconds"),
+                      # hr(),
                       
            )
           )
