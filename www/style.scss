@@ -22,6 +22,28 @@ ul#model-eval {
     padding: 1em;
 }
 
+
+/*set up container for footer */
+.container-all {
+  padding: 0px;
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 25rem;
+}
+
+/* edit footer for mobile */
+@media only screen and (max-width: 768px) {
+  .container-all {
+    padding-bottom: 600px !important;
+  }
+  
+  .site-footer {
+    height: 600px !important;
+  }
+
+}
+
+
 /////////////////////// Homepage styling //////////////////////////////////
 
 /////////////////// header (decided to remove) ////////////////////////////
@@ -297,5 +319,63 @@ img.smiley {
   width: 30%;
   /*border-radius: 100%;
   box-shadow: 0px 2px 4px 0px #02020280;*/
+}
+
+
+///////////////////////// footer styling /////////////////////////////////
+
+/* footer styling */
+.site-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color:#2F4F4F;
+  padding:45px 0 20px;
+  font-size:15px;
+  line-height:24px;
+  color:#737373;
+}
+
+div#footer p {
+  color: white;
+}
+
+div#footer h6 {
+  color: white;
+  font-size:16px;
+  text-transform:uppercase;
+  margin-top:5px;
+  letter-spacing:2px
+}
+
+.footer-links a {
+  color: white;
+}
+
+
+.footer-links {
+  padding-left: 0;
+  list-style: none
+}
+
+.footer-links li {
+  display: block;
+}
+
+.footer-links.inline li {
+  display: inline-block;
+}
+
+img.footer-logo {
+  width: 100%;
+  margin: 5px;
+}
+
+img.footer-logo#centroid-logo {
+  width: 60%;
+}
+
+.copyright-text {
+  color: #737373 !important;
 }
 

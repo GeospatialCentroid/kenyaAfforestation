@@ -85,7 +85,9 @@ pal_management <- paletteList$pal_management
 npp_val <- readRDS("appData/validationInputs_npp.RDS")
 carbon_val <- readRDS("appData/validationInputs_carbon.RDS")
 # UI section --------------------------------------------------------------
-ui <- navbarPage(
+ui <- fluidPage(
+  class = "container-all",
+  navbarPage(
     # required as reference for the button selection process. 
     id = "pages",
     theme = bs_theme(version = 5, bootswatch = "minty",
@@ -273,7 +275,9 @@ ui <- navbarPage(
           )
   ),
   validation_UI(id = "val"),
-
+  
+  ),
+  tags$footer(includeHTML("www/footer.html"))
 )
 
 
