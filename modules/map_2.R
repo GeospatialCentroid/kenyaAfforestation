@@ -18,16 +18,16 @@ map2_UI <- function(id, panelName, county_names){
                    # select mapped variable 
                    selectInput(
                      inputId=ns("Layer"),
-                     label=tags$strong("Pick a management scenario to visualize predicted forest cover change:"),
-                     choices = list("No Management Action" = "nothing",  ## this will need to change to match the new dataset convention
-                                    "Decrease Fire Severity" = "less_fire",
-                                    "Increase Fire Severity" = "more_fire"),
+                     label=tags$strong("Pick a disturbance scenario to visualize predicted change in tree cover:"),
+                     choices = list("Historic Fire Severity" = "nothing",  ## this will need to change to match the new dataset convention
+                                    "Decreased Fire Severity" = "less_fire",
+                                    "Increased Fire Severity" = "more_fire"),
                      selected = "nothing"
                    ),
                    hr(),
                    # select County features 
                    selectInput(
-                     inputId=ns("County23"), label=tags$strong("Pick a county to visualize forest cover changes:"),
+                     inputId=ns("County23"), label=tags$strong("Pick a county to visualize change in tree cover:"),
                      choices = county_names, multiple = F,selected = NULL
                    ),
                    #add button to zoom to County
@@ -41,7 +41,8 @@ map2_UI <- function(id, panelName, county_names){
                    # visualize user click
                    tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
                    h6(htmlOutput(ns("pixelVal2"))),
-                   em("You can view historic and baseline (2030) forest cover layers via the map controls"),
+                   em("You can view historic (before afforestation) and 2030 baseline tree cover layers via the map controls")
+                   
       ),
       mainPanel(width = 9,
         leafletOutput(ns("map2")),
@@ -58,6 +59,15 @@ map2_UI <- function(id, panelName, county_names){
                  #p("This plot summarizes the total change in tree cover throughout the county")
             
           )
+        ),
+        fluidRow(
+          align = "center",
+          em("Boxplots summarize change in tree cover relative to the 2030 baseline from repeating simulation scenarios using 13 climate change models,"),
+          hr(),
+          h5("Category Descriptions:"),
+          tags$p(tags$strong("All"), "= Tree cover change across all areas with trees."), 
+          tags$p(tags$strong("New"), "= Tree cover change across all areas with newly planted trees (to achieve 2030 baseline)."),
+          tags$p(tags$strong("Evergreen/Deciduous"), "= Tree cover change in areas with > 30% evergreen or decidious trees.")
         )
       )
     )
@@ -152,8 +162,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       addLayersControl(
         # baseGroups = c("OpenStreetMap", "Light"),
         overlayGroups = c(
-          "Historic Forest Cover",
-          "Baseline Forest Cover",
+          "Historic Tree Cover",
+          "2030 Baseline Tree Cover",
           #"Forest Cover Data",
           "Projected Change",
           "Counties"
@@ -164,8 +174,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         hideGroup(
           group = c(
             #"Forest Cover Data",
-            "Historic Forest Cover",
-            "Baseline Forest Cover"))
+            "Historic Tree Cover",
+            "2030 Baseline Tree Cover"))
 
     })
     
@@ -181,13 +191,13 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         # add historic raster -----------------------------------------------------
       addRasterImage(hist1,
                      colors = pal1$hf$palette,
-                     group = "Historic Forest Cover",
+                     group = "Historic Tree Cover",
                      opacity = 1,
                      project = FALSE) %>%
         # add baseline raster features -----------------------------------------------------
       addRasterImage(base1,
                      colors = pal1$ef$palette,
-                     group = "Baseline Forest Cover",
+                     group = "2030 Baseline Tree Cover",
                      opacity = 1,
                      project = FALSE) %>%
         # add percent change layer ------------------------------------------------
@@ -221,17 +231,18 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       leafletProxy("map2") %>%
         removeControl(layerId = "sharedLegend")
 
-      if ('Historic Forest Cover' %in% input$map2_groups | 'Baseline Forest Cover' %in% input$map2_groups){
+      if ('Historic Tree Cover' %in% input$map2_groups | '2030 Baseline Tree Cover' %in% input$map2_groups){
         leafletProxy("map2") %>%
           addLegend_decreasing(
             "topright",
             pal = pal1$ef$palette,
             values = pal1$ef$values,
-            title = "Forest Cover(%)",
+            title = "Tree Cover(%)",
             #   labels = c("Low Change", "", "", "", "High Change"),
             opacity = 0.8,
             layerId = "sharedLegend",
-            decreasing = TRUE
+            decreasing = TRUE,
+            bins = 5
           )
 
       }
@@ -275,9 +286,9 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         round(digits = 2)
       
       
-      output$pixelVal2 <- renderText(paste0("Baseline Forest Cover:",
+      output$pixelVal2 <- renderText(paste0("Baseline Tree Cover:",
                                       "<b>", as.character(extractVal1), "</b>","%", "<br>",
-                                      "Projected Change in Forested Area:",
+                                      "Projected Change in Tree Cover:",
                                       "<b>", as.character(extractVal2),"</b>","%"))
     })
   
@@ -326,7 +337,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
 
     p1 <-  reactive({plot_ly(data = df2(), y = ~value, x = ~Year, type = "box",
                    color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
-        layout(yaxis = list(title = "<b>% Change</b>"
+        layout(yaxis = list(title = "<b>Relative Change in Tree Cover (%)</b>"
                             #range = range()
                             ),
                xaxis = list(title = "", tickfont = list(size = 16), side = "top"),
@@ -338,7 +349,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     p2 <- reactive({
         plot_ly(data = df3_a(), y = ~value, x = ~Year, type = "box",
                 color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
-          layout(yaxis = list(title = "<b>% Change</b>" 
+          layout(yaxis = list(title = "<b>Relative Change in Tree Cover (%)</b>" 
                               #range = range()
                               ),
                  xaxis = list(title = "", tickfont = list(size = 16), side = "top"),
@@ -408,6 +419,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
             projection = proj_report,
             decid = decid_report,
             ever = ever_report,
+            historic = histRaster,
+            baseline = futureRaster,
             population = population,
             ecosystem_data = ecosystem_data
           ),

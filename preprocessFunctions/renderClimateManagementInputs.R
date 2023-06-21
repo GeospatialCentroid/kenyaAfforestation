@@ -15,7 +15,7 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
   
   
   # single file with project 2030 forest cover 
-  expandedForest <- raster(f1[grepl(pattern = "expanded", f1)])
+  expandedForest <- raster(f1[grepl(pattern = "baseline", f1)])
   expandedForest <- projClipCrop(raster = expandedForest, county = county, countyBuff = countyBuff)
   
   

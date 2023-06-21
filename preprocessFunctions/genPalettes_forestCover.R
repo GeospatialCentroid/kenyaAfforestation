@@ -22,7 +22,7 @@ genPalettes_forestCover <- function(data){
   names(pals) <- c("nothing","less_fire","more_fire", "hf", "ef")
   
   #historic forest cover palette
-  pals[["hf"]]$palette <- colorNumeric(c("#edf8fb","#b2e2e2","#66c2a4","#2ca25f","#006d2c"), values(histForest),
+  pals[["hf"]]$palette <- colorNumeric(c("#edf8fb","#b2e2e2","#66c2a4","#2ca25f","#006d2c"), c(0, max(values(histForest), na.rm = TRUE)),
                                        na.color = "transparent")
   
   pals[["hf"]]$title <- "Historic Forest Cover (%)"

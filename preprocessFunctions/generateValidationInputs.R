@@ -25,10 +25,10 @@ nppVals <- function(path, county, countyBuff){
   
   # generate Palette features 
   ## set up palette info for maps
-  colorNPP_dif <-  c(colorRampPalette(colors = c("#ca0020", "#f4a582", "white"),space = "Lab")(abs(min(values(npp_val$npp_dif), na.rm = TRUE))),
-                  colorRampPalette(colors = c("white", "#92c5de","#0571b0" ),space = "Lab")(max(values(npp_val$npp_dif), na.rm = TRUE)))
-  
-  npp_dif_pal <- colorNumeric(palette = colorNPP_dif, values(npp_val$npp_dif),
+  # colorNPP_dif <-  c(colorRampPalette(colors = c("#ca0020", "white"),space = "Lab")(abs(min(values(npp_val$npp_dif), na.rm = TRUE))),
+  #                 colorRampPalette(colors = c("white","#0571b0" ),space = "Lab")(max(values(npp_val$npp_dif), na.rm = TRUE)))
+  # 
+  npp_dif_pal <- colorNumeric(palette = "RdBu", c(-1.9, 1.9),
                               na.color = "transparent")
   
   npp_dif_values <- values(npp_val$npp_dif)
