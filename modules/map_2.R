@@ -419,6 +419,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
             projection = proj_report,
             decid = decid_report,
             ever = ever_report,
+            historic = histRaster,
+            baseline = futureRaster,
             population = population,
             ecosystem_data = ecosystem_data
           ),

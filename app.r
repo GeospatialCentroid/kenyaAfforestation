@@ -47,7 +47,9 @@ panelNames <-
 projection <- readRDS("reports/projection.rds")
 decid<- terra::rast("reports/decid_final.asc")
 ever<- terra::rast("reports/egreen_final.asc")
-population <- readRDS("reports/pop_change_50.rds")
+population <- list("pop_change_50" = readRDS("reports/pop_change_50.rds"),
+                   "pop_change_70" = readRDS("reports/pop_change_70.rds"),
+                   "pop_change_100" = readRDS("reports/pop_change_100.rds"))
 load("reports/ecosystem_data.RData")
 
 # Climate Change Page -----------------------------------------------------
