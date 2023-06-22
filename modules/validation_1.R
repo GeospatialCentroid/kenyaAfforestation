@@ -39,11 +39,16 @@ validation_UI <- function(id){
                                                           tags$ul(
                                                             tags$li("L-Range simulations were conducted using 
                                                                    historical climate data for the years 1995-2014."), 
-                                                            tags$li("Fire was represented using ESA CCI historical 
-                                                                   fire data summarized to represent mean annual frequency of fire."), 
+                                                            tags$li("Fire was represented using", 
+                                                                    tags$a(href = "https://developers.google.com/earth-engine/datasets/catalog/ESA_CCI_FireCCI_5_1",
+                                                                           "ESA CCI historical 
+                                                                   fire data", target = "_blank"),
+                                                                   "summarized to represent mean annual frequency of fire."), 
                                                             tags$li("Estimates of Annual Net Primary Productivity (NPP) for the years 
                                                                    2000-2014 from L-Range were compared against estimates of observed 
-                                                                   Annual NPP from MODIS for the same period."),
+                                                                   Annual NPP from",
+                                                                   tags$a(href = "https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD17A3HGF#bands", "MODIS", target="_blank"),
+                                                                   "for the same period."),
                                                             tags$li("Estimates are shown only for areas dominated 
                                                                    by natural vegetation (trees, shrubs, grasses).")
                                                           ),
@@ -70,8 +75,10 @@ validation_UI <- function(id){
                                                           h5("Map layer descriptions:"),
                                                              tags$ul(
                                                                tags$li(tags$strong("Mean Difference"), HTML(paste0("= The mean difference in ", "<b>", " above ground live carbon ",
-                                                                                                                   "</b>", "for the year 2010 between L-Range estimates and a validation dataset (Spawn et al., 2020). 
-                                                                The units are Mg/ha. (Megagrams per hectare)"))), 
+                                                                                                                   "</b>", "for the year 2010 between L-Range estimates and a validation dataset ",
+                                                                                                                   tags$a(href="https://developers.google.com/earth-engine/datasets/catalog/NASA_ORNL_biomass_carbon_density_v1",
+                                                                                                                          "(Spawn et al., 2020).", target = "_blank"),
+                                                                " The units are Mg/ha. (Megagrams per hectare)"))), 
                                                                tags$li(tags$strong("Reference"), HTML(paste0(" = the mean", "<b>", " above ground live carbon ", "</b>", "dataset based on Spawn et al 2020. 
                                                                                                              (i.e., the observed dataset against which change was calculated)")))
                                                              ),
@@ -91,8 +98,10 @@ validation_UI <- function(id){
                                                           h5("Map layer descriptions:"),
                                                              tags$ul(
                                                                tags$li(tags$strong("Mean Difference"), HTML(paste0("= The mean difference in ", "<b>", " below ground live carbon ",
-                                                                                                                   "</b>", "for the year 2010 between L-Range estimates and a validation dataset (Spawn et al., 2020). 
-                                                                The units are Mg/ha. (Megagrams per hectare)"))), 
+                                                                                                                   "</b>", "for the year 2010 between L-Range estimates and a validation dataset ",
+                                                                                                                   tags$a(href="https://developers.google.com/earth-engine/datasets/catalog/NASA_ORNL_biomass_carbon_density_v1",
+                                                                                                                          "(Spawn et al., 2020).", target = "_blank"),
+                                                                                                                   " The units are Mg/ha. (Megagrams per hectare)"))), 
                                                                tags$li(tags$strong("Reference"), HTML(paste0(" = the mean", "<b>", " below ground live carbon ", "</b>", "dataset based on Spawn et al 2020. 
                                                                                                              (i.e., the observed dataset against which change was calculated)")))
                                                              ),

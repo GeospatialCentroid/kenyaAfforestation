@@ -12,6 +12,7 @@ library(purrr)
 library(raster)
 library(rgdal)
 library(leaflet.extras)
+library(leaflegend)
 library(plotly)
 library(rmarkdown)
 library(tmap)
@@ -187,7 +188,7 @@ ui <- fluidPage(
                    strong(tags$a(href = "https://gis.colostate.edu/", "Geospatial Centroid", target = "_blank")),
                    p(tags$a(href = "https://caitlinmothes.com/", "Dr. Caitlin Mothes", target = "_blank"),
                      br(),
-                     "Dan Carver")
+                     tags$a(href = "https://carverd.com/", "Dan Carver", target = "_blank"))
             )
             
           )
@@ -316,7 +317,7 @@ server <- function(input, output, session) {
               decid_report = decid,
               ever_report = ever,
               proj_report = projection,
-              population = population,
+              pop_report = population,
               ecosystem_data = ecosystem_data)
   # ssp245 data -------------------------------------------------------------
   map_server(id = "ssp245",
@@ -339,7 +340,7 @@ server <- function(input, output, session) {
               decid_report = decid,
               ever_report = ever,
               proj_report = projection,
-              population = population,
+              pop_report = population,
               ecosystem_data = ecosystem_data)  
   # ssp370 data -------------------------------------------------------------
   map_server(id = "ssp370",
@@ -362,7 +363,7 @@ server <- function(input, output, session) {
               decid_report = decid,
               ever_report = ever,
               proj_report = projection,
-              population = population,
+              pop_report = population,
               ecosystem_data = ecosystem_data)  
   
   # ssp585 data ------------------------------------------------------------
@@ -386,7 +387,7 @@ server <- function(input, output, session) {
               decid_report = decid,
               ever_report = ever,
               proj_report = projection,
-              population = population,
+              pop_report = population,
               ecosystem_data = ecosystem_data)
   
   # validation maps ------------------------------------------------------
