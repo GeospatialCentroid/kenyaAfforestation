@@ -26,6 +26,7 @@ validation_UI <- function(id){
              the 2030 baseline cover) and changes within areas with at least 30% 
              evergreen or deciduous cover are represented."),
            br(),
+           tags$h5("For further technical details download the full report", tags$a(class = "report-link", href="Tech_report_KADST.pdf", "here.", download=NA, target="_blank")),
            hr(),
            tabsetPanel(
              tabPanel("Model Validation", class = "validation-tab",
@@ -177,7 +178,6 @@ validation_UI <- function(id){
                          fertilization. Likewise, L-Range results are consistent with 
                          other scientific work exploring continental and regional 
                          projections of tree cover changes under climate change. "),
-                      #add button for download report 
                       br(),
                       br()
                       # tags$strong("For further technical details download the full report"),
