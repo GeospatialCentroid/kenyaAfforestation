@@ -43,7 +43,7 @@ ever_prj <- terra::project(ever_report, county_select) #%>%
 
 ```
 
-# Summary Report for `r params$county_name` County for the year `r paste0("20", params$time)`
+# Summary Report for `r params$county_name` County for the year `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))`
 
 ---
 
@@ -106,7 +106,7 @@ The maps only show an approximate distribution of tree cover in the county, sinc
 
 ## Historic and 2030 baseline tree cover
 
-The maps below show historic and 2030 baseline tree cover and the change between the two for `r params$county_name` for the year `r paste0("20", params$time)`
+The maps below show historic and 2030 baseline tree cover and the change between the two for `r params$county_name` for the year `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))`
 
 ```{r, out.width="100%", fig.height= 6, fig.show='hold', fig.align='left'}
 forest_change <- params$baseline - params$historic
@@ -178,7 +178,7 @@ tmap_arrange(h,b,c, ncol = 2, nrow = 2)
 
 Climate change is impacting forest cover globally both directly through rising temperatures, and indirectly by increasing the frequency and intensity of forest fires and droughts. These factors may operate in concert, where forests in some regions experience higher temperatures,droughts,and more frequent fires concurrently. Future climate changes are modeled by considering several story lines that illustrate the direction of economic growth and social changes within national and trans-national contexts. These story lines are called Shared Socioeconomic Pathways (SSPs). While the intensity of future climate changes will be a function of global green house gas emissions, it is useful to understand how disturbance can mitigate the impacts of climate change on tree cover under different climate change scenarios.
 
-How does tree cover extent in `r params$county_name` County change by the year `r paste0("20", params$time)` under scenarios of climate change and natural fire disturbance:
+How does tree cover extent in `r params$county_name` County change by the year `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))` under scenarios of climate change and natural fire disturbance:
 
 ```{r forest_change}
 
@@ -188,7 +188,7 @@ reps <- params$county_vals
 
 clim_manage <- map(reps,
                    ~ .x %>%
-                     filter(County == params$county_name, Year == paste0("20", params$time), Areas == "All")) %>%
+                     filter(County == params$county_name, Year == if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time)), Areas == "All")) %>%
   bind_rows(.id = "scenario") %>%
   separate(scenario, "_", into = c("scenario", "management")) %>%
   mutate(
@@ -224,7 +224,7 @@ ggplot(data = clim_manage, aes(x = scenario, y = value, fill = management)) +
 
 ## Human population change
 
-Human populations will continue to increase into the future. The story lines (SSPs) that dictate the rate of future emissions and climate change also provide details on how and where human populations are likely to change. Changes in urban and rural populations within the context of these story lines can provide insights into the intensity of anthropogenic impacts (deforestation, charcoal production) that forests are likely to experience. The plots below show projected changes in rural and urban population for `r params$county_name` County in the year `r paste0("20", params$time)`.
+Human populations will continue to increase into the future. The story lines (SSPs) that dictate the rate of future emissions and climate change also provide details on how and where human populations are likely to change. Changes in urban and rural populations within the context of these story lines can provide insights into the intensity of anthropogenic impacts (deforestation, charcoal production) that forests are likely to experience. The plots below show projected changes in rural and urban population for `r params$county_name` County in the year `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))`.
 
 ```{r pop_change}
 # supset population for selected year
@@ -263,7 +263,7 @@ The plot above shows that in an SSP2 and SSP3 world, there is significant increa
 
 Areas with tree cover provide several ecosystem services key among which is the mitigation of climate change though the sequestration of carbon in standing biomass (trees) as well as in the soil.
 
-How do overall aboveground biomass and soil organic carbon change as forest cover changes in the absence of any mitigation efforts in `r params$county_name` county in `r paste0("20", params$time)`?
+How do overall aboveground biomass and soil organic carbon change as forest cover changes in the absence of any mitigation efforts in `r params$county_name` county in `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))`?
 
 ```{r eco_services}
 ### Above ground live biomass
@@ -278,7 +278,7 @@ How do overall aboveground biomass and soil organic carbon change as forest cove
 ecosystem_data <- params$ecosystem_data
 
 carbonseq <- map_df(ecosystem_data,  ~ .x$county_change_df %>% 
-    filter(County == params$county_name, name == paste0("20", params$time), areas == "All") %>% 
+    filter(County == params$county_name, name == if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time)), areas == "All") %>% 
    group_by(areas) %>% summarize(change = mean(value))
 ) %>% 
   mutate(scenario = names(ecosystem_data)) %>% 
