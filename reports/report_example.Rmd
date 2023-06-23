@@ -43,7 +43,11 @@ ever_prj <- terra::project(ever_report, county_select) #%>%
 
 ```
 
-# Summary Report for `r params$county_name` County for the year `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))`
+\begin{center}
+
+\section{Summary Report for `r params$county_name` County for the year `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))`}
+
+\end{center}
 
 ---
 
@@ -108,7 +112,7 @@ The maps only show an approximate distribution of tree cover in the county, sinc
 
 The maps below show historic and 2030 baseline tree cover and the change between the two for `r params$county_name` for the year `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))`
 
-```{r, out.width="100%", fig.height= 6, fig.show='hold', fig.align='left'}
+```{r, out.width="100%", fig.height= 7, fig.show='hold', fig.align='left'}
 forest_change <- params$baseline - params$historic
 
 
