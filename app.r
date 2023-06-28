@@ -97,7 +97,7 @@ ui <- fluidPage(
     bslib::bs_add_rules(sass::sass_file("www/style.scss")),
 
   # the text that appears next to the pages
-  title =  "Kenya Afforestation Decision Support Tool",
+  title =  HTML("Kenya Afforestation Decision Support Tool <em class = beta-text> Beta Version </em>"),
   # the text in the browser tab
   windowTitle = "Kenya Afforestation Application",
   # means of applying data to all pages -- could be useful in footer section
