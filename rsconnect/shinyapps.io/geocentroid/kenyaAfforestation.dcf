@@ -11,4 +11,4 @@ when: 1687931613.35252
 lastSyncTime: 1687931613.35253
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: 0_generateInputs.R|KenyaAppUpdates11223.docx|README.md|report-RekhaOriginal.Rmd|testApp.R|user_guide.rmd|dataToPreprocess|preprocessFunctions
+ignoredFiles: 0_generateInputs.R|README.md|report-RekhaOriginal.Rmd|report_example.html|report_example.Rmd|report_example.zip|testApp.R|user_guide.rmd|dataToPreprocess|preprocessFunctions|report_example

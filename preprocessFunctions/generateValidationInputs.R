@@ -19,7 +19,7 @@ nppVals <- function(path, county, countyBuff){
   # read in and crop data
   npp_val <- readRDS(path) %>% 
     raster::stack() %>% 
-    projClipCrop(county, countyBuff)
+    projClipCropVal(county, countyBuff)
   # alter names of features 
   names(npp_val) <- c("npp_dif", "npp_ref")
   
@@ -61,7 +61,7 @@ carbonVals <- function(path1, path2, county, countyBuff ){
   # read in and crop above ground layers 
   cAbove_val <- readRDS(path1) %>% 
     raster::stack() %>% 
-    projClipCrop(county, countyBuff)
+    projClipCropVal(county, countyBuff)
   # alter names of features 
   names(cAbove_val) <- c("cAbove_dif", "cAbove_ref")
   
@@ -87,7 +87,7 @@ carbonVals <- function(path1, path2, county, countyBuff ){
   # read in and crop above ground layers 
   cBelow_val <- readRDS(path2) %>% 
     raster::stack() %>% 
-    projClipCrop(county, countyBuff)
+    projClipCropVal(county, countyBuff)
   # alter names of features 
   names(cBelow_val) <- c("cBelow_dif", "cBelow_ref")
   

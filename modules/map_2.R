@@ -79,7 +79,7 @@ map2_UI <- function(id, panelName, county_names){
 map2_server <- function(id, histRaster, futureRaster, managementRasters, 
                         countryDF,countyDF, pal1, countyFeat, ssp,
                         decid_report, ever_report, proj_report,
-                        population, ecosystem_data
+                        pop_report, ecosystem_data
                         # ssp, will need to add once all data is present. 
                         ){
   moduleServer(id,function(input,output,session){
@@ -337,7 +337,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
 
     p1 <-  reactive({plot_ly(data = df2(), y = ~value, x = ~Year, type = "box",
                    color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
-        layout(yaxis = list(title = "<b>Relative Change in Tree Cover (%)</b>"
+        layout(yaxis = list(title = "<b>Relative Change in Tree Cover (%)</b>",
+                            hoverformat = ".2f"
                             #range = range()
                             ),
                xaxis = list(title = "", tickfont = list(size = 16), side = "top"),
@@ -349,7 +350,8 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     p2 <- reactive({
         plot_ly(data = df3_a(), y = ~value, x = ~Year, type = "box",
                 color = ~Areas, name = ~Areas, colors = forest_pal) %>% 
-          layout(yaxis = list(title = "<b>Relative Change in Tree Cover (%)</b>" 
+          layout(yaxis = list(title = "<b>Relative Change in Tree Cover (%)</b>",
+                              hoverformat = ".2f"
                               #range = range()
                               ),
                  xaxis = list(title = "", tickfont = list(size = 16), side = "top"),
@@ -421,7 +423,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
             ever = ever_report,
             historic = histRaster,
             baseline = futureRaster,
-            population = population,
+            population = pop_report,
             ecosystem_data = ecosystem_data
           ),
           envir = new.env(parent = globalenv()),

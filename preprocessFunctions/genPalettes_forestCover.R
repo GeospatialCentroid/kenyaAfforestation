@@ -49,7 +49,7 @@ genPalettes_forestCover <- function(data){
                                             na.color = "transparent")
   
   
-  pals[["nothing"]]$title <- "Change in % Forest Area </br> No Management Action"
+  pals[["nothing"]]$title <- "Change in % Forest Area </br> Historic Fire"
   
   pals[["nothing"]]$values <- as.numeric(values(nothingStack))
   
@@ -62,7 +62,7 @@ genPalettes_forestCover <- function(data){
   pals[["less_fire"]]$palette <- colorNumeric(palette = colorForest, as.numeric(values(fireStack)),
                                          na.color = "transparent")
   
-  pals[["less_fire"]]$title <- "Change in % Forest Area </br> Decrease Fire"
+  pals[["less_fire"]]$title <- "Change in % Forest Area </br> Decreased Fire"
   
   pals[["less_fire"]]$values <- as.numeric(values(fireStack))
   
@@ -75,7 +75,7 @@ genPalettes_forestCover <- function(data){
   pals[["more_fire"]]$palette <- colorNumeric(palette = colorForest, as.numeric(values(doubleFireStack)),
                                          na.color = "transparent")
   
-  pals[["more_fire"]]$title <- "Change in % Forest Area </br> Increase fire"
+  pals[["more_fire"]]$title <- "Change in % Forest Area </br> Increased fire"
   
   pals[["more_fire"]]$values <- as.numeric(values(doubleFireStack))
   

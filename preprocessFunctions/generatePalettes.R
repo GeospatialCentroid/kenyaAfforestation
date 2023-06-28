@@ -49,7 +49,7 @@ generatePalettes <- function(rasters, type){
                   colorRampPalette(colors = c("#faf8d4", "#042163"),space = "Lab")(max(values(pr_rast), na.rm = TRUE)))
     
     
-    pals[["pr"]]$palette <-  colorNumeric(palette = colorPr, values(pr_rast),
+    pals[["pr"]]$palette <-  colorNumeric(palette = "Blues", values(pr_rast),
                                           na.color = "transparent")
     
     pals[["pr"]]$title <- "Percent Change in Annual </br> Precipitation (mm)"
