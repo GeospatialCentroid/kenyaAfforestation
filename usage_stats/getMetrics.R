@@ -57,11 +57,13 @@ usage_hours %>%
     dates <<- unique(.$date)
     .
   } %>% 
-  ggplot(aes(x = date, y = hours))+
-  geom_bar(stat = "identity") +
+  ggplot(aes(x = date, y = hours, fill = factor(ifelse(date %in% c("06/27", "06/28"), "workshop", "other"))))+
+  geom_bar(stat = "identity", width = 0.85) +
   scale_x_discrete(breaks = dates[seq(1, length(dates), 3)])+
+  scale_fill_manual(name = "date", values = c("grey50", "red"))+
   theme_minimal()+
   labs(y = "Total Hours")+
   theme(axis.text.x = element_text(angle = 45),
         axis.title.x = element_blank(),
-        plot.margin = margin(t = 0, r = 0.5, b = 0, l = 0.5, unit = "cm"))
+        plot.margin = margin(t = 0, r = 0.5, b = 0, l = 0.5, unit = "cm"),
+        legend.position = "none")
