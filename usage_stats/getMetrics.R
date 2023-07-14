@@ -3,7 +3,7 @@ library(tidyverse)
 
 #note, had to install dev version of rsconnect for metrics to work
 # install.packages("devtools")
-devtools::install_github("rstudio/rsconnect")
+#devtools::install_github("rstudio/rsconnect")
 library(rsconnect)
 
 # CPU usage in user space in nanosections
@@ -32,14 +32,36 @@ usage %>%
 account_use <- rsconnect::accountUsage('geocentroid', from = '120d', interval = '30d')
   
 
-
+# get hourly usage 
 kenya_use <- showUsage(appName="kenyaAfforestation", 
                     account="geocentroid", usageType="hours", 
-                    from="90d", 
+                    from="60d", 
                     interval="1h")
 
-kenya_use %>% 
+usage_hours <- kenya_use %>% 
   as_tibble() %>% 
-  mutate(time = as_datetime(timestamp)) %>% 
-  ggplot(aes(x = time, y = hours))+
-  geom_bar(stat = "identity")
+  mutate(time = as_datetime(timestamp)) %>%
+  #separate out day and time
+  separate(time, into = c("date", "time"), sep = " ") %>% 
+  #sum hours per day
+  group_by(date) %>% 
+  summarise(hours = sum(hours))
+
+write_csv(usage_hours, "usage_stats/kadst_usage_051523_071423.csv")
+  
+
+usage_hours %>% 
+  mutate(date = as.Date(date),
+         date = format(date, "%m/%d")) %>%
+  {
+    dates <<- unique(.$date)
+    .
+  } %>% 
+  ggplot(aes(x = date, y = hours))+
+  geom_bar(stat = "identity") +
+  scale_x_discrete(breaks = dates[seq(1, length(dates), 3)])+
+  theme_minimal()+
+  labs(y = "Total Hours")+
+  theme(axis.text.x = element_text(angle = 45),
+        axis.title.x = element_blank(),
+        plot.margin = margin(t = 0, r = 0.5, b = 0, l = 0.5, unit = "cm"))
