@@ -103,6 +103,9 @@ ui <- fluidPage(
   # means of applying data to all pages -- could be useful in footer section
   # header = h5("This content appears at the top of every page "),
   # footer = "This content appears at the bottom of every page",
+  
+  #embed google analytics script
+  tags$head(includeHTML("google-analytics.html")),
 
   ## Home page --------------------------------------------------------------- 
   tabPanel(title = "Home",
