@@ -23,6 +23,22 @@ ul#model-eval {
 }
 
 
+
+/* Leaflet styling */
+
+.leaflet-container {
+    font: 14px/1.5 var(--bs-font-sans-serif) !important;
+}
+
+.leaflet-control-layers {
+  margin-bottom: 20% !important;
+}
+
+input[type="checkbox" i] {
+   background-color: red !important;
+}
+    
+
 /*set up container for footer */
 .container-all {
   padding: 0px;

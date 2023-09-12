@@ -75,16 +75,15 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           setView(lng = 37.826119933082545
                   , lat = 0.3347526538983459
                   , zoom = 6) %>%
-          # add z levels ------------------------------------------------------------
-        addMapPane("BaseMap", zIndex = 410) %>%
-        addMapPane("HistoricData", zIndex = 420) %>%
-        addMapPane("ProjectedData", zIndex = 430) %>%
-        addMapPane("PercentChange", zIndex = 440) %>%
-        addMapPane("Counties", zIndex = 450) %>%
+          # add z levels (doesn't work for rasters) ------------------------------------------------------------
+        # addMapPane("BaseMap", zIndex = 410) %>%
+        # addMapPane("HistoricData", zIndex = 420) %>%
+        # addMapPane("ProjectedData", zIndex = 430) %>%
+        # addMapPane("PercentChange", zIndex = 440) %>%
+        # addMapPane("Counties", zIndex = 450) %>%
         # tile providers ----------------------------------------------------------
         # addProviderTiles("Stamen.Toner", group = "Light", options = pathOptions(pane = "BaseMap")) %>%
         addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
-          #leaflet.extras::addResetMapButton() %>%
           # add county features -----------------------------------------------------
         addPolygons(
           data = countyFeat,
@@ -94,7 +93,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           layerId = ~ ADMIN1,
           weight = 1.5,
           group = "Counties",
-          options = pathOptions(pane = "Counties"),
+          # options = pathOptions(pane = "Counties"),
           # add hover over lables 
           label= ~ ADMIN1,
           labelOptions = labelOptions(noHide = F,
@@ -121,18 +120,20 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
             decreasing = TRUE
           ) %>% 
         # add control groups ------------------------------------------------------
-        addLayersControl(
-          # baseGroups = c("OpenStreetMap", "Light"),
-          overlayGroups = c(
-            "Historic Data",
-            "Projected Data",
-            "Percent Change",
-            "Counties"
-          ),
-          position = "topleft",
-          options = layersControlOptions(collapsed = TRUE)
-        )   %>%         # Keep projected layer off by default
-        hideGroup("Percent Change")
+      addLayersControl(
+        #baseGroups = c("OpenStreetMap", "Satellite"),
+        overlayGroups = c(
+          "Historic Data",
+          "Projected Data",
+          "Percent Change",
+          "Counties",
+          "Satellite"
+        ),
+        position = "bottomleft",
+       options = layersControlOptions(collapsed = FALSE),
+      ) %>% 
+        hideGroup(group = c("Percent Change", "Satellite"))
+      
 
       })
       
@@ -143,6 +144,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
       # add rasters to proxy map
       observe({
         leafletProxy("map1") %>%
+        addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
           # add historic raster -----------------------------------------------------
         addRasterImage(r0(),
                        #colors = pal0(),
@@ -168,7 +170,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           opacity = 1,
           project = FALSE
         )
-        
+
       })
           
          

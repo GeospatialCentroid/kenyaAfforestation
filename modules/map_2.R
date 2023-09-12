@@ -166,16 +166,18 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
           "2030 Baseline Tree Cover",
           #"Forest Cover Data",
           "Projected Change",
-          "Counties"
+          "Counties",
+          "Satellite"
         ),
-        position = "topleft",
-        options = layersControlOptions(collapsed = TRUE)
+        position = "bottomleft",
+        options = layersControlOptions(collapsed = FALSE)
       ) %>% 
         hideGroup(
           group = c(
             #"Forest Cover Data",
             "Historic Tree Cover",
-            "2030 Baseline Tree Cover"))
+            "2030 Baseline Tree Cover",
+            "Satellite"))
 
     })
     
@@ -187,7 +189,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     observe({
 
       leafletProxy("map2") %>% 
-        #removeImage(layerId = "change") %>% 
+      addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%        
         # add historic raster -----------------------------------------------------
       addRasterImage(hist1,
                      colors = pal1$hf$palette,
