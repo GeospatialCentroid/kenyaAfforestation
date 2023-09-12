@@ -1,0 +1,313 @@
+---
+title: "Kenya Afforestation Decision Support Tool: Draft Report"
+output: pdf_document
+date: "Report generated on `r Sys.Date()` from https://geocentroid.shinyapps.io/kenyaAfforestation"
+params:
+  county_shape: NA
+  county_name: NA
+  time: NA
+  table: NA
+  county_vals: NA
+  projection: NA
+  decid: NA
+  ever: NA
+  historic: NA
+  baseline: NA
+  population: NA
+  ecosystem_data: NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r data}
+##Load base forest cover datasets
+#proj <- params$projection
+
+##Isolate county 
+county_shape <- params$county_shape
+county_select<-county_shape[county_shape$ADMIN1 == params$county_name,]
+
+decid_report <- params$decid
+terra::crs(decid_report) <- as.character(params$projection)
+decid_prj <- terra::project(decid_report, county_select) #%>% 
+  # terra::crop(county_select, snap = "out") %>% 
+  # terra::mask(county_select)
+
+ever_report <- params$ever
+terra::crs(ever_report) <- as.character(params$projection)
+ever_prj <- terra::project(ever_report, county_select) #%>% 
+  # terra::crop(county_select, snap = "out") %>% 
+  # terra::mask(county_select)
+
+```
+
+\begin{center}
+
+\section{Summary Report for `r params$county_name` County for the year `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))`}
+
+\end{center}
+
+---
+
+\
+\
+\
+
+```{r forest_summaries}
+
+decid_county<-sum((terra::extract(decid_prj, county_select))[[2]])
+ever_county<-sum((terra::extract(ever_prj, county_select))[[2]])
+
+tot_forest<-round(decid_county+ever_county, 0)
+```
+
+`r params$county_name` County has a total tree cover of **`r tot_forest` km^2^**. The figure below shows the distribution of deciduous and evergreen tree cover in the county based on the Global 1-km Consensus Landcover dataset (Tuanmu and Jetz, 2014) which represents land-cover in the year 2005.
+
+```{r, out.width="100%", fig.height=4, fig.show='hold', fig.align='center'}
+
+# use tmap instead
+p1 <- tm_shape(decid_prj, bbox = county_select) +
+  tm_raster(palette = "Greens",
+            style = "cont",
+            title = "% Cover") +
+  tm_shape(county_shape) +
+  tm_borders() +
+  tm_layout(
+    legend.outside = TRUE,
+    frame = FALSE,
+    main.title = "Decidious Forest",
+    main.title.position = "left",
+    main.title.size = 1,
+    main.title.fontface = "bold",
+    outer.margins = c(0, 0, 0, 0)
+  )
+
+p2 <- tm_shape(ever_prj, bbox = county_select) +
+  tm_raster(palette = "Greens",
+            style = "cont",
+            title = "% Cover") +
+  tm_shape(county_shape) +
+  tm_borders() +
+  tm_layout(
+    legend.outside = TRUE,
+    frame = FALSE,
+    main.title = "Evergreen Forest",
+    main.title.position = "left",
+    main.title.size = 1,
+    main.title.fontface = "bold",
+    outer.margins = c(0, 0, 0, 0)
+  )
+
+tmap_arrange(p1, p2)
+
+```
+
+The maps only show an approximate distribution of tree cover, since patches of needle-leaf and mixed forests which are not part of L-Range simulations are not shown. Consequently, the total tree cover calculated for the county may be an underestimate.
+
+\newpage
+
+## Historic and 2030 baseline tree cover
+
+The maps below show historic and 2030 baseline tree cover and the change between the two for `r params$county_name` for the year `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))`
+
+```{r, out.width="100%", fig.height= 7, fig.show='hold', fig.align='left'}
+forest_change <- params$baseline - params$historic
+
+
+h <- tm_shape(params$historic, bbox = county_select) +
+  tm_raster(palette = "Greens",
+            style = "cont",
+            title = "% Cover") +
+  tm_shape(county_shape) +
+  tm_borders() +
+  tm_layout(
+    legend.outside = TRUE,
+    frame = FALSE,
+    main.title = "Historic Tree Cover",
+    main.title.position = "left",
+    main.title.size = 1,
+    main.title.fontface = "bold",
+    outer.margins = c(0, 0, 0, 0)
+  )
+
+
+b <- tm_shape(params$baseline, bbox = county_select) +
+  tm_raster(palette = "Greens",
+            style = "cont",
+            title = "% Cover") +
+  tm_shape(county_shape) +
+  tm_borders() +
+  tm_layout(
+    legend.outside = TRUE,
+    frame = FALSE,
+    main.title = "2030 Baseline Tree Cover",
+    main.title.position = "left",
+    main.title.size = 1,
+    main.title.fontface = "bold",
+    outer.margins = c(0, 0, 0, 0)
+  )
+
+
+c <- tm_shape(forest_change, bbox = county_select) +
+  tm_raster(palette = "BrBG",
+            style = "cont",
+            title = "% Cover",
+            legend.reverse = T) +
+  tm_shape(county_shape) +
+  tm_borders() +
+  tm_layout(
+    legend.outside = TRUE,
+    frame = FALSE,
+    main.title = "Tree Cover Change",
+    main.title.position = "left",
+    main.title.size = 1,
+    main.title.fontface = "bold",
+    outer.margins = c(0, 0, 0, 0)
+  )
+
+tmap_arrange(h,b,c, ncol = 2, nrow = 2)
+
+
+```
+
+
+
+
+
+\newpage
+
+## Tree cover change under future climate and disturbance scenarios
+
+Climate change is impacting tree cover globally both directly through rising temperatures, and indirectly through increases in forest fires and droughts. These factors may operate in concert, where tree cover in some regions experience higher temperatures,droughts,and more frequent fires concurrently. Future climate changes are modeled by considering several story lines that illustrate the direction of economic growth and social changes within national and trans-national contexts. These story lines are called Shared Socioeconomic Pathways (SSPs). While the intensity of future climate changes will be a function of global green house gas emissions, it is useful to understand how disturbance can mitigate the impacts of climate change on tree cover under different climate change scenarios.
+
+How does tree cover extent in `r params$county_name` County change by the year `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))` under scenarios of climate change and natural fire disturbance:
+
+```{r forest_change}
+
+# map across unique scenarios/management
+reps <- params$county_vals
+
+
+clim_manage <- map(reps,
+                   ~ .x %>%
+                     filter(County == params$county_name, Year == if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time)), Areas == "All")) %>%
+  bind_rows(.id = "scenario") %>%
+  separate(scenario, "_", into = c("scenario", "management")) %>%
+  mutate(
+    scenario = case_when(
+      scenario == "ssp126" ~ "SSP1-2.6",
+      scenario == "ssp245" ~ "SSP2-4.5",
+      scenario == "ssp370" ~ "SSP3-7.0",
+      scenario == "ssp585" ~ "SSP5-8.5"
+    ),
+    management = case_when(
+      management == "DoNothing" ~ "Historic",
+      management == "NoFires" ~ "Decreased",
+      management == "DoubleFires" ~ "Increased"
+    ),
+    management = factor(management, levels = c("Historic", "Decreased", "Increased"))
+  )
+
+
+
+ggplot(data = clim_manage, aes(x = scenario, y = value, fill = management)) +
+  geom_boxplot() +
+  labs(x = "Climate Scenario", y = "% Change in Forest Cover") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#feb24c", "#ffeda0", "#f03b20"),
+                    name = "Fire Severity") +
+  theme(legend.position = "bottom",
+        axis.title = element_text(face = "bold"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+
+```
+
+\newpage
+
+## Changes in allied ecosystem services
+
+Areas with tree cover provide several ecosystem services. The sequestration of carbon in standing biomass (trees) as well as in the soil is one such service that is now vital to mitigating climate change.
+
+How do overall aboveground biomass and soil organic carbon change as forest cover changes in the absence of any mitigation efforts in `r params$county_name` county in `r if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time))`?
+
+```{r eco_services}
+### Above ground live biomass
+
+## Caitlins edit --------------------------------------------------------------
+# convert files to single list after reading in each raw .rds
+# ecosystem_data <- list(alb_126, alb_245, alb_370, alb_585, fsc1_126, fsc1_245, fsc1_370, fsc1_585)
+# names(ecosystem_data) <- c("alb_126", "alb_245", "alb_370", "alb_585", "fsc1_126", "fsc1_245", "fsc1_370", "fsc1_585")
+# # save this file to load in app.R
+# save(ecosystem_data, file = "reports/ecosystem_data.RData")
+
+ecosystem_data <- params$ecosystem_data
+
+carbonseq <- map_df(ecosystem_data,  ~ .x$county_change_df %>% 
+    filter(County == params$county_name, name == if_else(params$time == "100", paste0("2", params$time), paste0("20", params$time)), areas == "All") %>% 
+   group_by(areas) %>% summarize(change = mean(value))
+) %>% 
+  mutate(scenario = names(ecosystem_data)) %>% 
+  separate(scenario, "_", into = c("variable", "scenario")) %>% 
+  mutate(variable = if_else(variable == "alb", "Biomass", "Soil Organic Carbon"),
+         scenario = case_when(scenario == "126" ~ "SSP1-2.6",
+                              scenario == "245" ~ "SSP2-4.5",
+                              scenario == "370" ~ "SSP3-7.0",
+                              scenario == "585" ~ "SSP5-8.5"))
+
+
+ggplot(data=carbonseq, aes(x = scenario, y = change, fill = variable))+
+   geom_bar(stat = "identity", position = "dodge") + 
+  labs(x = "Climate Scenario", y = "% Change")+
+  theme_minimal()+
+  scale_fill_manual(values = c("#35978f", "#543005"))+
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        axis.title = element_text(face = "bold"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+
+```
+
+\
+\
+
+#### Inferring direct human impacts on tree cover
+
+Historically, changes in tree cover across Kenya have been driven by direct human impacts such as deforestation. These pressures are likely to continue into the future. L-Range does not accommodate these human pressures to simulate tree cover change. Moreover, there is uncertainty about how human pressures are likely to evolve into the future. Since every climate scenario is tied to relevant social and economic changes, how these pressures will unfold in the future and impact tree cover may be inferred by perusing relevant socio-economic data associated with each climate scenario. Rather than summarize them here we direct you to this website (https://sedac.ciesin.columbia.edu/data/collection/ssp/sets/browse), where additional information may be found.
+
+### Terms used in the report
+
+* SSP: Shared socioeconomic pathways are a set of storylines or narratives describing possible future socio-economic development scenarios. They are used to create future emissions scenarios and to determine how communities will adapt and be affected by climate change. Each SSP narrative includes information on population change, GDP growth, access to health and education in the future under specific development pathways.
+* RCP: Representative concentration pathways are scenarios of how greenhouse gas concentrations will change in the future if the world adopts specific development and climate change mitigation strategies.
+* ANY OTHER TERMS?
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+**This is a draft report, and we welcome feedback on elements that are/could be most useful to you!**
+
+<br>
+
+For example, some other variables that could be summarized in this report include:
+
+-   Herb and shrub cover
+-   Soil inorganic carbon
+-   Evapotranspiration
