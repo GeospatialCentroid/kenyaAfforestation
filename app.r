@@ -150,11 +150,13 @@ ui <- fluidPage(
             " (Project# 80NSSC19K0182)."
           ),
           fluidRow(
-            column(4,
+            column(3, 
+                   div(img(src="ram.png", alt="CSU Logo", align="center", width="50%"), style="text-align:center")),
+            column(3,
                    div(img(src="NASA_logo.svg", alt="NASA Logo", align="center", width="60%"), style="text-align:center")),
-            column(4,
+            column(3,
                    div(img(src="kefri_logo.png", alt="KEFRI Logo", align="center", width="50%"), style="text-align:center")),
-            column(4,
+            column(3,
                    div(img(src="sei_logo.png", alt="SEI Logo", align="center", width="40%"), style="text-align:center"))
           ),
           hr(),
