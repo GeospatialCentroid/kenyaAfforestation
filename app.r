@@ -124,7 +124,7 @@ ui <- fluidPage(
           climate change and how it may impact Kenya’s forests. The purpose is to
           provide a useful source of information (using maps, graphs, and tables)
           about the potential impacts of climate change, and possible outcomes 
-          that could arise for different types of forests, across Kenya." 
+          that could arise for different types of trees, across Kenya." 
            ),
           p("On this page, you can find information regarding the origin of the
             project, the team of people that were involved, publications, and other
@@ -217,7 +217,7 @@ ui <- fluidPage(
                map_UI(id = "ssp126", panelName = panelNames[1])
              ),
              tabPanel(
-               "Climate and disturbance effects on forests",
+               "Climate and disturbance effects on tree cover",
                map2_UI(
                  id = "ssp126_2",
                  panelName = panelNames[1],
@@ -234,7 +234,7 @@ ui <- fluidPage(
                map_UI(id = "ssp245", panelName = panelNames[2])
              ),
              tabPanel(
-               "Climate and disturbance effects on forests",
+               "Climate and disturbance effects on tree cover",
                map2_UI(
                  id = "ssp245_2",
                  panelName = panelNames[2],
@@ -251,7 +251,7 @@ ui <- fluidPage(
                map_UI(id = "ssp370", panelName = panelNames[3])
              ),
              tabPanel(
-               "Climate and disturbance effects on forests",
+               "Climate and disturbance effects on tree cover",
                map2_UI(
                  id = "ssp370_2",
                  panelName = panelNames[3],
@@ -268,7 +268,7 @@ ui <- fluidPage(
                  map_UI(id = "ssp585", panelName = panelNames[4])
              ),
              tabPanel(
-               "Climate and disturbance effects on forests",
+               "Climate and disturbance effects on tree cover",
                map2_UI(
                  id = "ssp585_2",
                  panelName = panelNames[4],
