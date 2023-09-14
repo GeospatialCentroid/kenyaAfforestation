@@ -29,7 +29,7 @@ map_UI <- function(id, panelName){
                      ),
                    em("You can view Percent Change by turning the layer on via the map controls"),
                    hr(),
-                   tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
+                   tags$p(tags$strong("Click"), "on the map to see values at that precise location:"),
                    h5(htmlOutput(ns("cnty")))
                  ),
           # main panel -------------------------------------------------------------- 
