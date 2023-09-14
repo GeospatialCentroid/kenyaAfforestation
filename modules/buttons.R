@@ -1,7 +1,7 @@
 pageButtonUi <- function(id) {
   actionButton(NS(id, "page_change"),
                label="View Scenario",
-               `data-bs-auto-close` = "true")
+               options = list(openOnFocus = FALSE))
 }
 
 
