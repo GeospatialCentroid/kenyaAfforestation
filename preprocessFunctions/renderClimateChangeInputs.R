@@ -5,7 +5,7 @@
 ###
 
 
-renderClimateChangeInputs <- function(county,countyBuff, climateRasters){
+renderClimateChangeInputs <- function(county, countyBuff, climateRasters){
   # vector of county names
   county_names <- county$ADMIN1
   
