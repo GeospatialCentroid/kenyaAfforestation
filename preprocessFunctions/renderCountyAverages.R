@@ -29,8 +29,8 @@ renderCountyAverages = function(selectedCounty, counties, processedRasters){
   df <- colMeans(vals, na.rm =TRUE) %>%
     t() %>%
     as_tibble() %>%
-    mutate(county = c1$ADMIN1) %>%
-    dplyr::select(county, contains("tmin"), contains("tmax"), contains("pr")) %>% 
+    mutate(County = c1$ADMIN1) %>%
+    dplyr::select(County, contains("tmin"), contains("tmax"), contains("pr")) %>% 
     #rename columns to be user friendly
     rename_at(vars(starts_with("tmin")), ~ str_replace(., "tmin", "Min_Temp")) %>% 
     rename_at(vars(starts_with("tmax")), ~ str_replace(., "tmax", "Max_Temp")) %>% 
