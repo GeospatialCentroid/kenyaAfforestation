@@ -39,9 +39,9 @@ map2_UI <- function(id, panelName, county_names){
                    em("Report generation may take a few seconds"),
                    hr(),
                    # visualize user click
-                   tags$p(tags$strong("Click"), "on the map to see values at that precise location:"),
+                   tags$p(tags$strong("Click on the map to see values at that"), tags$em("precise"), tags$strong("location:")),
                    h6(htmlOutput(ns("pixelVal2"))),
-                   em("You can view historic (before afforestation) and 2030 baseline tree cover layers via the map controls")
+                   #em("You can view historic (before afforestation) and 2030 baseline tree cover layers via the map controls")
                    
       ),
       mainPanel(width = 9,

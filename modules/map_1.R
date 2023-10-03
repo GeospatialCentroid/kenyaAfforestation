@@ -27,14 +27,15 @@ map_UI <- function(id, panelName){
                                     "Precipitation" = "pr"),
                      selected = "tmin"
                      ),
-                   em("You can view Percent Change by turning the layer on via the map controls"),
+                   #em("You can view Percent Change by turning the layer on via the map controls"),
                    hr(),
-                   tags$p(tags$strong("Click"), "on the map to see values at that precise location:"),
+                   tags$p(tags$strong("Click on the map to see values at that"), tags$em("precise"), tags$strong("location:")),
                    h5(htmlOutput(ns("cnty")))
                  ),
           # main panel -------------------------------------------------------------- 
           mainPanel(width = 9,
                    leafletOutput(ns("map1"), width="100%",height="500px"),
+                   h5("Table of County Averages:"),
                    fluidRow(class = "table",
                             # Table
                             dataTableOutput(ns("table")))
