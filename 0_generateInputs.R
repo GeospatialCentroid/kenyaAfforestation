@@ -16,8 +16,11 @@ source)
 # read in input data  -----------------------------------------------------
 
 ## county spatial feature
-county <- sf::st_read("dataToPreprocess/referenceSpatialData/KE_Admin1_pro.shp", stringsAsFactors = F)
-county <- sf::st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+county <-
+  sf::st_read("dataToPreprocess/referenceSpatialData/KE_Admin1_pro.shp",
+              stringsAsFactors = F) %>%
+  sf::st_transform("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+
 # buffer of the county features used for cropping -- may need to adjust buffer dist
 countyBuff <- sf::st_buffer(x = county, dist = 0.8)
 
@@ -74,11 +77,10 @@ carbon_val <- carbonVals(path1 = "dataToPreprocess/validationLayers/Re App Updat
 
 
 # Generate df of average temp/prec for each county  -----------------------
-countyAve <- county$ADMIN1 |> 
-  purrr::map(renderCountyAverages,
+countyAve <- county$ADMIN1 %>%  
+  purrr::map_dfr(renderCountyAverages,
              counties=county,
-             processedRasters = clim_abs) |>
-  bind_rows()
+             processedRasters = clim_abs)
 
 
 # output generated objects ------------------------------------------------

@@ -12,7 +12,7 @@ processedRasters <- clim_abs
 #' @export
 #'
 #' @examples
-renderCountyAverages = function(selectedCounty,counties, processedRasters){
+renderCountyAverages = function(selectedCounty, counties, processedRasters){
   # crop the rasters to the county bbox
   ## transform to crs and vect object 
   c1 <- counties %>% 
@@ -28,10 +28,13 @@ renderCountyAverages = function(selectedCounty,counties, processedRasters){
   # get the mean of each column and organize into the dataframe of interest
   df <- colMeans(vals, na.rm =TRUE) %>%
     t() %>%
-    as.data.frame() %>%
-    mutate(county = c1$ADMIN1)%>%
-    dplyr::select(county, everything())
+    as_tibble() %>%
+    mutate(county = c1$ADMIN1) %>%
+    dplyr::select(county, contains("tmin"), contains("tmax"), contains("pr")) %>% 
+    #rename columns to be user friendly
+    rename_at(vars(starts_with("tmin")), ~ str_replace(., "tmin", "Min_Temp")) %>% 
+    rename_at(vars(starts_with("tmax")), ~ str_replace(., "tmax", "Max_Temp")) %>% 
+    rename_at(vars(starts_with("pr")), ~ str_replace(., "pr", "Precipitation"))
   
-  # construct the df --- will probably want to transform to long df rather then wide for easier filtering.  
   return(df)
 }
