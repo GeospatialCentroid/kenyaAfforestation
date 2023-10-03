@@ -1,12 +1,8 @@
-selectedCounty <- county[1]
-processedRasters <- clim_abs
-
-
-
 #' renderCountyAverages
 #'
-#' @param selectedCounty individual county, used to pass into the map function
-#' @param processedRasters raster brick for a
+#' @param selectedCounty individual county name, used to pass into the map function
+#' @param counties the county shapefile
+#' @param processedRasters raster brick of climate rasters
 #'
 #' @return
 #' @export
