@@ -78,7 +78,12 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
     # county average data
     county_avg_filtered <- reactive({
       county_avg %>% 
-        select(County, contains(ssp))
+        select(County, contains("hist"), contains(ssp)) %>% 
+        # rename to be user-friendly
+        rename_at(vars(ends_with("_30")), ~ str_replace(., paste0(ssp, "(.*)"), "2021-2040")) %>% 
+        rename_at(vars(ends_with("_50")), ~ str_replace(., paste0(ssp, "(.*)"), "2041-2060")) %>% 
+        rename_at(vars(ends_with("_70")), ~ str_replace(., paste0(ssp, "(.*)"), "2061-2080")) %>% 
+        rename_at(vars(ends_with("_90")), ~ str_replace(., paste0(ssp, "(.*)"), "2081-2100"))
     })
     
     
@@ -222,7 +227,8 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
             autoWidth = TRUE,
             scrollX = TRUE,
             scrollY = "400px",
-            scrollCollapse = TRUE
+            scrollCollapse = TRUE,
+            paging = FALSE
           )
         )
       })
