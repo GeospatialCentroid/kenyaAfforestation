@@ -17,6 +17,7 @@ library(rmarkdown)
 library(tmap)
 library(tidyverse)
 library(shinyalert)
+library(DT)
 ### raster option within leaflet... old so we might loose other functionality 
 #remotes::install_github("rstudio/leaflet", ref="joe/feature/raster-options")
 
@@ -67,6 +68,9 @@ county <- climateChangeInputs$county
 ## process raster data into spp groups----
 allRasters_abs <- prepClim(rasters = clim_abs, ssps = c("hist","126","245","370", "585"))
 allRasters_change <- prepClim(rasters = clim_change, ssps = c("126","245","370", "585"))
+
+## county averages
+county_avg <- readRDS("appData/countyClimAverages.RDS")
 
 
 # Climate Management Inputs -----------------------------------------------
@@ -308,7 +312,8 @@ server <- function(input, output, session) {
              ssp = "126",
              pals1 = pal_abs,
              pals2 = pal_change,
-             countyFeat = county)
+             countyFeat = county,
+             county_avg = county_avg)
   map2_server(id = "ssp126_2",
               histRaster = climateManagementInputs$existingForest,
               futureRaster = climateManagementInputs$expandedForest,
@@ -331,7 +336,8 @@ server <- function(input, output, session) {
              ssp = "245",
              pals1 = pal_abs,
              pals2 = pal_change,
-             countyFeat = county)
+             countyFeat = county,
+             county_avg = county_avg)
   map2_server(id = "ssp245_2",
               histRaster = climateManagementInputs$existingForest,
               futureRaster = climateManagementInputs$expandedForest,
@@ -354,7 +360,8 @@ server <- function(input, output, session) {
              ssp = "370",
              pals1 = pal_abs,
              pals2 = pal_change,
-             countyFeat = county)
+             countyFeat = county,
+             county_avg = county_avg)
   map2_server(id = "ssp370_2",
               histRaster = climateManagementInputs$existingForest,
               futureRaster = climateManagementInputs$expandedForest,
@@ -378,7 +385,8 @@ server <- function(input, output, session) {
              ssp = "585",
              pals1 = pal_abs,
              pals2 = pal_change,
-             countyFeat = county)
+             countyFeat = county,
+             county_avg = county_avg)
   map2_server(id = "ssp585_2",
               histRaster = climateManagementInputs$existingForest,
               futureRaster = climateManagementInputs$expandedForest,
