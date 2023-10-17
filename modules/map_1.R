@@ -35,6 +35,7 @@ map_UI <- function(id, panelName){
           # main panel -------------------------------------------------------------- 
           mainPanel(width = 9,
                    leafletOutput(ns("map1"), width="100%",height="500px"),
+                   downloadButton(ns("download_map"), "Download Current Map"),
                    h5("Table of County Averages:"),
                    fluidRow(class = "table",
                             # Table
@@ -215,6 +216,93 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         }
 
       })
+      
+      # capture current map for user download (not ideal)
+      # observeEvent(input$map1_screenshot, {
+      #   screenshot(id = "map1")
+      # })
+      
+      tmap_pal1 <- reactive({
+        if(input$Layer == "pr") {
+          "YlGnBu"
+        } else {
+          "RdYlBu"
+        }
+      })
+      
+      tmap_pal2 <- reactive({
+        if(input$Layer == "pr") {
+          "PuOr"
+        } else {
+          "-BrBG"
+        }
+        
+      })
+      
+      
+      tm1 <- reactive({
+          tm_shape(r0()) +
+          tm_raster(style = "cont",
+                    palette = tmap_pal1(),
+                    title = title()) +
+          tm_shape(county) +
+          tm_borders() +
+          tm_credits(paste("Maps generated on", Sys.Date(), "from the Kenya Afforestation Decision Support Tool (ka-dst.com)"),
+                     position = c("left", "bottom")) +
+          tm_layout(title = "Historic",
+                    title.snap.to.legend = FALSE,
+                    frame = FALSE,
+                    legend.outside = TRUE,
+                    legend.outside.position = c("right", "bottom"),
+                    main.title.position = "top",
+                    outer.margins = 0)
+          
+        
+      })
+      
+      tm2 <- reactive({
+        tm_shape(r1()) +
+          tm_raster(style = "cont",
+                    palette = tmap_pal1(),
+                    title = title()) +
+          tm_shape(county) +
+          tm_borders() +
+          tm_layout(title = "Projected",
+                    title.snap.to.legend = FALSE,
+                    frame = FALSE,
+                    legend.outside = TRUE,
+                    legend.outside.position = c("right", "bottom"),
+                    main.title.position = "top",
+                    outer.margins = 0)
+        
+      })
+      
+      tm3 <- reactive({
+        tm_shape(r2()) +
+          tm_raster(style = "cont",
+                    palette = tmap_pal2(),
+                    title = title2()) +
+          tm_shape(county) +
+          tm_borders() +
+          tm_layout(title = "Change",
+                    title.snap.to.legend = FALSE,
+                    frame = FALSE,
+                    legend.outside = TRUE,
+                    legend.outside.position = c("right", "bottom"),
+                    main.title.position = "top",
+                    outer.margins = 0)
+        
+      })
+      
+      # create and download maps based on time and variable selected
+     output$download_map <- downloadHandler(
+       filename = "current_map.png",
+       content = function(file) {
+         tmap_save(tmap_arrange(tm1(), tm2(), tm3(), ncol = 1, asp = 1), file = file)
+       } 
+     )
+        
+      
       
       
       # county average table ----------------------

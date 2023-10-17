@@ -18,6 +18,7 @@ library(tmap)
 library(tidyverse)
 library(shinyalert)
 library(DT)
+library(shinyscreenshot)
 ### raster option within leaflet... old so we might loose other functionality 
 #remotes::install_github("rstudio/leaflet", ref="joe/feature/raster-options")
 
