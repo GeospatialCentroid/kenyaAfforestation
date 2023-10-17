@@ -230,7 +230,8 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
             scrollCollapse = TRUE,
             paging = FALSE
           )
-        )
+        ) %>% 
+          formatRound(2:ncol(county_avg_filtered()), digits = 2)
       })
       
       
