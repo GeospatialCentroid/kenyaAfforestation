@@ -245,7 +245,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           tm_raster(style = "cont",
                     palette = tmap_pal1(),
                     title = title()) +
-          tm_shape(county) +
+          tm_shape(countyFeat) +
           tm_borders() +
           tm_credits(paste("Maps generated on", Sys.Date(), "from the Kenya Afforestation Decision Support Tool (ka-dst.com)"),
                      position = c("left", "bottom")) +
@@ -265,7 +265,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           tm_raster(style = "cont",
                     palette = tmap_pal1(),
                     title = title()) +
-          tm_shape(county) +
+          tm_shape(countyFeat) +
           tm_borders() +
           tm_layout(title = "Projected",
                     title.snap.to.legend = FALSE,
@@ -282,7 +282,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           tm_raster(style = "cont",
                     palette = tmap_pal2(),
                     title = title2()) +
-          tm_shape(county) +
+          tm_shape(countyFeat) +
           tm_borders() +
           tm_layout(title = "Change",
                     title.snap.to.legend = FALSE,
