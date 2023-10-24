@@ -30,7 +30,8 @@ renderCountyAverages = function(selectedCounty, counties, processedRasters){
     #rename columns to be user friendly
     rename_at(vars(starts_with("tmin")), ~ str_replace(., "tmin", "Min_Temp")) %>% 
     rename_at(vars(starts_with("tmax")), ~ str_replace(., "tmax", "Max_Temp")) %>% 
-    rename_at(vars(starts_with("pr")), ~ str_replace(., "pr", "Precipitation"))
+    rename_at(vars(starts_with("pr")), ~ str_replace(., "pr", "Precipitation")) %>% 
+    rename_at(vars(ends_with("hist")), ~ str_replace(., "hist", "Historic"))
   
   return(df)
 }
