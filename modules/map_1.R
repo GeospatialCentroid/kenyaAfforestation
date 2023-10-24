@@ -29,14 +29,15 @@ map_UI <- function(id, panelName){
                      ),
                    #em("You can view Percent Change by turning the layer on via the map controls"),
                    hr(),
-                   tags$p(tags$strong("Click on the map to see values at that"), tags$em("precise"), tags$strong("location:")),
-                   h5(htmlOutput(ns("cnty")))
+                   tags$h6(tags$strong("Click on the map to see values at that"), tags$em("precise"), tags$strong("location:")),
+                   h6(htmlOutput(ns("cnty")))
                  ),
           # main panel -------------------------------------------------------------- 
           mainPanel(width = 9,
                    leafletOutput(ns("map1"), width="100%",height="500px"),
                    downloadButton(ns("download_map"), "Download Current Map"),
-                   h5("Table of County Averages:"),
+                   h5(paste("Table of County Climate Averages for the", word(panelName, 1, -3), "Scenario:")),
+                   
                    fluidRow(class = "table",
                             # Table
                             dataTableOutput(ns("table")))
@@ -316,8 +317,13 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
             scrollX = TRUE,
             scrollY = "400px",
             scrollCollapse = TRUE,
-            paging = FALSE
-          )
+            paging = FALSE,
+            language = list(
+              search = "Search County:"
+            ),
+            columnDefs = list(list(targets = 0, visible = FALSE)) #this just hides the rownames instead of removing them
+          ),
+          #rownames = FALSE, this disables map-click-sort functionality since it removes the rownames
         ) %>% 
           formatRound(2:ncol(county_avg_filtered()), digits = 2)
       })
