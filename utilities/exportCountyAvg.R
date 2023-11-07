@@ -1,4 +1,4 @@
-# script to export county climate averages to single Excle file, with a sheet for each climate scenario
+# script to export county climate averages to single Excel file, with a sheet for each climate scenario
 
 
 library(writexl)

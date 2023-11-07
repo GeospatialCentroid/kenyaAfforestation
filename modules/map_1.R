@@ -35,12 +35,14 @@ map_UI <- function(id, panelName){
           # main panel -------------------------------------------------------------- 
           mainPanel(width = 9,
                    leafletOutput(ns("map1"), width="100%",height="500px"),
+                   br(),
                    downloadButton(ns("download_map"), "Download Current Map"),
                    h5(paste("Table of County Climate Averages for the", word(panelName, 1, -3), "Scenario:")),
                    
                    fluidRow(class = "table",
                             # Table
-                            dataTableOutput(ns("table")))
+                            dataTableOutput(ns("table"))),
+                   fluidRow(downloadButton(ns("download_climate"), "Download Climate Table"))
       )
     )
   )
@@ -223,6 +225,8 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
       #   screenshot(id = "map1")
       # })
       
+      # create static maps of map view ---------------------
+      
       tmap_pal1 <- reactive({
         if(input$Layer == "pr") {
           "YlGnBu"
@@ -295,11 +299,16 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         
       })
       
-      # create and download maps based on time and variable selected
+      # download static map ------------------------
      output$download_map <- downloadHandler(
-       filename = "current_map.png",
+       filename = function() {paste0(str_sub(id, 1, 4), "_", input$Layer, "_maps.pdf")},
        content = function(file) {
-         tmap_save(tmap_arrange(tm1(), tm2(), tm3(), ncol = 1, asp = 1), file = file)
+         pdf(file, onefile = TRUE)
+         print(tm1())
+         print(tm2())
+         print(tm3())
+         dev.off()
+         #tmap_save(tmap_arrange(tm1(), tm2(), tm3(), ncol = 1, asp = 1), file = file, height = 8.27, width = 11.69, dpi=600)
        } 
      )
         
@@ -327,6 +336,15 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         ) %>% 
           formatRound(2:ncol(county_avg_filtered()), digits = 2)
       })
+      
+      
+      # download county climates table
+      output$download_climate <- downloadHandler(
+        filename = "Kenya_county_climates.xlsx",
+        content = function(file) {
+          file.copy("exportData/Kenya_county_climates.xlsx", file)
+        } 
+      )
       
       
       #map click -----------------
