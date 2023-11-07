@@ -410,6 +410,16 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
         # render file in temp directory so .knit files don't go in app directory
         tempReport <- file.path(tempdir(), "report_generation.Rmd")
         file.copy("reports/report_generation.Rmd", tempReport, overwrite = TRUE)
+        
+        # add blurb while rendering
+        id <- showNotification(
+          "Rendering report...", 
+          duration = NULL, 
+          closeButton = FALSE
+        )
+        
+        on.exit(removeNotification(id), add = TRUE)
+        
         rmarkdown::render(
           tempReport,
           output_format = "pdf_document",
