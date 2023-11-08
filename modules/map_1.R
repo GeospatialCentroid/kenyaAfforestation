@@ -227,93 +227,25 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
       
       # create static maps of map view ---------------------
       
-      tmap_pal1 <- reactive({
-        if(input$Layer == "pr") {
-          "YlGnBu"
-        } else {
-          "RdYlBu"
-        }
-      })
+
+        tmaps <- reactive({
+          staticMaps(r0(), r1(), r2(), countyFeat, variable = input$Layer,
+                            title_abs = title(),
+                            title_change = title2())
+        })
       
-      tmap_pal2 <- reactive({
-        if(input$Layer == "pr") {
-          "PuOr"
-        } else {
-          "-BrBG"
-        }
-        
-      })
+        # download static map ------------------------
+        output$download_map <- downloadHandler(
+          filename = function() {paste0(str_sub(id, 1, 4), "_", input$Layer, "_maps.pdf")},
+          content = function(file) {
+            pdf(file, onefile = TRUE)
+            print(tmaps())
+            dev.off()
+          } 
+
+      )
       
-      
-      tm1 <- reactive({
-          tm_shape(r0()) +
-          tm_raster(style = "cont",
-                    palette = tmap_pal1(),
-                    title = title()) +
-          tm_shape(countyFeat) +
-          tm_borders() +
-          tm_credits(paste("Maps generated on", Sys.Date(), "from the Kenya Afforestation Decision Support Tool (ka-dst.com)"),
-                     position = c("left", "bottom")) +
-          tm_layout(title = "Historic",
-                    title.snap.to.legend = FALSE,
-                    frame = FALSE,
-                    legend.outside = TRUE,
-                    legend.outside.position = c("right", "bottom"),
-                    main.title.position = "top",
-                    outer.margins = 0)
-          
-        
-      })
-      
-      tm2 <- reactive({
-        tm_shape(r1()) +
-          tm_raster(style = "cont",
-                    palette = tmap_pal1(),
-                    title = title()) +
-          tm_shape(countyFeat) +
-          tm_borders() +
-          tm_layout(title = "Projected",
-                    title.snap.to.legend = FALSE,
-                    frame = FALSE,
-                    legend.outside = TRUE,
-                    legend.outside.position = c("right", "bottom"),
-                    main.title.position = "top",
-                    outer.margins = 0)
-        
-      })
-      
-      tm3 <- reactive({
-        tm_shape(r2()) +
-          tm_raster(style = "cont",
-                    palette = tmap_pal2(),
-                    title = title2()) +
-          tm_shape(countyFeat) +
-          tm_borders() +
-          tm_layout(title = "Change",
-                    title.snap.to.legend = FALSE,
-                    frame = FALSE,
-                    legend.outside = TRUE,
-                    legend.outside.position = c("right", "bottom"),
-                    main.title.position = "top",
-                    outer.margins = 0)
-        
-      })
-      
-      # download static map ------------------------
-     output$download_map <- downloadHandler(
-       filename = function() {paste0(str_sub(id, 1, 4), "_", input$Layer, "_maps.pdf")},
-       content = function(file) {
-         pdf(file, onefile = TRUE)
-         print(tm1())
-         print(tm2())
-         print(tm3())
-         dev.off()
-         #tmap_save(tmap_arrange(tm1(), tm2(), tm3(), ncol = 1, asp = 1), file = file, height = 8.27, width = 11.69, dpi=600)
-       } 
-     )
-        
-      
-      
+
       
       # county average table ----------------------
       output$table <- DT::renderDataTable({
