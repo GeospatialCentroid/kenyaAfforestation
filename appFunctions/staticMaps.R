@@ -123,9 +123,9 @@ staticMaps <- function(r_hist, r_proj, r_change, county, variable, scenario, yea
 # 
 # r_change <- clim_change$pr_126_30
 # 
-# 
-staticMaps(r_hist, r_proj, r_change, county, variable = "pr",
-           year = "50",
-           scenario = "Optimistic Scenario",
-           title_abs = "Test",
-           title_change = "Test")
+# # 
+# staticMaps(r_hist, r_proj, r_change, county, variable = "pr",
+#            year = "50",
+#            scenario = "Optimistic Scenario",
+#            title_abs = "Test",
+#            title_change = "Test")
