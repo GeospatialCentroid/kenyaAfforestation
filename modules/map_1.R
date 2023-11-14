@@ -229,9 +229,17 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
       
 
         tmaps <- reactive({
-          staticMaps(r0(), r1(), r2(), countyFeat, variable = input$Layer,
-                            title_abs = title(),
-                            title_change = title2())
+          staticMaps(
+            r0(),
+            r1(),
+            r2(),
+            countyFeat,
+            variable = input$Layer,
+            scenario = toupper(str_sub(id, 1, 4)),
+            year = input$Timeline,
+            title_abs = title(),
+            title_change = title2()
+          )
         })
       
         # download static map ------------------------
