@@ -17,9 +17,11 @@
 #' @return List object with raster data palette and vals for measures and reference data
 nppVals <- function(path, county, countyBuff){
   # read in and crop data
-  npp_val <- readRDS(path) %>% 
-    raster::stack() %>% 
-    projClipCropVal(county, countyBuff)
+  npp_val <- readRDS(path) |> 
+    purrr::map(rast) |> 
+    rast()|>
+    projClipCropVal(county, countyBuff)|>
+    terra::unwrap()
   # alter names of features 
   names(npp_val) <- c("npp_dif", "npp_ref")
   
@@ -40,7 +42,7 @@ nppVals <- function(path, county, countyBuff){
   npp_ref_values <- values(npp_val$npp_ref)
   
   
-  npp_val <- list(npp_val, npp_dif_pal, npp_dif_values, npp_ref_pal, npp_ref_values)
+  npp_val <- list(terra::wrap(npp_val), npp_dif_pal, npp_dif_values, npp_ref_pal, npp_ref_values)
   
   names(npp_val) <- c("rasters", "npp_dif_pal", "npp_dif_values", "npp_ref_pal", "npp_ref_values")
   return(npp_val)
@@ -59,9 +61,11 @@ nppVals <- function(path, county, countyBuff){
 carbonVals <- function(path1, path2, county, countyBuff ){
   
   # read in and crop above ground layers 
-  cAbove_val <- readRDS(path1) %>% 
-    raster::stack() %>% 
-    projClipCropVal(county, countyBuff)
+  cAbove_val <- readRDS(path1) |> 
+    purrr::map(rast)|>
+    rast()|>
+    projClipCropVal(county, countyBuff)|>
+    terra::unwrap()
   # alter names of features 
   names(cAbove_val) <- c("cAbove_dif", "cAbove_ref")
   
@@ -81,13 +85,15 @@ carbonVals <- function(path1, path2, county, countyBuff ){
   cAbove_ref_values <- values(cAbove_val$cAbove_ref)
   
   
-  cAbove_val <- list(cAbove_val, cAbove_dif_pal, cAbove_dif_values, cAbove_ref_pal, cAbove_ref_values)
+  cAbove_val <- list(terra::wrap(cAbove_val), cAbove_dif_pal, cAbove_dif_values, cAbove_ref_pal, cAbove_ref_values)
   names(cAbove_val) <- c("cAbove_rasters", "cAbove_dif_pal", "cAbove_dif_values", "cAbove_ref_pal", "cAbove_ref_values")
   ### repeat the process with the below ground layers 
   # read in and crop above ground layers 
-  cBelow_val <- readRDS(path2) %>% 
-    raster::stack() %>% 
-    projClipCropVal(county, countyBuff)
+  cBelow_val <- readRDS(path2) |> 
+    purrr::map(rast)|>
+    rast()|>
+    projClipCropVal(county, countyBuff)|>
+    terra::unwrap()
   # alter names of features 
   names(cBelow_val) <- c("cBelow_dif", "cBelow_ref")
   
@@ -108,7 +114,7 @@ carbonVals <- function(path1, path2, county, countyBuff ){
   cBelow_ref_values <- values(cBelow_val$cBelow_ref)
   
   
-  cBelow_val <- list(cBelow_val, cBelow_dif_pal, cBelow_dif_values, cBelow_ref_pal, cBelow_ref_values)
+  cBelow_val <- list(terra::wrap(cBelow_val), cBelow_dif_pal, cBelow_dif_values, cBelow_ref_pal, cBelow_ref_values)
   names(cBelow_val) <- c("cBelow_rasters", "cBelow_dif_pal", "cBelow_dif_values", "cBelow_ref_pal", "cBelow_ref_values")
   
   # combine to return single object 

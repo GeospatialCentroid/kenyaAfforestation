@@ -7,6 +7,7 @@
 
 
 # climate data  -----------------------------------------------------------
+## this works as is with a Terra conversion 
 prepClim <- function(rasters, ssps){
   ## spilts rasters into groups based on ssp value provided 
   ## rasters: all climate raster data as multilayered rasters
@@ -26,6 +27,8 @@ prepClim <- function(rasters, ssps){
   return(rasts)
 }
 
+
+#? is this used? 
 prepClim2 <- function(rasters, ssps){
   ## spilts rasters into groups based on ssp value provided 
   ## rasters: all climate raster data as multilayered rasters

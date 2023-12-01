@@ -10,16 +10,13 @@ projClipCrop <- function(raster, county, countyBuff){
   crs(raster) <- "+proj=sinu +lon_0=36.5 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
   
   # reprojects rasters 
-  raster <- raster %>% 
-    terra::rast()%>%
-    terra::project(county)%>%
-    terra::crop(countyBuff) %>% 
-    terra::mask(countyBuff)%>%
-    #this has to be 'brick', otherwise 'raster()' only returns the first layer
-    raster::brick() %>% 
-    # project to leaflet crs to avoid need for reprojecting
-    raster::projectRaster(crs = 3857)
-  
+  raster <- raster|> 
+    terra::project(county)|>
+    terra::crop(countyBuff)|> 
+    terra::mask(countyBuff)|>
+    terra::project("EPSG:3857")|>
+    terra::wrap()
+
   return(raster)
 }
 
@@ -30,16 +27,16 @@ projClipCropVal <- function(raster, county, countyBuff){
   crs(raster) <- "+proj=sinu +lon_0=36.5 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
   
   # reprojects rasters 
-  raster <- raster %>% 
-    terra::rast()%>%
-    terra::project(county, method = "near")%>%
-    terra::crop(countyBuff) %>% 
-    terra::mask(countyBuff)%>%
-    #terra::project("EPSG:3857")
+  raster <- raster|> 
+    terra::project(county, method = "near")|>
+    terra::crop(countyBuff)|> 
+    terra::mask(countyBuff)|>
+    terra::project("EPSG:3857")|>
+    terra::wrap()
     # #this has to be 'brick', otherwise 'raster()' only returns the first layer
-    raster::brick() %>%
-    # # project to leaflet crs to avoid need for reprojecting
-    raster::projectRaster(crs = 3857, method = "ngb")
+    # raster::brick()|>
+    # # # project to leaflet crs to avoid need for reprojecting
+    # raster::projectRaster(crs = 3857, method = "ngb")
   
   return(raster)
 }

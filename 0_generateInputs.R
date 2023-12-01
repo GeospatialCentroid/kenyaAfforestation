@@ -3,6 +3,9 @@
 # carverd@colostate.edu
 # 20230104 
 ###
+
+### pushing to terra only implimentation 
+
 pacman::p_load(tidyr, dplyr, raster, terra, sf, leaflet,purrr)
 
 # source preprocessing functions ------------------------------------
@@ -39,7 +42,7 @@ climateChangeInputs <- renderClimateChangeInputs(county = county,
                                                  climateRasters = climCRS)
 
 # generate content for the climate management page ------------------------
-climateManagementInputs <- renderClimateManagementInputs(
+climateManagementInputs  <- renderClimateManagementInputs(
   county = county,
   countyBuff = countyBuff,
   files = files
@@ -48,8 +51,8 @@ climateManagementInputs <- renderClimateManagementInputs(
 
 # generate palettes for all rasters -----------------------------------------------
 ## subset to absolute val and percent change features 
-clim_abs <- climateChangeInputs$abs_rasters
-clim_change <- climateChangeInputs$change_rasters
+clim_abs <- climateChangeInputs$abs_rasters |> terra::unwrap()
+clim_change <- climateChangeInputs$change_rasters|> terra::unwrap()
 
 ## generate specific palettes 
 pal_abs <- generatePalettes(rasters = clim_abs, type = "abs")

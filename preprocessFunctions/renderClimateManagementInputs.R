@@ -8,14 +8,16 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
   # create stand alone rasters 
   f1 <- files[grepl(pattern = ".tif" , x = files)]
   
-  existingForest <- raster(f1[grepl(pattern = "existing", f1)])
-  crs(existingForest) <- "+proj=sinu +lon_0=36.5 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+  #select feature
+  existingForest <- rast(f1[grepl(pattern = "existing", f1)])
+  #crop and project
   existingForest <- projClipCrop(raster = existingForest, county = county, countyBuff = countyBuff)
   
   
   
   # single file with project 2030 forest cover 
-  expandedForest <- raster(f1[grepl(pattern = "baseline", f1)])
+  expandedForest <- rast(f1[grepl(pattern = "baseline", f1)])
+  #crop and project
   expandedForest <- projClipCrop(raster = expandedForest, county = county, countyBuff = countyBuff)
   
   
@@ -37,7 +39,7 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
     name <- substr(x = n1[3], start = 1, stop = nchar(n1[3])-4)
     listNames[i] <- name
     # define list element
-    rasters[[i]] <- r1$forest_change_rasters
+    rasters[[i]] <- rast(r1$forest_change_rasters)
     areaCountry[[i]] <- r1$areas_change_df 
     areaCounty[[i]] <- r1$county_change_df
     
@@ -50,15 +52,16 @@ renderClimateManagementInputs <- function(county, countyBuff, files){
   
   
   # restructure the county data ---------------------------------------------
-  #areaCounty <- lapply(X = areaCounty, FUN = gatherCounty) This doesn't work for updated data anymore
   areaCounty <- lapply(X = areaCounty, FUN = function(x) {
     names(x) <- c("County", "Areas", "Year", "value")
     return(x)
   })
   
-  # reprojects rasters 
-  rasters <- lapply(X = rasters, FUN = projClipCrop, county = county, countyBuff = countyBuff)
-  
+  # reprojects rasters
+  ## need to wrap all rasters before added 
+  rasters <- 
+    
+    lapply(X = rasters, FUN = projClipCrop, county = county, countyBuff = countyBuff) 
   # generate export object 
   inputs <- list(areaCountry = areaCountry,
                  areaCounty = areaCounty,

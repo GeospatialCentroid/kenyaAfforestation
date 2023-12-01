@@ -16,7 +16,7 @@ renderCountyAverages = function(selectedCounty, counties, processedRasters){
     sf::st_transform(crs = 3857)%>%
     vect()
   # convert from raster to rast
-  r1 <- rast(processedRasters)
+  r1 <- processedRasters
   # crop and mask 
   r2 <- terra::crop(x = r1, y = c1, mask = TRUE)
   # list all values within each specific layer 

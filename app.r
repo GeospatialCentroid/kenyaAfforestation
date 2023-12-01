@@ -56,11 +56,12 @@ population <- list("pop_change_50" = readRDS("reports/pop_change_50.rds"),
 load("reports/ecosystem_data.RData")
 
 # Climate Change Page -----------------------------------------------------
+# likley need to wrap/unwrap all terra objects when exporting into the rds file 
 ## read in inputs ----
 climateChangeInputs <- readRDS("appData/climateChangeInputs.RDS")
 ## define specific raster sets ----
-clim_abs <- climateChangeInputs$abs_rasters
-clim_change <- climateChangeInputs$change_rasters
+clim_abs <- climateChangeInputs$abs_rasters |> terra::unwrap()
+clim_change <- climateChangeInputs$change_rasters |> terra::unwrap()
 ## county names----
 county_names <- climateChangeInputs$countyNames
 ## county shp----
@@ -77,6 +78,10 @@ county_avg <- readRDS("appData/countyClimAverages.RDS")
 # Climate Management Inputs -----------------------------------------------
 ## read in climate management data ----
 climateManagementInputs <- readRDS("appData/climateManagementInputs.RDS")
+## unwrap the terra objects 
+climateManagementInputs$forestChangeRasters <- climateManagementInputs$forestChangeRasters |> purrr::map(unwrap)
+climateManagementInputs$expandedForest <- climateManagementInputs$expandedForest |> unwrap()
+climateManagementInputs$existingForest <- climateManagementInputs$existingForest |> unwrap()
 
 # set palette definitions  --------------------------------------------------
 ## read in palette object----
@@ -316,7 +321,7 @@ server <- function(input, output, session) {
              countyFeat = county,
              county_avg = county_avg)
   map2_server(id = "ssp126_2",
-              histRaster = climateManagementInputs$existingForest,
+              histRaster = climateManagementInputs$existingForest ,
               futureRaster = climateManagementInputs$expandedForest,
               managementRasters = climateManagementInputs$forestChangeRasters,
               countryDF = climateManagementInputs$areaCountry,
