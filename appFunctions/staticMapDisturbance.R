@@ -1,34 +1,29 @@
 #' function to produce the static maps for the 'Download Map' button
 #'
-#' @param r_hist the historic raster layer currently mapped
-#' @param r_proj the projected raster layer currently mapped
-#' @param r_change the percent change raster layer currently mapped
+#' @param r_hist the historic forest raster
+#' @param r_base the baseline forest raster
+#' @param r_change the percent change raster layer currently mapped for selected disturbance
 #' @param county the county shapefile
-#' @param variable the user-selected variable (from input$Layer)
-#' @param title_abs title of the absolute value maps, pulled from the palettes object
-#' @param title_change title of the percent change maps, pulled from the palettes object
+#' @param disturbance the user-selected disturbance scenario
+#' @param scenario the user-selected climate
+#' @param year the user-selected time period
 #' 
 #' @return A list of tmap objects
-staticMaps <- function(r_hist, r_proj, r_change, county, variable, scenario, year, title_abs, title_change){
-  
-  
-  # generate palettes
-  ## abs palettes
-  tmap_pal1 <- 
-    if(variable == "pr") {
-      "YlGnBu"
-    } else {
-      "-RdYlBu"
-    }
-
-  
-  ## change palettes
-  tmap_pal2 <- 
-    if(variable == "pr") {
-      "Blues"
-    } else {
-      "-BrBG"
-    }
+staticMapDisturbance <-
+  function(r_hist,
+           r_base,
+           r_change,
+           county,
+           disturbance,
+           scenario,
+           year) {
+    
+  # choice value pair to retrieve scenario name instead of input value
+    dist_options <- c(
+      "Historic Fire Severity" = "nothing",
+      "Decreased Fire Severity" = "less_fire",
+      "Increased Fire Severity" = "more_fire"
+    )
     
 
   
@@ -36,9 +31,9 @@ staticMaps <- function(r_hist, r_proj, r_change, county, variable, scenario, yea
   tm1 <- 
     tm_shape(r_hist) +
       tm_raster(style = "cont",
-                palette = tmap_pal1,
-                legend.reverse = T,
-                title = str_replace(title_abs, "</br> ", "\n")) +
+                palette = "Greens",
+                title = "Historic Tree Cover",
+                legend.format = list(fun=function(x) paste0(formatC(x, digits=0, format="f"), " %"))) +
       tm_shape(county) +
       tm_borders() +
     tm_compass(position = "left") +
@@ -58,18 +53,18 @@ staticMaps <- function(r_hist, r_proj, r_change, county, variable, scenario, yea
 
   
   tm2 <- 
-    tm_shape(r_proj) +
+    tm_shape(r_base) +
       tm_raster(style = "cont",
-                palette = tmap_pal1,
-                legend.reverse = T,
-                title = str_replace(title_abs, "</br> ", "\n")) +
+                palette = "Greens",
+                title = "Baseline Tree Cover",
+                legend.format = list(fun=function(x) paste0(formatC(x, digits=0, format="f"), " %"))) +
       tm_shape(county) +
       tm_borders() +
       tm_compass(position = "left") +
       tm_scale_bar(position = "left") +
       tm_credits(paste("Maps generated on", Sys.Date(), " \nfrom the Kenya Afforestation Decision Support Tool (ka-dst.com)"),
                  position = c("left", "bottom")) +
-      tm_layout(title = paste0(scenario, "\nProjected ", "20", year),
+      tm_layout(title = "Baseline",
                 title.size = 2,
                 frame = FALSE,
                 legend.outside = TRUE,
@@ -82,9 +77,8 @@ staticMaps <- function(r_hist, r_proj, r_change, county, variable, scenario, yea
   tm3 <- 
     tm_shape(r_change) +
       tm_raster(style = "cont",
-                palette = tmap_pal2,
-                legend.reverse = T,
-                title = str_replace(title_change, "</br> ", "\n"),
+                palette = "BrBG",
+                title = "Predicted Tree Cover Change",
                 legend.format = list(fun=function(x) paste0(formatC(x, digits=0, format="f"), " %"))) +
       tm_shape(county) +
       tm_borders() +
@@ -92,8 +86,9 @@ staticMaps <- function(r_hist, r_proj, r_change, county, variable, scenario, yea
       tm_scale_bar(position = "left") +
       tm_credits(paste("Maps generated on", Sys.Date(), " \nfrom the Kenya Afforestation Decision Support Tool (ka-dst.com)"),
                  position = c("left", "bottom")) +
-      tm_layout(title = paste0(scenario, "\nPercent Change \n", "(Historic - 20", year, ")"),
-                title.size = 2,
+      tm_layout(title = paste0(scenario, "\nPercent Change \n", "(from Baseline to 20", year, ") \n",
+                               "with ", names(which(dist_options == disturbance))),
+                title.size = 3,
                 frame = FALSE,
                 legend.outside = TRUE,
                 legend.outside.size = 0.25,
@@ -106,26 +101,3 @@ staticMaps <- function(r_hist, r_proj, r_change, county, variable, scenario, yea
 
 }
 
-
-# test maps
-
-# climateChangeInputs <- readRDS("appData/climateChangeInputs.RDS")
-# ## define specific raster sets ----
-# clim_abs <- climateChangeInputs$abs_rasters
-# clim_change <- climateChangeInputs$change_rasters
-# ## county shp----
-# county <- climateChangeInputs$county
-# 
-# 
-# r_hist <- clim_abs$pr_hist
-# 
-# r_proj <- clim_abs$pr_126_30
-# 
-# r_change <- clim_change$pr_126_30
-# 
-# # 
-# staticMaps(r_hist, r_proj, r_change, county, variable = "pr",
-#            year = "50",
-#            scenario = "Optimistic Scenario",
-#            title_abs = "Test",
-#            title_change = "Test")

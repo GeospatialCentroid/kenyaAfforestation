@@ -37,6 +37,7 @@ map_UI <- function(id, panelName){
                    leafletOutput(ns("map1"), width="100%",height="500px"),
                    br(),
                    downloadButton(ns("download_map"), "Download Current Map"),
+                   hr(),
                    h5(paste("Table of County Climate Averages for the", word(panelName, 1, -3), "Scenario:")),
                    
                    fluidRow(class = "table",
@@ -229,7 +230,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
       
 
         tmaps <- reactive({
-          staticMaps(
+          staticMapClimate(
             r0(),
             r1(),
             r2(),

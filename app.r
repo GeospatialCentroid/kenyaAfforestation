@@ -10,7 +10,7 @@ library(terra)
 library(sf)
 library(purrr)
 library(raster)
-library(rgdal)
+#library(rgdal)
 library(leaflet.extras)
 library(plotly)
 library(rmarkdown)
@@ -18,7 +18,7 @@ library(tmap)
 library(tidyverse)
 library(shinyalert)
 library(DT)
-library(shinyscreenshot)
+
 ### raster option within leaflet... old so we might loose other functionality 
 #remotes::install_github("rstudio/leaflet", ref="joe/feature/raster-options")
 

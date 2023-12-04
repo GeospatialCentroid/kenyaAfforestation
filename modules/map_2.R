@@ -46,6 +46,9 @@ map2_UI <- function(id, panelName, county_names){
       ),
       mainPanel(width = 9,
         leafletOutput(ns("map2")),
+        br(),
+        downloadButton(ns("download_map"), "Download Current Map"),
+        hr(),
         fluidRow( ### even through this is still within the 10 unit wide main panel, width operates out of 12.
           align = "center",
           column(width = 6, height = "100%",
@@ -294,7 +297,31 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
                                       "<b>", as.character(extractVal2),"</b>","%"))
     })
   
-
+    # create static maps of map view ---------------------
+    
+    
+    tmaps <- reactive({
+      staticMapDisturbance(
+        hist1,
+        base1,
+        r3(),
+        countyFeat,
+        disturbance = input$Layer,
+        scenario = toupper(str_sub(id, 1, 4)),
+        year = input$Timeline
+      )
+    })
+    
+    # download static map ------------------------
+    output$download_map <- downloadHandler(
+      filename = function() {paste0(str_sub(id, 1, 4), "_", "fire_disturbance_maps.pdf")},
+      content = function(file) {
+        pdf(file, onefile = TRUE)
+        print(tmaps())
+        dev.off()
+      } 
+      
+    )
 
     
 
