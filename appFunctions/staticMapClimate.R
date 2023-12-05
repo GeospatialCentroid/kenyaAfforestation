@@ -54,7 +54,8 @@ staticMapClimate <-
       tm_borders() +
     tm_compass(position = "left") +
     tm_scale_bar(position = "left") +
-    tm_credits(paste("Maps generated on", Sys.Date(), " \nfrom the Kenya Afforestation Decision Support Tool (ka-dst.com)"),
+    tm_credits(paste("Maps generated on", Sys.Date(), " \nfrom the Kenya Afforestation Decision Support Tool (ka-dst.com)",
+                     "\n"),
                position = c("left", "bottom")) +
     tm_layout(title = "Historic",
               title.size = 2,
@@ -103,7 +104,7 @@ staticMapClimate <-
       tm_scale_bar(position = "left") +
       tm_credits(paste("Maps generated on", Sys.Date(), " \nfrom the Kenya Afforestation Decision Support Tool (ka-dst.com)"),
                  position = c("left", "bottom")) +
-      tm_layout(title = paste0(scenario, "\nPercent Change \n", "(Historic - 20", year, ")"),
+      tm_layout(title = paste0(scenario, "\nPercent Change \n", "(From Historic to 20", year, ")"),
                 title.size = 2,
                 frame = FALSE,
                 legend.outside = TRUE,
