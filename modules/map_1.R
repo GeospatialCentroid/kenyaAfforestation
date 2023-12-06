@@ -27,14 +27,23 @@ map_UI <- function(id, panelName){
                                     "Precipitation" = "pr"),
                      selected = "tmin"
                      ),
-                   em("You can view Percent Change by turning the layer on via the map controls"),
+                   #em("You can view Percent Change by turning the layer on via the map controls"),
                    hr(),
-                   tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
-                   h5(htmlOutput(ns("cnty")))
+                   tags$h6(tags$strong("Click on the map to see values at that"), tags$em("precise"), tags$strong("location:")),
+                   h6(htmlOutput(ns("cnty")))
                  ),
           # main panel -------------------------------------------------------------- 
           mainPanel(width = 9,
-                   leafletOutput(ns("map1"), width="100%",height="500px")
+                   leafletOutput(ns("map1"), width="100%",height="500px"),
+                   br(),
+                   downloadButton(ns("download_map"), "Download Current Map"),
+                   hr(),
+                   h5(paste("Table of County Climate Averages for the", word(panelName, 1, -3), "Scenario:")),
+                   
+                   fluidRow(class = "table",
+                            # Table
+                            dataTableOutput(ns("table"))),
+                   fluidRow(downloadButton(ns("download_climate"), "Download Climate Table"))
       )
     )
   )
@@ -44,10 +53,12 @@ map_UI <- function(id, panelName){
 # define server  ---------------------------------------------------------- 
 map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
                        countyFeat, 
-                       #histPal, sspPal, 
+                       county_avg, 
                        pals1, pals2){
-  moduleServer(id,function(input,output,session){
-    # filter for the historic data
+ 
+   moduleServer(id,function(input,output,session){
+    
+     # filter for the historic data
     index0 <- reactive({grep(pattern = input$Layer, x = names(histRasters))})
     r0 <-reactive({histRasters[[index0()]]})
     
@@ -69,23 +80,35 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
     title2 <- reactive(pals2[[input$Layer]]$title) 
     
     
+    # county average data
+    county_avg_filtered <- reactive({
+      county_avg %>% 
+        select(County, contains("hist"), contains(ssp)) %>% 
+        # rename to be user-friendly
+        rename_at(vars(ends_with("_30")), ~ str_replace(., paste0(ssp, "(.*)"), "2021-2040")) %>% 
+        rename_at(vars(ends_with("_50")), ~ str_replace(., paste0(ssp, "(.*)"), "2041-2060")) %>% 
+        rename_at(vars(ends_with("_70")), ~ str_replace(., paste0(ssp, "(.*)"), "2061-2080")) %>% 
+        rename_at(vars(ends_with("_90")), ~ str_replace(., paste0(ssp, "(.*)"), "2081-2100"))
+    })
+    
+    
+    # map proxy --------------------------
     output$map1 <- leaflet::renderLeaflet({
         leaflet(options = leafletOptions(minZoom = 4)) %>%
           #set zoom levels
           setView(lng = 37.826119933082545
                   , lat = 0.3347526538983459
                   , zoom = 6) %>%
-          # add z levels ------------------------------------------------------------
-        addMapPane("BaseMap", zIndex = 410) %>%
-        addMapPane("HistoricData", zIndex = 420) %>%
-        addMapPane("ProjectedData", zIndex = 430) %>%
-        addMapPane("PercentChange", zIndex = 440) %>%
-        addMapPane("Counties", zIndex = 450) %>%
-        # tile providers ----------------------------------------------------------
+          # add z levels (doesn't work for rasters) 
+        # addMapPane("BaseMap", zIndex = 410) %>%
+        # addMapPane("HistoricData", zIndex = 420) %>%
+        # addMapPane("ProjectedData", zIndex = 430) %>%
+        # addMapPane("PercentChange", zIndex = 440) %>%
+        # addMapPane("Counties", zIndex = 450) %>%
+        ## tile providers ----------------------------------------------------------
         # addProviderTiles("Stamen.Toner", group = "Light", options = pathOptions(pane = "BaseMap")) %>%
         addProviderTiles("OpenStreetMap", group = "OpenStreetMap")%>%
-          #leaflet.extras::addResetMapButton() %>%
-          # add county features -----------------------------------------------------
+          ## add county features -----------------------------------------------------
         addPolygons(
           data = countyFeat,
           fillColor = "",
@@ -94,7 +117,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           layerId = ~ ADMIN1,
           weight = 1.5,
           group = "Counties",
-          options = pathOptions(pane = "Counties"),
+          # options = pathOptions(pane = "Counties"),
           # add hover over lables 
           label= ~ ADMIN1,
           labelOptions = labelOptions(noHide = F,
@@ -120,19 +143,21 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
             group = "Percent Change",
             decreasing = TRUE
           ) %>% 
-        # add control groups ------------------------------------------------------
-        addLayersControl(
-          # baseGroups = c("OpenStreetMap", "Light"),
-          overlayGroups = c(
-            "Historic Data",
-            "Projected Data",
-            "Percent Change",
-            "Counties"
-          ),
-          position = "topleft",
-          options = layersControlOptions(collapsed = TRUE)
-        )   %>%         # Keep projected layer off by default
-        hideGroup("Percent Change")
+        ## add control groups ------------------------------------------------------
+      addLayersControl(
+        #baseGroups = c("OpenStreetMap", "Satellite"),
+        overlayGroups = c(
+          "Historic Data",
+          "Projected Data",
+          "Percent Change",
+          "Counties",
+          "Satellite"
+        ),
+        position = "bottomleft",
+       options = layersControlOptions(collapsed = FALSE),
+      ) %>% 
+        hideGroup(group = c("Percent Change", "Satellite"))
+      
 
       })
       
@@ -140,17 +165,18 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
       # this makes it so the proxy map is rendered in the background, otherwise the map is empty when you first navigate to this page
       outputOptions(output, "map1", suspendWhenHidden=FALSE)
       
-      # add rasters to proxy map
+      # add rasters to proxy map -----------------
       observe({
         leafletProxy("map1") %>%
-          # add historic raster -----------------------------------------------------
+        addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
+          ## add historic raster -----------------------------------------------------
         addRasterImage(r0(),
                        #colors = pal0(),
                        colors = pal(),
                        group = "Historic Data",
                        opacity = 1,
                        project = FALSE)%>%
-          # add ssp raster features -----------------------------------------------------
+          ## add ssp raster features -----------------------------------------------------
         addRasterImage(r1(),
                        #colors = pal1(),
                        colors = pal(),
@@ -158,7 +184,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
                        opacity = 1,
                        project = FALSE) %>%
           
-          # add percent change layer ------------------------------------------------
+          ## add percent change layer ------------------------------------------------
         addRasterImage(
           r2(),
           layerId = "change",
@@ -168,7 +194,7 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
           opacity = 1,
           project = FALSE
         )
-        
+
       })
           
          
@@ -195,10 +221,74 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
 
       })
       
-          
-          
+      # capture current map for user download (not ideal)
+      # observeEvent(input$map1_screenshot, {
+      #   screenshot(id = "map1")
+      # })
       
-      #map click
+      # create static maps of map view ---------------------
+      
+
+        tmaps <- reactive({
+          staticMapClimate(
+            r0(),
+            r1(),
+            r2(),
+            countyFeat,
+            variable = input$Layer,
+            scenario = toupper(str_sub(id, 1, 4)),
+            year = input$Timeline,
+            title_abs = title(),
+            title_change = title2()
+          )
+        })
+      
+        # download static map ------------------------
+        output$download_map <- downloadHandler(
+          filename = function() {paste0(str_sub(id, 1, 4), "_", input$Layer, "_maps.pdf")},
+          content = function(file) {
+            pdf(file, onefile = TRUE)
+            print(tmaps())
+            dev.off()
+          } 
+
+      )
+      
+
+      
+      # county average table ----------------------
+      output$table <- DT::renderDataTable({
+        DT::datatable(
+          county_avg_filtered() ,
+          selection = 'single',
+          escape = FALSE,
+          options = list(
+            autoWidth = TRUE,
+            scrollX = TRUE,
+            scrollY = "400px",
+            scrollCollapse = TRUE,
+            paging = FALSE,
+            language = list(
+              search = "Search County:"
+            ),
+            columnDefs = list(list(targets = 0, visible = FALSE)) #this just hides the rownames instead of removing them
+          ),
+          #rownames = FALSE, this disables map-click-sort functionality since it removes the rownames
+        ) %>% 
+          formatRound(2:ncol(county_avg_filtered()), digits = 2)
+      })
+      
+      
+      # download county climates table
+      output$download_climate <- downloadHandler(
+        filename = "Kenya_county_climates.xlsx",
+        content = function(file) {
+          file.copy("exportData/Kenya_county_climates.xlsx", file)
+        } 
+      )
+      
+      
+      #map click -----------------
       observeEvent(input$map1_click, {
         click <- input$map1_click
         clat <- click$lat
@@ -230,13 +320,29 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         })
         
         output$cnty <- renderText(paste("Historic value:",
-                                         "<b>", as.character(extractVal0), "</b>",label1(), "<br>",
-                                  "Projected value:",
-                                  "<b>", as.character(extractVal1),"</b>",label1(), "<br>",
-                                  "Percent change:", "<b>", as.character(extractVal2), "</b>", "%"))
+                                        "<b>", as.character(extractVal0), "</b>",label1(), "<br>",
+                                        "Projected value:",
+                                        "<b>", as.character(extractVal1),"</b>",label1(), "<br>",
+                                        "Percent change:", "<b>", as.character(extractVal2), "</b>", "%"))
+
+        # sort and highlight in table
+        if(!is.null(input$map1_shape_click$id)) {
+          # get selected row
+          selected_row <- which(county_avg_filtered()$County %in% input$map1_shape_click$id)
+          
+          # calculate new row order
+          row_order <- c(selected_row:nrow(county_avg_filtered()), 1:(selected_row - 1))
+          
+          DT::dataTableProxy("table") %>%
+            replaceData(county_avg_filtered()[row_order,]) %>%
+            selectRows(1)
+          
+        }
+        
       })
       
       
+
     }
   )
 }

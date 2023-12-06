@@ -17,6 +17,8 @@ library(rmarkdown)
 library(tmap)
 library(tidyverse)
 library(shinyalert)
+library(DT)
+
 ### raster option within leaflet... old so we might loose other functionality 
 #remotes::install_github("rstudio/leaflet", ref="joe/feature/raster-options")
 
@@ -67,6 +69,9 @@ county <- climateChangeInputs$county
 ## process raster data into spp groups----
 allRasters_abs <- prepClim(rasters = clim_abs, ssps = c("hist","126","245","370", "585"))
 allRasters_change <- prepClim(rasters = clim_change, ssps = c("126","245","370", "585"))
+
+## county averages
+county_avg <- readRDS("appData/countyClimAverages.RDS")
 
 
 # Climate Management Inputs -----------------------------------------------
@@ -124,7 +129,7 @@ ui <- fluidPage(
           climate change and how it may impact Kenya’s forests. The purpose is to
           provide a useful source of information (using maps, graphs, and tables)
           about the potential impacts of climate change, and possible outcomes 
-          that could arise for different types of forests, across Kenya." 
+          that could arise for different types of trees, across Kenya." 
            ),
           p("On this page, you can find information regarding the origin of the
             project, the team of people that were involved, publications, and other
@@ -150,11 +155,13 @@ ui <- fluidPage(
             " (Project# 80NSSC19K0182)."
           ),
           fluidRow(
-            column(4,
+            column(3, 
+                   div(img(src="ram.png", alt="CSU Logo", align="center", width="50%"), style="text-align:center")),
+            column(3,
                    div(img(src="NASA_logo.svg", alt="NASA Logo", align="center", width="60%"), style="text-align:center")),
-            column(4,
+            column(3,
                    div(img(src="kefri_logo.png", alt="KEFRI Logo", align="center", width="50%"), style="text-align:center")),
-            column(4,
+            column(3,
                    div(img(src="sei_logo.png", alt="SEI Logo", align="center", width="40%"), style="text-align:center"))
           ),
           hr(),
@@ -217,7 +224,7 @@ ui <- fluidPage(
                map_UI(id = "ssp126", panelName = panelNames[1])
              ),
              tabPanel(
-               "Climate and disturbance effects on forests",
+               "Climate and disturbance effects on tree cover",
                map2_UI(
                  id = "ssp126_2",
                  panelName = panelNames[1],
@@ -234,7 +241,7 @@ ui <- fluidPage(
                map_UI(id = "ssp245", panelName = panelNames[2])
              ),
              tabPanel(
-               "Climate and disturbance effects on forests",
+               "Climate and disturbance effects on tree cover",
                map2_UI(
                  id = "ssp245_2",
                  panelName = panelNames[2],
@@ -251,7 +258,7 @@ ui <- fluidPage(
                map_UI(id = "ssp370", panelName = panelNames[3])
              ),
              tabPanel(
-               "Climate and disturbance effects on forests",
+               "Climate and disturbance effects on tree cover",
                map2_UI(
                  id = "ssp370_2",
                  panelName = panelNames[3],
@@ -268,7 +275,7 @@ ui <- fluidPage(
                  map_UI(id = "ssp585", panelName = panelNames[4])
              ),
              tabPanel(
-               "Climate and disturbance effects on forests",
+               "Climate and disturbance effects on tree cover",
                map2_UI(
                  id = "ssp585_2",
                  panelName = panelNames[4],
@@ -306,7 +313,8 @@ server <- function(input, output, session) {
              ssp = "126",
              pals1 = pal_abs,
              pals2 = pal_change,
-             countyFeat = county)
+             countyFeat = county,
+             county_avg = county_avg)
   map2_server(id = "ssp126_2",
               histRaster = climateManagementInputs$existingForest,
               futureRaster = climateManagementInputs$expandedForest,
@@ -329,7 +337,8 @@ server <- function(input, output, session) {
              ssp = "245",
              pals1 = pal_abs,
              pals2 = pal_change,
-             countyFeat = county)
+             countyFeat = county,
+             county_avg = county_avg)
   map2_server(id = "ssp245_2",
               histRaster = climateManagementInputs$existingForest,
               futureRaster = climateManagementInputs$expandedForest,
@@ -352,7 +361,8 @@ server <- function(input, output, session) {
              ssp = "370",
              pals1 = pal_abs,
              pals2 = pal_change,
-             countyFeat = county)
+             countyFeat = county,
+             county_avg = county_avg)
   map2_server(id = "ssp370_2",
               histRaster = climateManagementInputs$existingForest,
               futureRaster = climateManagementInputs$expandedForest,
@@ -376,7 +386,8 @@ server <- function(input, output, session) {
              ssp = "585",
              pals1 = pal_abs,
              pals2 = pal_change,
-             countyFeat = county)
+             countyFeat = county,
+             county_avg = county_avg)
   map2_server(id = "ssp585_2",
               histRaster = climateManagementInputs$existingForest,
               futureRaster = climateManagementInputs$expandedForest,

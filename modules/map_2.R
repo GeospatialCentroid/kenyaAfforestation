@@ -39,13 +39,16 @@ map2_UI <- function(id, panelName, county_names){
                    em("Report generation may take a few seconds"),
                    hr(),
                    # visualize user click
-                   tags$p(tags$strong("Click"), "on a pixel within Kenya to see value:"),
+                   tags$h6(tags$strong("Click on the map to see values at that"), tags$em("precise"), tags$strong("location:")),
                    h6(htmlOutput(ns("pixelVal2"))),
-                   em("You can view historic (before afforestation) and 2030 baseline tree cover layers via the map controls")
+                   #em("You can view historic (before afforestation) and 2030 baseline tree cover layers via the map controls")
                    
       ),
       mainPanel(width = 9,
         leafletOutput(ns("map2")),
+        br(),
+        downloadButton(ns("download_map"), "Download Current Map"),
+        hr(),
         fluidRow( ### even through this is still within the 10 unit wide main panel, width operates out of 12.
           align = "center",
           column(width = 6, height = "100%",
@@ -166,16 +169,18 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
           "2030 Baseline Tree Cover",
           #"Forest Cover Data",
           "Projected Change",
-          "Counties"
+          "Counties",
+          "Satellite"
         ),
-        position = "topleft",
-        options = layersControlOptions(collapsed = TRUE)
+        position = "bottomleft",
+        options = layersControlOptions(collapsed = FALSE)
       ) %>% 
         hideGroup(
           group = c(
             #"Forest Cover Data",
             "Historic Tree Cover",
-            "2030 Baseline Tree Cover"))
+            "2030 Baseline Tree Cover",
+            "Satellite"))
 
     })
     
@@ -187,7 +192,7 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
     observe({
 
       leafletProxy("map2") %>% 
-        #removeImage(layerId = "change") %>% 
+      addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%        
         # add historic raster -----------------------------------------------------
       addRasterImage(hist1,
                      colors = pal1$hf$palette,
@@ -292,7 +297,31 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
                                       "<b>", as.character(extractVal2),"</b>","%"))
     })
   
-
+    # create static maps of map view ---------------------
+    
+    
+    tmaps <- reactive({
+      staticMapDisturbance(
+        hist1,
+        base1,
+        r3(),
+        countyFeat,
+        disturbance = input$Layer,
+        scenario = toupper(str_sub(id, 1, 4)),
+        year = input$Timeline
+      )
+    })
+    
+    # download static map ------------------------
+    output$download_map <- downloadHandler(
+      filename = function() {paste0(str_sub(id, 1, 4), "_", "fire_disturbance_maps.pdf")},
+      content = function(file) {
+        pdf(file, onefile = TRUE)
+        print(tmaps())
+        dev.off()
+      } 
+      
+    )
 
     
 
@@ -406,8 +435,18 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       },
       content = function(file) {
         # render file in temp directory so .knit files don't go in app directory
-        tempReport <- file.path(tempdir(), "report_example.Rmd")
-        file.copy("reports/report_example.Rmd", tempReport, overwrite = TRUE)
+        tempReport <- file.path(tempdir(), "report_generation.Rmd")
+        file.copy("reports/report_generation.Rmd", tempReport, overwrite = TRUE)
+        
+        # add blurb while rendering
+        id <- showNotification(
+          "Rendering report...", 
+          duration = NULL, 
+          closeButton = FALSE
+        )
+        
+        on.exit(removeNotification(id), add = TRUE)
+        
         rmarkdown::render(
           tempReport,
           output_format = "pdf_document",

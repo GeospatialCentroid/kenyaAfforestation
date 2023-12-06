@@ -3,7 +3,7 @@
 # carverd@colostate.edu
 # 20230104 
 ###
-pacman::p_load(tidyr, dplyr, raster, terra, sf, leaflet)
+pacman::p_load(tidyr, dplyr, raster, terra, sf, leaflet,purrr)
 
 # source preprocessing functions ------------------------------------
 lapply(list.files(
@@ -16,8 +16,11 @@ source)
 # read in input data  -----------------------------------------------------
 
 ## county spatial feature
-county <- sf::st_read("dataToPreprocess/referenceSpatialData/KE_Admin1_pro.shp", stringsAsFactors = F)
-county <- sf::st_transform(county, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+county <-
+  sf::st_read("dataToPreprocess/referenceSpatialData/KE_Admin1_pro.shp",
+              stringsAsFactors = F) %>%
+  sf::st_transform("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+
 # buffer of the county features used for cropping -- may need to adjust buffer dist
 countyBuff <- sf::st_buffer(x = county, dist = 0.8)
 
@@ -47,6 +50,7 @@ climateManagementInputs <- renderClimateManagementInputs(
 ## subset to absolute val and percent change features 
 clim_abs <- climateChangeInputs$abs_rasters
 clim_change <- climateChangeInputs$change_rasters
+
 ## generate specific palettes 
 pal_abs <- generatePalettes(rasters = clim_abs, type = "abs")
 pal_change <- generatePalettes(clim_change, type = "change")
@@ -72,11 +76,18 @@ carbon_val <- carbonVals(path1 = "dataToPreprocess/validationLayers/Re App Updat
                          countyBuff = countyBuff )
 
 
+# Generate df of average temp/prec for each county  -----------------------
+countyAve <- county$ADMIN1 %>%  
+  purrr::map_dfr(renderCountyAverages,
+             counties=county,
+             processedRasters = clim_abs)
+
 
 # output generated objects ------------------------------------------------
 ## climate change inputs
 saveRDS(object = climateChangeInputs,
         file = "appData/climateChangeInputs.RDS")
+
 ## climate management inputs
 saveRDS(object = climateManagementInputs,
         file = "appData/climateManagementInputs.RDS")
@@ -92,4 +103,7 @@ saveRDS(object = npp_val,
 saveRDS(object = carbon_val,
         file = "appData/validationInputs_carbon.RDS")
 
+## county level averages for a temp and prec
+saveRDS(object = countyAve,
+        file = "appData/countyClimAverages.RDS")
 
