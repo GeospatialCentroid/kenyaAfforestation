@@ -6,7 +6,7 @@
 
 ### pushing to terra only implimentation 
 
-pacman::p_load(tidyr, dplyr, raster, terra, sf, leaflet,purrr)
+pacman::p_load(tidyr, dplyr, raster, terra, sf, leaflet,purrr, stringr)
 
 # source preprocessing functions ------------------------------------
 lapply(list.files(

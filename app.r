@@ -19,6 +19,7 @@ library(tidyverse)
 library(shinyalert)
 library(DT)
 library(shinyscreenshot)
+library(writexl)
 ### raster option within leaflet... old so we might loose other functionality 
 #remotes::install_github("rstudio/leaflet", ref="joe/feature/raster-options")
 
@@ -94,7 +95,13 @@ pal_management <- paletteList$pal_management
 
 # Validation Inputs -----------------------------------------------------------
 npp_val <- readRDS("appData/validationInputs_npp.RDS")
+#unwrap the terra objects 
+npp_val$rasters <- npp_val$rasters |> unwrap()
 carbon_val <- readRDS("appData/validationInputs_carbon.RDS")
+# unwrap the terra objects 
+carbon_val$above$cAbove_rasters <- carbon_val$above$cAbove_rasters |> unwrap()
+carbon_val$below$cBelow_rasters <- carbon_val$below$cBelow_rasters |> unwrap()
+
 # UI section --------------------------------------------------------------
 ui <- fluidPage(
   class = "container-all",

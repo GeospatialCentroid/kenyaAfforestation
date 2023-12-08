@@ -278,13 +278,14 @@ map2_server <- function(id, histRaster, futureRaster, managementRasters,
       #point <- as(st_point(x = c(clon, clat)), "Spatial")
       point <- st_sfc(st_point(x = c(clon,clat)),crs = 4326) %>% 
         st_transform(3857) %>%
-        as("Spatial")
+        as("Spatial")|>
+        terra::vect()
       # Get need baseline and percent change values
       # baseline
-      extractVal1 <- raster::extract(base1, point)%>%
+      extractVal1 <- terra::extract(base1, point)%>%
         round(digits = 2)
       #percent change
-      extractVal2 <- raster::extract(r3(), point)%>%
+      extractVal2 <- terra::extract(r3(), point)%>%
         round(digits = 2)
       
       

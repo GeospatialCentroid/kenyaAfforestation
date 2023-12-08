@@ -297,16 +297,17 @@ map_server <- function(id, histRasters, sspRasters, changeRasters, ssp,
         #need coordinates in same CRS as rasters
         point <- st_sfc(st_point(x = c(clon,clat)),crs = 4326) %>% 
           st_transform(3857) %>%
-          as("Spatial")
+          as("Spatial") |> 
+          terra::vect()
         # I need a historic and current value
         # current
-        extractVal1 <- raster::extract(r1(), point)%>%
+        extractVal1 <- terra::extract(r1(), point)%>%
           round(digits = 2)
         #historic
-        extractVal0 <- raster::extract(r0(), point)%>%
+        extractVal0 <- terra::extract(r0(), point)%>%
           round(digits = 2)
         #change
-        extractVal2 <- raster::extract(r2(), point) %>% 
+        extractVal2 <- terra::extract(r2(), point) %>% 
           round(digits = 2)
         
         # condition for setting the label based on input value 
